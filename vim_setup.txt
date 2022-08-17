@@ -1,0 +1,223 @@
+● VIM-GO PLUGIN INSTALL:
+  Step 1) Install plugin
+  Step 2) :GoInstallBinaries ( :GoUpdateBinaries )
+
+● VIM-GO PLUGIN TROUBLESHOOTING:
+ - g:go_debug
+ - g:go_gopls_enabled :  ← limit the load on dev.station.
+                         Probably g:go_gopls_options is a better option
+                         (Allowing to share gopls instance)
+
+● VIM-GO PLUGIN SETTINGS [[{]]
+  let g:go_version_warning = 1            let g:go_updatetime = 800
+  let g:go_code_completion_enabled = 1    let g:go_jump_to_error = 1
+  let g:go_code_completion_icase = 0      let g:go_fmt_autosave = 1
+  let g:go_test_show_name = 0             let g:go_fmt_command = 'gopls'
+  let g:go_test_timeout= '10s'            let g:go_fmt_options = {
+  let g:go_play_browser_command = \         \ 'gofmt': '-s',
+  'firefox-developer %URL% &'               \ 'goimports': '-local mycompany.com',
+  let g:go_auto_type_info = 0               \ }
+  let g:go_info_mode = 'gopls'            let g:go_fmt_fail_silently = 0
+  let g:go_auto_sameids = 0               let g:go_fmt_experimental = 0
+                                          let g:go_imports_autosave = 1
+
+  let g:go_imports_mode = 'gopls'         let g:go_implements_mode = 'gopls'
+  let g:go_mod_fmt_autosave = 1           let g:go_def_mapping_enabled = 1
+  let g:go_doc_keywordprg_enabled = 1     let g:go_def_reuse_buffer = 0
+  let g:go_doc_max_height = 20            let g:go_bin_path = ""
+  let g:go_doc_balloon = 0                let g:go_search_bin_path_first = 1
+  let g:go_doc_url = 'https://pkg.go.dev' let g:go_snippet_engine = "automatic"
+  let g:go_doc_popup_window = 0           let g:go_get_update = 1
+  let g:go_def_mode = 'gopls'             let g:go_guru_scope = []
+  let g:go_fillstruct_mode = 'fillstruct' let g:go_build_tags = ''
+  let g:go_referrers_mode = 'gopls'       let g:go_textobj_enabled = 1
+
+
+  let g:go_textobj_include_function_doc \ let g:go_list_type = ""
+      = 1                                 let g:go_list_type_commands = {}
+  let g:go_textobj_include_variable = 1   let g:go_list_type = "locationlist"
+  let g:go_metalinter_autosave = 0        let g:go_list_type_commands = {"GoBuild": "quickfix"}
+  let g:go_metalinter_autosave_enabled = \let g:go_list_autoclose = 1
+      ['all', 'vet', 'revive']            let g:go_asmfmt_autosave = 0
+  let g:go_metalinter_command = \         let g:go_term_mode = "vsplit"
+     "golangci-lint"                      let g:go_term_reuse = 0
+  let g:go_metalinter_deadline = "5s"     let g:go_term_height = 30
+  let g:go_list_height = 0                let g:go_term_width = 30
+
+  let g:go_term_enabled = 0               let g:go_gopls_analyses = v:null
+  let g:go_term_close_on_exit = 1         let g:go_gopls_complete_unimported = v:null
+  let g:go_alternate_mode = "edit"        let g:go_gopls_deep_completion = v:null
+  let g:go_rename_command = 'gopls'       let g:go_gopls_matcher = v:null
+  let g:go_gorename_prefill = \           let g:go_gopls_staticcheck = v:null
+   'expand("<cword>") =~# "^[A-Z]"' .     let g:go_gopls_use_placeholders = v:null
+   \ '? go#util#...' .                    let g:go_gopls_temp_modfile = v:null
+   \ ': go#util#...'                      let g:go_gopls_local = v:null
+  let g:go_gopls_enabled = 1              let g:go_gopls_gofumpt = v:null
+  let g:go_gopls_options = \              let g:go_gopls_settings = v:null
+     ['-remote=auto']                     let g:go_diagnostics_enabled = 0
+
+  let g:go_diagnostics_level = 0
+  let g:go_template_autocreate = 1
+  let g:go_template_file = "hello_world.go"
+  let g:go_template_test_file = "hello_world_test.go"
+  let g:go_template_use_pkg = 0
+  let g:go_decls_includes = 'func,type'
+  let g:go_decls_mode = ''
+  let g:go_echo_command_info = 1
+  let g:go_echo_go_info = 1
+  let g:go_statusline_duration = 60000
+  let g:go_addtags_transform = 'snakecase'
+  let g:go_addtags_skip_unexported = 0
+  let g:go_debug = []
+[[}]]
+
+● SYNTAX HIGHLIGHTING [[{]]
+  - enhanced version of Vim`s Go syntax highlighting.
+  - most features disabled by default.
+  let g:go_fold_enable = ['block', 'import', 'varconst', 'package_comment', 'import']
+  let g:go_fold_enable = [] # Disable everything
+  let g:go_highlight_array_whitespace_error = 0
+  let g:go_highlight_chan_whitespace_error = 0
+  let g:go_highlight_extra_types = 0
+  let g:go_highlight_space_tab_error = 0
+  let g:go_highlight_trailing_whitespace_error = 0
+  let g:go_highlight_operators = 0
+  let g:go_highlight_functions = 0
+  let g:go_highlight_function_parameters = 0
+  let g:go_highlight_function_calls = 0
+  let g:go_highlight_types = 0
+  let g:go_highlight_fields = 0
+  let g:go_highlight_build_constraints = 0
+  let g:go_highlight_generate_tags = 0
+  let g:go_highlight_string_spellcheck = 1
+  let g:go_highlight_format_strings = 1
+  let g:go_highlight_variable_declarations = 0
+  let g:go_highlight_variable_assignments = 0
+  let g:go_highlight_diagnostic_errors = 1
+  let g:go_highlight_diagnostic_warnings = 1
+[[}]]
+
+● DEBUGGER: (Vim 8.0.0087+, Neovim)  [[{SLC.debugging]]
+  :GoDebugStart . arg1, ...   ← compile code, launch `dlv debug`
+                                Alt.1: :GoDebugAttach  $pid
+                                Alt.2: :GoDebugConnect $dlv_ip:port
+  :GoDebugTest  . arg1, ...   ← compile code, launch `dlv test`
+                ^
+              or another package-name
+  :GoDebugTestFunc [expand]   ← like :GoDebugTest adding `-test.run` to run
+                                nearest test|example func. (nearest func. declaration
+                                                            matching `func Test` or `func Example`)
+
+  :GoDebugBreakpoint [L] (F9) ← L = current line or line number "L"
+
+  :GoDebugContinue       (F5) ← Continue until next breakpoint
+  :GoDebugNext          (F10) ← Advance to next line        (step over functions)
+  :GoDebugStep          (F11) ← Advance to next instruction (step in   functions)
+  :GoDebugStepOut             ← Advance passed func. return (step out  function )
+
+  :GoDebugHalt           (F8) ← Stop debugging.
+  :GoDebugRestart             ← recompile / restart debug.
+  :GoDebugStop                ← close debugging window/s, halt dlv process
+
+
+  :GoDebugSet var1 42         ← works only for float/int/bool/pointers variants (delve limitation)
+  :GoDebugPrint var1 == 42    ← output result of go expresion.
+                                (F6  evaluates cword under cursor).
+
+  └ DEBUGGER SOURCE NAVIGATION:
+  :GoDef            : (gd) Go to declaration
+  :GoCallees        : Show list of possible call for a selected package.
+  :GoCallers        : Show list of possible callers relation for a selected function.
+  :GoDescribe       : Shows various properties of the selected syntax
+  :GoCallstack      : Shows "callstack" (arbitra.path from callgraph`s root) for func.
+  :GoImplements     : Show "implements" relation for selected package.
+                      interface list for the type implementing an interface under cursor
+  :GoPointsTo       : list variables to which the pointer under the cursor may point to.
+  :GoAlternate      : Switch file.go ←→ file_test.go
+  :GoChannelPeers   : Shows set of possible sends/receives on the channel op.
+                      (selection must be a `<-` token)
+  :GoDecls [file]   : Show all function and type declarations for the current file.
+  :GoDeclsDir [dir] : Show all func. and type declarations for current directory.
+
+  • DEBUGGER SETTINGS:
+    · Layout defaults:
+      let g:go_debug_windows = {
+        \ 'vars':       'leftabove 30vnew', 'stack':      'leftabove 20new',
+        \ 'goroutines': 'botright 10new', 'out':        'botright 5new',
+      \ }
+        let g:go_debug_windows = {        ← - Ex. Show only vars at right
+          \ 'vars':  'rightbelow 60vnew',
+        \ }
+    · let g:go_debug_address = '127.0.0.1:8181' // port for dlv
+    · let g:go_debug_log_output = 'debugger,rpc' // passed to dlv
+    · let g:go_highlight_debug = 1 ← Highlight current line and breakpoints
+[[}]]
+
+● :GoTest | :GoTestFunc | :GoCoverage            [[{qa.testing]]
+  :GoVet        ← reports suspicious constructs 
+                 (Printf non-aligned arguments,...)
+  :GoErrCheck   ← make sure errors are checked   [[}]]
+
+
+● :GoBuild → :GoRun → :GoInstall            [[{devops]]
+  :GoImport | :GoDrop  (Packages)
+  :GoPlay   ← Share code to play.golang.org [[}]]
+
+
+● SOURCE REFACTORING: [[{]]
+  - :GoRename[!] [to]   ← type-safe ( identifier under cursor) to desired name.
+  - :GoMetaLinter! [path]
+[[}]]
+
+● SOURCE NAVIGATION: [[{]]
+  - :GoFreevars: Enumerates free vars (vars are referenced but not defined) of selection.
+     And call |:GoChannelPeers| on it. It will show where it was allocated, and
+     the sending and receiving endings.
+  - :GoReferrers, shows set of identifiers that refer to the same object as does selected identifier.
+  - :GoSameIds  highlights all identifiers that are equivalent to one under the cursor.
+  - :GoSameIdsClear: Clears all SameIds highlights from :GoSameIds
+      - :GoSameIdsToggle: Toggle :GoSameIds ←→ :GoSameIdsClear
+  - :GoSameIdsClear: Enables/disables automatic highlighting of :GoSameIds while moving
+[[}]]
+
+● Others:
+  - :GoDoc  :GoDocBrowser [[{qa.doc}]]
+  - :GoGuruScope [pattern] ...  Changes custom scope. Ex
+      golang.org/x/tools/...      # all packages beneath dir
+  - :GoDiagnostics! [packages] diagnostics from `gopls`
+  - :GoBuildTags [tags]
+  - :AsmFmt: Filter current Go asm buffer through asmfmt.
+  - :GoAlternate[!], Alternates implementation ←→ test code.
+  - :GoWhicherrs: Show list of possible constants, global variables, and concrete types
+                  for the error type under the cursor in a location list.
+  - :Unite decls[:path]
+    :Denite decls[:path]
+    Show declarations for all functions and types on the current file or directory
+    or for [path] if given.
+  - :GoAddTags | :GoRemoveTags: Addr/remove tags on struct fields
+  - GoImpl [receiver] [interface]
+    Generates method stubs for implementing an interface.
+  - :[range]GoAddTags [key],[option] [key1],[option] ...
+    :[range]GoRemoveTags [key],[option] [key1],[option1] ...
+    Adds field tags for the fields of a struct. If called inside a struct it
+    automatically add field tags with the `json` key and the value
+    automatically generated based on the field name.
+  - :GoAutoTypeInfoToggle   :GoFmtAutoSaveToggle        :GoModFmtAutoSaveToggle
+    :GoAsmFmtAutoSaveToggle :GoMetaLinterAutoSaveToggle :GoTemplateAutoCreateToggle
+  - :GoKeyify: turn unkeyed int keyd structs
+  - :GoFillStruct, fill struct literal with def. values.
+  - :GoIfErr, Generate if err != nil { return ... } with type inference
+  - :GoModFmt, Filter current go.mod buffer through "go mod edit -fmt".
+  - :GoAddWorkspace [dir] ...
+  - :GoLSPDebugBrowser, Open browser to see gopls debugging information.
+
+
+ - TODO:
+   Integrated and improved snippets, supporting `ultisnips`, `neosnippet`, `vim-minisnip`.
+
+
+● VIM-GO PLUGIN FUNDING: https://www.patreon.com/bhcleek
+  ... invest in bug fixes, new documentation Thanks!
+  
+  
+  
