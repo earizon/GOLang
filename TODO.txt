@@ -22,6 +22,10 @@
   handler chain. @ma
 [[}]]
 
+
+● Shared GO Packages in MONOREPO: [[{01_PM.TODO}]]
+  https://passage.id/post/shared-go-packages-in-a-monorepo
+
 ● Viper App Config:("12 factor") [[{golang.app_config,devops.configuration,_PM.low_code]]
 • Low code application configuration library.
 • Features support:
