@@ -224,7 +224,10 @@
   ==========
   ▸ Go proverb: "The smaller the interface the best"
   ▸ io.reader, io.writer are the most important interfaces [[{io.101]]
-    in Go with just 1 method each. [[}]]
+    in Go with just 1 method each.
+    io.writer represents the ability to write a byte slice into a stream of data.
+    io.reader represents the "read-end" of a stream of data. 
+    [[}]]
 
   ┌ ../devices/IDevice.go ──────
   │ type Device interface {     <- INTERFACE DECLARATION
@@ -356,7 +359,7 @@
     }
 [[}]]
 
-● GOlang Testing: [[{qa.101]]
+● GOlang Testing: [[{qa.testing,qa.101]]
 · @[https://golang.org/cmd/go/#hdr-Test_packages]
 
 · $GOPATH/src/github.com/user/stringutil/reverse.go       <- File to test
@@ -532,6 +535,106 @@ func TestMain(m *testing.M) {    <- Optional, low-level primitive, only necessar
   }                                          // [[}]]
 
 [[}]]
+
+● built-in JSON support: data structure <- en|de-coding -> JSON string [[{io.JSON]]
+  package main
+  
+  import (
+      "encoding/json"                   <- Builtin library!!!
+      "fmt"
+      "os"
+  )
+
+  type customStruct01 struct {
+      Page   int
+      Fruits []string
+  }
+  
+  type customStruct02 struct {
+      Page   int      `json:"page_i"`   <- Only Fields starting with capital
+      Fruits []string `json:"fruit_l"`     letters will be en|de-coded to/from
+  }                                        JSON
+                       └···········┴─   <- tags allow to customized output 
+                                           JSON key names (otherwise same name
+                                           is used).
+                                            
+  func main() {                            OBJECT to JSON string
+                                           ===================== 
+    bolB, _ := json.Marshal(true)       <- encoding basic data types to JSON
+    fmt.Println(string(bolB))              (boolean, int, float, strings,..,
+                                           as well as slices and maps.  
+                                     
+    res1D := &customStruct01{           <- No problem to encode custom structs.
+        Page:   1,                   
+        Fruits: []string{"...", ...}
+    }                                
+    res1B, _ := json.Marshal(res1D)  
+     
+                                           JSON string to OBJECT  (example 1)
+                                           ===================== 
+    byt := []byte(                      <- INPUT JSON
+           `{"num":6.1,"strs":["a","b"]}`)
+
+    var dat map[string]interface{}      <- STEP 1) Variable to store decoded JSON 
+                                           map of strings to arbitrary data types.
+  
+    if err := json.Unmarshal(byt, &dat);<- STEP 2) Unmarshal 
+       err != nil { panic(err) }        <- error control
+    fmt.Println(dat)
+
+    num := dat["num"].(float64)         <- STEP 3) convert map values to suitable type. 
+
+                                           nested data requires a series of conversions.
+    strs := dat["strs"].([]interface{}) <- 1) Convert "strs" values to array of any-type
+    str1 := strs[0].(string)            <- 2) Convert element to string
+    fmt.Println(str1)
+                                           JSON string to OBJECT  (example 2)
+                                           ===================== 
+    str :=                              <- INPUT JSON (to be decoded to custom data type)
+        `{                                 - Adds additional type-safety
+           "page": 1,                      - eliminates manual type assertions.
+         "fruits": ["apple", "peach"]
+        }`
+                                          
+    res := customStruct02{}
+    json.Unmarshal([]byte(str), &res)
+    fmt.Println(res.Fruits[0])
+  
+                                           USING STREAMS (os.Writers children)
+                                           =============
+
+    enc := json.NewEncoder(os.Stdout)    <- Create JSON stream encoder (os.Stdout, HTTP response bodie,...)
+    d := map[string]int{"...": 5, ...}
+    enc.Encode(d)
+  }
+
+  https://go.dev/blog/json    
+  
+  • JSON API Summary  (https://pkg.go.dev/encoding/json)
+    func Compact                type UnsupportedTypeError
+    func HTMLEscape             type UnsupportedValueError
+    func Indent                 type SyntaxError
+    func Marshal                type MarshalerError
+    func MarshalIndent          type InvalidUnmarshalError
+    func Unmarshal              type UnmarshalTypeError
+    func Valid /*isValid?*/     
+                                
+    
+    type Decoder             type Encoder     type   MarshalJSON  
+    - NewDecoder             - NewEncoder     type UnmarshalJSON  
+    - Buffered               - Encode         type Unmarshaler    
+    - Decode v any           - SetEscapeHTML  type Marshaler      
+    - DisallowUnknownFields  - SetIndent      - Error             
+    - InputOffset                             - Unwrap
+    - More                                    - Error
+    - Token                                   - Unwrap
+    - UseNumber                               
+                                              
+    type Number   type Delim  type RawMessage              
+    - Float64     - String()  type Token
+    - Int64
+    - String
+[[io.JSON}]]
 
 ● DevOps 101 [[{devops.101]]
 @[https://github.com/tldr-pages/tldr/blob/master/pages/common/go*.md]
