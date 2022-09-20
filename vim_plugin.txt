@@ -1,5 +1,9 @@
 ● VIM-GO PLUGIN INSTALL:
-  Step 1) Install plugin
+  Step 1) Install plugin:
+  $ mkdir -p ~/.vim/pack/plugins/start  # if not yet done
+  $ cd ~/.vim/pack/plugins/start
+  $ git clone https://github.com/fatih/vim-go.git
+
   Step 2) :GoInstallBinaries ( :GoUpdateBinaries )
 
 ● VIM-GO PLUGIN TROUBLESHOOTING:
@@ -7,6 +11,40 @@
  - g:go_gopls_enabled :  ← limit the load on dev.station.
                          Probably g:go_gopls_options is a better option
                          (Allowing to share gopls instance)
+
+● SOURCE NAVIGATION: [[{]]
+  ':GoFreevars'     : Enumerates free vars (referenced but not defined) of selection.
+                      And call |:GoChannelPeers| on it. It will show where it was allocated, and
+                      the sending and receiving endings.
+  ':GoReferrers'    : show set-of-identifiers refering to same-object for selected identifier.
+  ':GoSameIds'      : highlights all identifiers equivalent to one under the cursor.
+  ':GoSameIdsClear' : Clears all SameIds highlights from :GoSameIds
+                      :GoSameIdsToggle  Toggle :GoSameIds <-> :GoSameIdsClear
+  ':GoSameIdsClear' : Enables/disables automatic highlighting of :GoSameIds while moving
+  ':GoDef'          : (gd) Go to declaration
+                      By default, new files open in current windows. To modify the behaviour
+                      add next lines to '~/.vimrc'
+                      (REF https://github.com/fatih/vim-go/issues/494)
+                    + au FileType go nmap gds <Plug>(go-def-split)
+                    + au FileType go nmap gdv <Plug>(go-def-vertical)
+                    + au FileType go nmap gdt <Plug>(go-def-tab)
+                                          └ "Leader" key actually (ussualy 'g')
+  ':GoCallees'      : Show list of possible call for a selected package.
+  ':GoCallers'      : Show list of possible callers relation for a selected function.
+  ':GoDescribe'     : Shows various properties of the selected syntax
+  ':GoImplements'   : Show "implements" relation for selected package.
+                      interface list for the type implementing an interface under cursor
+  ':GoPointsTo'     : list variables to which the pointer under the cursor may point to.
+  ':GoAlternate'    : Switch file.go <-> file_test.go
+  ':GoChannelPeers' : Shows set of possible sends/receives on the channel op.
+                      (selection must be a `<-` token)
+  ':GoDecls $file'  : Show all function and type declarations for the current file.
+  ':GoDeclsDir $dir': Show all func. and type declarations for current directory.
+  Ctrl + O          : (Vim standard, go back to previous buffer)
+
+[[}]]
+
+
 
 ● VIM-GO PLUGIN SETTINGS [[{]]
   let g:go_version_warning = 1            let g:go_updatetime = 800
@@ -124,20 +162,7 @@
   :GoDebugPrint var1 == 42    ← output result of go expresion.
                                 (F6  evaluates cword under cursor).
 
-  └ DEBUGGER SOURCE NAVIGATION:
-  :GoDef            : (gd) Go to declaration
-  :GoCallees        : Show list of possible call for a selected package.
-  :GoCallers        : Show list of possible callers relation for a selected function.
-  :GoDescribe       : Shows various properties of the selected syntax
   :GoCallstack      : Shows "callstack" (arbitra.path from callgraph`s root) for func.
-  :GoImplements     : Show "implements" relation for selected package.
-                      interface list for the type implementing an interface under cursor
-  :GoPointsTo       : list variables to which the pointer under the cursor may point to.
-  :GoAlternate      : Switch file.go ←→ file_test.go
-  :GoChannelPeers   : Shows set of possible sends/receives on the channel op.
-                      (selection must be a `<-` token)
-  :GoDecls [file]   : Show all function and type declarations for the current file.
-  :GoDeclsDir [dir] : Show all func. and type declarations for current directory.
 
   • DEBUGGER SETTINGS:
     · Layout defaults:
@@ -167,17 +192,6 @@
 ● SOURCE REFACTORING: [[{]]
   - :GoRename[!] [to]   ← type-safe ( identifier under cursor) to desired name.
   - :GoMetaLinter! [path]
-[[}]]
-
-● SOURCE NAVIGATION: [[{]]
-  - :GoFreevars: Enumerates free vars (vars are referenced but not defined) of selection.
-     And call |:GoChannelPeers| on it. It will show where it was allocated, and
-     the sending and receiving endings.
-  - :GoReferrers, shows set of identifiers that refer to the same object as does selected identifier.
-  - :GoSameIds  highlights all identifiers that are equivalent to one under the cursor.
-  - :GoSameIdsClear: Clears all SameIds highlights from :GoSameIds
-      - :GoSameIdsToggle: Toggle :GoSameIds ←→ :GoSameIdsClear
-  - :GoSameIdsClear: Enables/disables automatic highlighting of :GoSameIds while moving
 [[}]]
 
 ● Others:
