@@ -290,6 +290,11 @@
       str := string(                  // byte-array to string
               []byte{'t','e','s','t'})
     - See also: @[text_templates_summary]
+
+    - Check if string is empty:
+          strings.TrimSpace(" ")  != ""  <- Alt 1: Prefered in later versions of Go
+      len(strings.TrimSpace(" ")) != 0   <- Alt 2: micro-optimization. Harder to read, but
+                                                   still used.
     [[}]]
 
 ● GO Pointers: [[{101.pointers]]
@@ -1382,7 +1387,7 @@ func TestMain(m *testing.M) {    <- Optional, low-level primitive, only necessar
   JavaScript from .api files with goctl.
 
 
-● GraphQL Server [[{01_PM.low_code,arch.integration,IO.graphql,_PM.TODO]]
+● GraphQL Server [[{01_PM.low_code,arch.integration,IO.graphql,01_PM.TODO]]
 @[https://betterprogramming.pub/implement-a-graphql-server-with-ent-and-gqlgen-in-go-8840f086b8a8]
 • This post will walk you through how to implement GraphQL server
   using ent, and gqlgen.

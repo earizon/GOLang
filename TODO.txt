@@ -1,11 +1,11 @@
-● Context (Core lib 1.7+) [[{golang.101,concurrency.101,async/reactive.101,qa.error_control]]
-@[https://pkg.go.dev/context]App
+● Context (Core lib 1.7+) [[{golang.101,arch.distributed,async/reactive.101,qa.error_control]]
+@[https://pkg.go.dev/context]
 @[https://blog.golang.org/context]
 • Moved to Core lib in 1.7 (from golang.org/x/net/context).
 • It allows the use of contexts for cancelation, timeouts, and passing request-scoped
   data (AAA/JWT Tokens, ...) in other standard library packages, including net,
   net/http, and os/exec and across API boundaries.
-• safe to use by simultaneous concurrent goroutines.
+• safe to use by simultaneous concurrent goroutines. [[concurrency.101]]
 
   type Context interface {
       Done() <-chan struct{} // returns channel that is closed when this Context is canceled/times out.
@@ -19,14 +19,14 @@
 
 • Chi: built on the new context package introduced in Go 1.7 to
   handle signaling, cancelation and request-scoped values across a
-  handler chain. @ma
+  handler chain.
 [[}]]
 
 
 ● Shared GO Packages in MONOREPO: [[{01_PM.TODO}]]
   https://passage.id/post/shared-go-packages-in-a-monorepo
 
-● Viper App Config:("12 factor") [[{golang.app_config,devops.configuration,_PM.low_code]]
+● Viper App Config:("12 factor") [[{golang.app_config,devops.configuration,01_PM.low_code]]
 • Low code application configuration library.
 • Features support:
   · Find/load/unmarshal JSON/TOML/YAML/HCL/INI/envfile/Java-properties
@@ -183,7 +183,7 @@
                        'go get' checks for deprecated modules needed to
                        build packages named on the command line
 
-  • Go 2 WebAssembly [[{arch.distributed,arch.embedded,security.webasm,0_PM.TODO]]
+  • Go 2 WebAssembly [[{arch.distributed,arch.embedded,security.webasm,01_PM.TODO]]
     Go 1.11 Add WebAssembly, Experimental Module Support,...
     https://www.infoq.com/news/2018/08/golang-1.11-modules-we
     https://golang.org/doc/go1.11
@@ -238,7 +238,7 @@ https://github.com/rcrowley/go-metrics
 - visitor construct: used to iterate across all the resources.
 [[}]]
 
-● make Go scripts shell friendly [[{devops.*,qa,_PM.low_code]]
+● make Go scripts shell friendly [[{devops.*,qa,01_PM.low_code]]
 @[https://www.infoq.com/news/2020/03/go-protobuf-apiv2/]
 • To make Go scripts well-behaved citizens among shell scripts,
   Codenation engineers use a number of useful Go packages, including:
@@ -265,7 +265,7 @@ https://github.com/rcrowley/go-metrics
 @[https://blog.jse.li/posts/torrent/]
 [[}]]
 
-● GOX (cross-compiling): [[{arch.embedded,_PM.backlog]]
+● GOX (cross-compiling): [[{arch.embedded,01_PM.backlog]]
 https://github.com/tldr-pages/tldr/blob/master/pages/common/gox.md
 [[}]]
 
@@ -335,6 +335,14 @@ https://github.com/tldr-pages/tldr/blob/master/pages/common/gox.md
     people coming from other languages like PHP, Ruby, Javascript etc. As
     you can see from shenanigans described in this article, it’s not a
     particularly good choice for Go.
+
+● https://www.docker.com/blog/containerize-your-go-developer-environment-part-2/
+  Speed up container build
+
+● How to improve your GO code with empty structs
+  https://medium.com/@l.peppoloni/how-to-improve-your-go-code-with-empty-structs-3bd0c66bc531
+
+● https://github.com/stretchr/testify
+  A toolkit with common assertions and mocks that plays nicely with the standard library 
+
 [[}]]
-
-
