@@ -1,10 +1,17 @@
 ● VIM-GO PLUGIN INSTALL:
-  Step 1) Install plugin:
-  $ mkdir -p ~/.vim/pack/plugins/start  # if not yet done
+  $ mkdir -p ~/.vim/pack/plugins/start              STEP 1) INSTALL PLUGIN
   $ cd ~/.vim/pack/plugins/start
   $ git clone https://github.com/fatih/vim-go.git
+  $ vim vim-go/.editorconfig        <- Tune to adjust our needs or college's .editorconfig.
 
-  Step 2) :GoInstallBinaries ( :GoUpdateBinaries )
+  vim ~/.vimrc                                       STEP 2) Add next line to ~/.vimrc
++ filetype on plugin indent         <- Convination of:
+                                     + filetype on        <- enable file-type recognition('FileType' event)
+                                     + filetype plugin on <- load ftplugin/*....vim) in 'runtimepath' on-demand
+                                     + filetype indent on <- loads file "indent.vim" in 'runtimepath' on-demand
+
+  Step 3. alt1) :GoInstallBinaries  <- alt 1: first install
+  Step 3. alt2) :GoUpdateBinaries   <- alt 2: update current binaries.
 
 ● VIM-GO PLUGIN TROUBLESHOOTING:
  - g:go_debug
