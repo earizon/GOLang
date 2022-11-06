@@ -1152,6 +1152,28 @@ func TestMain(m *testing.M) {    <- Optional, low-level primitive, only necessar
     - HTTP tuned for high performance.
     - Zero memory allocations in hot paths.
     - Up to 10x faster than net/http .
+
+• Simple HTTP server using gin-gonic:
+  https://github.com/gin-gonic/
+
+  PRE-SETUP:
+  go 1.16+
+  $ go get -u github.com/gin-gonic/gin
+
+  import "github.com/gin-gonic/gin"
+  import "net/http" // Optional, needed if reusing constants like http.StatusOK
+
+  func main() {
+    router := gin.Default()
+    router.Static("/assets", "./assets")
+    router.StaticFS("/more_static", http.Dir("my_file_system"))
+    router.StaticFile("/favicon.ico", "./resources/favicon.ico")
+    router.StaticFileFS("/more_favicon.ico", "more_favicon.ico", http.Dir("my_file_system"))
+
+    // Listen and serve on 0.0.0.0:8080
+    router.Run(":8080")
+  }
+
 [[}]]
 
 ● Time management: @[https://golang.org/pkg/time/] [[{101.time]]
@@ -1406,6 +1428,11 @@ func TestMain(m *testing.M) {    <- Optional, low-level primitive, only necessar
 [[}]]
 
 ● GraphQL Server [[{01_PM.low_code,arch.integration,IO.graphql,01_PM.TODO]]
+  - Related: low_code/automatic DDBB to GraphQL tools:
+    - https://graphjin.com "Build APIs in 5 minutes not weeks"
+    - https://www.graphile.org/postgraphile/
+      Extensible high-performance automatic GraphQL API for PostgreSQL
+
 @[https://betterprogramming.pub/implement-a-graphql-server-with-ent-and-gqlgen-in-go-8840f086b8a8]
 • This post will walk you through how to implement GraphQL server
   using ent, and gqlgen.
@@ -1424,6 +1451,55 @@ func TestMain(m *testing.M) {    <- Optional, low-level primitive, only necessar
   - @[https://golang.org/doc/cmd]
   - @[https://golang.org/doc/diagnostics.html]
 [[}]]
+
+● Goxygen ("JHipster" like in Go) [[{01_PM.low_code,io.http]]
+  https://github.com/Shpota/goxygen
+
+  Goxygen generates a Web-project-skeleton with:
+  - BACKEND : Go server
+  - FRONTEND: Angular|React*|Vue
+  - Configuration: Dockerfile+docker-compose files (development|production environments).
+  - DDBB:  MongoDB*|MySQL|PostgreSQL
+
+  - USSAGE: # go 1.17+
+    $ go run github.com/shpota/goxygen@latest \
+      init \
+      --frontend react \                               angular|react*|vue
+      --db postgres \                                  mongo* |mysql | postgres
+      my-app
+
+    $ cd my-app
+    $ docker-compose up # http://localhost:8080.
+
+
+    Layout of skeleton project: (React/MongoDB example)
+
+    my-app
+    ├─ server               # Go project files
+    │  ├ db                 # MongoDB communications
+    │  ├ model              # domain objects
+    │  ├ web                # REST APIs, web server
+    │  ├ server.go          # the starting point of the server
+    │  └ go.mod             # server dependencies
+    ├─ webapp
+    │  ├ public             # icons, static files, and index.html
+    │  ├ src
+    │  │ ├ App.js           # the main React component
+    │  │ ├ App.css          # App component-specific styles
+    │  │ ├ index.js         # the entry point of the application
+    │  │ └ index.css        # global styles
+    │  ├ package.json       # front end dependencies
+    │  ├ .env.development   # holds API endpoint for dev environment
+    │  └ .env.production    # API endpoint for prod environment
+    │
+    ├─ Dockerfile           # builds back end and front end together
+    ├─ docker-compose.yml   # prod environment deployment descriptor
+    ├─ docker-compose-dev.yml # runs local MongoDB for development needs
+    ├─ init-db.js           # creates a MongoDB collection with test data
+    ├─ .dockerignore        # specifies files ignored in Docker builds
+    ├─ .gitignore
+    └─ README.md            # guide on how to use the generated repo
+  [[}]]
 
 ● What's new: [[{01_PM.WHATS_NEW]]
 @[https://golang.org/doc/devel/release]
