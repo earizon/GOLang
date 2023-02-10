@@ -8,7 +8,6 @@
   Your commits and pull-request will be immortalized
   in the Pantheon of the Unicode Gods.
 ────────────────────────────────────────────────────────────────────────────────
-[[{golang]]
 ● GOLang Summary [[{101]]
   • See also: @[https://www.youtube.com/watch?v=PAAkCSZUG1c&ab_channel=TheGoProgrammingLanguage]
      GLOBAL     1<···> N git repo 1 <····> 1+ package/s
@@ -55,7 +54,7 @@
   │   "fmt"                               <- [[{strings.101}]]
   │    m "golang-book/chapter11/math"     <- match ./golang-book/chapert11/math/math.go
   │                                          m: alias avoid conflicts when using 2 'math' pkgs.
-  │   "time"                                 [[{date_time.101}]]
+  │   "time"                                 [[{101.date_time}]]
   │   "flag"                                 [[{qa.UX}]]
   │   ... )
   │
@@ -66,7 +65,7 @@
   │
   │   for i := 0; i < 10; i++ {            ← NO PARENTHESIS USED in 'for' or 'if'
   │     fmt.Println(n, ":", i)               break'|'continue' statements work as in C/Java/...
-  │     amt := time.Duration(rand.Intn(250)) [[{date_time.101]]
+  │     amt := time.Duration(rand.Intn(250)) [[{101.date_time]]
   │     time.Sleep(time.Millisecond * amt)   [[}]]
   │   }
   │   ... m.Average(...)
@@ -171,9 +170,9 @@
     // do something                       ===================
   }
 
-  slice1 :=  make ( // zero-initialized   ##########################################
-               []float64,                 # slices (arrays segments, DYNAMIC SIZE) #
-                 5 /*len*/,               ##########################################
+  slice1 :=  make ( // zero-initialized   # slices (arrays segments, DYNAMIC SIZE) #
+               []float64,                 # (Internally they look to be a link of  #
+                 5 /*len*/,               #  arrays ) ##############################
                 10 /*capacity*/)          - MORE WIDELY USED IN CODE THAN ARRAYS.
 
   array1 := []int{1,2,3,4,5}
@@ -555,7 +554,45 @@ func TestMain(m *testing.M) {    <- Optional, low-level primitive, only necessar
 
 [[}]]
 
-● built-in JSON support: data structure <- en|de-coding -> JSON string [[{io.JSON]]
+● buffers: [[{io.101.buffers,01_PM.TODO]]
+@[https://pkg.go.dev/bytes]
+  type Buffer        <··· Manage byte[] arrays with File-like interface: Read (with drain) & Write
+  -----------
+  func NewBuffer      (buf []byte) *Buffer
+  func NewBufferString(s string  ) *Buffer
+  func (b *Buffer) Bytes() []byte
+  func (b *Buffer) Cap()   int
+  func (b *Buffer) Grow(n int)
+  func (b *Buffer) Len() int
+  func (b *Buffer) Next(n int) []byte                    <··· returns slice containing next-n-bytes from buffer,
+                                                              advancing the buffer as if bytes had been returned by Read
+  func (b *Buffer) Read(p []byte) (n int, err error)     <··· reads next-len(p) bytes from buffer (or until buffer is drained).
+                                                              return effective 'n' bytes read. err == io.EOF if there are no
+                                                              more bytes to read, (unless len(p) is zero); otherwise it is nil.
+  func (b *Buffer) ReadByte() (byte, error)
+  func (b *Buffer) ReadBytes(delim byte) (line []byte, err error)
+  func (b *Buffer) ReadFrom(r io.Reader) (n int64, err error)
+  func (b *Buffer) ReadRune() (r rune, size int, err error)
+  func (b *Buffer) ReadString(delim byte) (line string, err error)
+  func (b *Buffer) Reset()
+  func (b *Buffer) String() string
+  func (b *Buffer) Truncate(n int)
+  func (b *Buffer) UnreadByte() error
+  func (b *Buffer) UnreadRune() error
+  func (b *Buffer) Write(p []byte) (n int, err error)
+  func (b *Buffer) WriteByte(c byte) error
+  func (b *Buffer) WriteRune(r rune) (n int, err error)
+  func (b *Buffer) WriteString(s string) (n int, err error)
+  func (b *Buffer) WriteTo(w io.Writer) (n int64, err error)
+
+
+  var buf bytes.buffer // no need to init (make)
+  buf.write([]byte("test"))
+
+[[io.101.buffers}]]
+
+
+● built-in JSON support: data structure <- en|de-coding -> JSON string [[{io.serialization.JSON]]
   package main
 
   import (
@@ -653,7 +690,7 @@ func TestMain(m *testing.M) {    <- Optional, low-level primitive, only necessar
     - Float64     - String()  type Token
     - Int64
     - String
-[[io.JSON}]]
+[[io.serialization.JSON}]]
 
 ● Builtin functions (@[https://golang.org/ref/spec#Built-in_functions]) [[{101.builtin]]
 
@@ -806,8 +843,72 @@ func TestMain(m *testing.M) {    <- Optional, low-level primitive, only necessar
   └────────────────────────────────────────────────┘
 [[}]]
 
+● Context (Core lib 1.7+) [[{101,arch.distributed,async/reactive.101,qa.error_control]]
+@[https://pkg.go.dev/context]
+@[https://blog.golang.org/context]
+- Moved to Core lib in 1.7 (from golang.org/x/net/context).
+- It allows the use of contexts for cancelation, timeouts, and passing request-scoped
+  data (AAA/JWT Tokens, ...) in other standard library packages, including net,
+  net/http, and os/exec and across API boundaries.
+- safe to use by simultaneous concurrent goroutines. [[{concurrency.101}]]
 
+  type Context interface {
+      Done() <-chan struct{}  // returns channel that is closed when this Context is canceled/times out.
+
+      Err() error             // indicates why context was canceled, after Done channel is closed.
+
+      Deadline() (deadline time.Time, ok bool) //
+
+      Value(key interface{}) interface{} // returns value or nil
+  }
+
+- Example ussage: https://github.com/go-chi/chi                 [[{IO.http]]
+  lightweight, composable router for building Go HTTP services.
+  built on the new context package introduced in Go 1.7 to handle signaling,
+  cancelation and request-scoped values across a handler chain. [[}]]
 [[}]]
+
+● Viper App Config:("12 factor") [[{devops.configuration.viper,01_PM.low_code]]
+• Low code application configuration library.
+• Features support:
+  · Find/load/unmarshal JSON/TOML/YAML/HCL/INI/envfile/Java-properties
+  · default values.
+  · override through command line flags.
+  · alias system (rename parameters without breaking code).
+  · Make it easy to tell the difference between when a user has provided
+    a command line or config file which is the same as the default.
+
+• PRECEDENCE ORDER:
+  1) explicit call to Set  4) config
+  2) command line flag     5) key/value store
+  3) env                   6) default
+
+• Working with "injected" OS ENViroment VARiables:
+  · Viper treats ENV VARs variables as case sensitive.
+  · Ex.1:
+    SetEnvPrefix("SPF") ←  use "SPF_..."  prefix for ENV.VARs.
+    AutomaticEnv()      ←  Alt 1: any viper.Get("SPF_...") will
+                                  automatically query ENV.VARs
+    BindEnv("id")       ←  Alt 2: viper.Get("SPF_ID") will query ENV.VARs
+    BindEnv("id",       ←  Alt 3: Alias/Backward compatibility
+       "deprecated",...)          It will query also for SPF_DEPRECATED,...
+
+   NOTE: ENV.VAR value will be read each time it is accessed
+         (vs constant value after first query)
+
+  · SetEnvKeyReplacer(string...) *strings.Replacer :
+    allows to use strings.Replacer object to rewrite Env keys (to an extent).
+    Use-case: Replace conflictive characters  in Get() with "_" delimiters
+              in (OS) ENV.VARs.
+    ( replacers can also be established in NewWithOptions function
+      using EnvKeyReplacer that also accepts a StringReplacer interface
+      for custom replace-logic ).
+
+  - By default empty ENV.VARs are considered unset, falling back to
+    next conf source). AllowEmptyEnv() will consider them set as "".
+[[}]]
+
+[[101}]]
 
 ● DevOps 101 [[{devops.101]]
 @[https://github.com/tldr-pages/tldr/blob/master/pages/common/go*.md]
@@ -834,7 +935,9 @@ func TestMain(m *testing.M) {    <- Optional, low-level primitive, only necessar
    $ go clean -cache           ← Delete build cache
    $ go clean -testcache       ← Delete all cached test results
    $ go clean -modcache        ← Delete the module cache:
-
+                                 WARN!!!: This deletes everything inside ${GOPATH}/go/pkg/mod/cache
+                                 shared by any module (not just the cache for modules realted to the
+                                 one we are working on, requiring potentially expensive downloads )
 
    $ go doc ...                ← Show documentation for a package | symbol.
                                 @[https://golang.org/cmd/go/#hdr-Show_documentation_for_package_or_symbol]
@@ -878,8 +981,9 @@ func TestMain(m *testing.M) {    <- Optional, low-level primitive, only necessar
                                  -json: render output in json format
    $ go list std               ← List standard packages
    $ go list -m -u all         ← List module dependencies and available    [qa][troubleshooting]
-                                 updates
-
+                                 updates (for deprecated modules)
+                                 'go get' checks for deprecated modules needed to
+                                 build packages named on the command line
 
    $ go mod ...                ← Module maintenance
                                @[https://golang.org/cmd/go/#hdr-Module_maintenance]
@@ -1174,9 +1278,24 @@ func TestMain(m *testing.M) {    <- Optional, low-level primitive, only necessar
     router.Run(":8080")
   }
 
-[[}]]
 
-● Time management: @[https://golang.org/pkg/time/] [[{101.time]]
+● See also https://github.com/gravityblast/fresh:   [[{qa.UX.flesh]]
+  Fresh is a command line tool that builds and (re)starts your web
+  application everytime you save a Go or template file.
+   If the web framework you are using supports the Fresh runner,
+  it will show build errors on your browser.
+   It currently works with Traffic, Martini and gocraft/web.
+  $ go get github.com/pilu/fresh # Installation
+  $ cd /path/to/myapp            # Ussage
+  $ Start fresh
+
+     It will watch for file events, and every time you
+  create/modify/delete a file it will build and restart the
+  application. If go build returns an error, it will log it in the tmp
+  folder.                                         [[01_PM.UX.flesh}]]
+[[io.http}]]
+
+● TIME MANAGEMENT: @[https://golang.org/pkg/time/] [[{101.date_time]]
   start   := time.Now()
   elapsed := time.Now().Sub (start) // time diff
 
@@ -1427,7 +1546,7 @@ func TestMain(m *testing.M) {    <- Optional, low-level primitive, only necessar
   JavaScript from .api files with goctl.
 [[}]]
 
-● GraphQL Server [[{01_PM.low_code,arch.integration,IO.graphql,01_PM.TODO]]
+● GraphQL Server [[{01_PM.low_code,arch.integration,IO.graphql,persistence.sql,01_PM.TODO]]
   - Related: low_code/automatic DDBB to GraphQL tools:
     - https://graphjin.com "Build APIs in 5 minutes not weeks"
     - https://www.graphile.org/postgraphile/
@@ -1501,8 +1620,22 @@ func TestMain(m *testing.M) {    <- Optional, low-level primitive, only necessar
     └─ README.md            # guide on how to use the generated repo
   [[}]]
 
+● https://github.com/mitchellh/mapstructure  [[{IO.serialization,persistence,qa.error_control]]
+   library for decoding generic map values to structures and vice versa,
+  while providing helpful error handling.
+
+   This library is most useful when decoding values from some data
+  stream (JSON, Gob, etc.) where you don't quite know the structure of
+  the underlying data until you read a part of it. You can therefore
+  read a map[string]interface{} and use this library to decode it into
+  the proper underlying native Go structure.
+[[}]]
+
 ● What's new: [[{01_PM.WHATS_NEW]]
 @[https://golang.org/doc/devel/release]
+  • go1.19 (released 2021-08-16) @[https://go.dev/doc/go0.19]
+  • go1.18 (released 2021-08-16) @[https://go.dev/doc/go0.18]
+    - Introduction of Generics.
   • go1.17 (released 2021-08-16) @[https://go.dev/doc/go1.17]
    · []T (slice) may now be converted to *[N]T (array pointer type).
      WARN: first case in which a type conversion can panic at run time.
@@ -1616,4 +1749,3 @@ func TestMain(m *testing.M) {    <- Optional, low-level primitive, only necessar
 
   • go1    (released 2012-03-28) @[https://golang.org/doc/go1]
 [[}]]
-[[golang}]]

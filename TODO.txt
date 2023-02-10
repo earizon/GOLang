@@ -1,83 +1,10 @@
-● Context (Core lib 1.7+) [[{golang.101,arch.distributed,async/reactive.101,qa.error_control]]
-@[https://pkg.go.dev/context]
-@[https://blog.golang.org/context]
-• Moved to Core lib in 1.7 (from golang.org/x/net/context).
-• It allows the use of contexts for cancelation, timeouts, and passing request-scoped
-  data (AAA/JWT Tokens, ...) in other standard library packages, including net,
-  net/http, and os/exec and across API boundaries.
-• safe to use by simultaneous concurrent goroutines. [[concurrency.101]]
-
-  type Context interface {
-      Done() <-chan struct{} // returns channel that is closed when this Context is canceled/times out.
-
-      Err() error             // indicates why context was canceled, after Done channel is closed.
-
-      Deadline() (deadline time.Time, ok bool) //
-
-      Value(key interface{}) interface{} // returns value or nil
-  }
-
-• Chi: built on the new context package introduced in Go 1.7 to
-  handle signaling, cancelation and request-scoped values across a
-  handler chain.
-[[}]]
-
 
 ● Shared GO Packages in MONOREPO: [[{01_PM.TODO}]]
   https://passage.id/post/shared-go-packages-in-a-monorepo
 
-● Viper App Config:("12 factor") [[{golang.app_config,devops.configuration,01_PM.low_code]]
-• Low code application configuration library.
-• Features support:
-  · Find/load/unmarshal JSON/TOML/YAML/HCL/INI/envfile/Java-properties
-  · default values.
-  · override through command line flags.
-  · alias system (rename parameters without breaking code).
-  · Make it easy to tell the difference between when a user has provided
-    a command line or config file which is the same as the default.
-
-• PRECEDENCE ORDER:
-  1) explicit call to Set  4) config
-  2) command line flag     5) key/value store
-  3) env                   6) default
-
-• Working with "injected" OS ENViroment VARiables:
-  · Viper treats ENV VARs variables as case sensitive.
-  · Ex.1:
-    SetEnvPrefix("SPF") ←  use "SPF_..."  prefix for ENV.VARs.
-    AutomaticEnv()      ←  Alt 1: any viper.Get("SPF_...") will
-                                  automatically query ENV.VARs
-    BindEnv("id")       ←  Alt 2: viper.Get("SPF_ID") will query ENV.VARs
-    BindEnv("id",       ←  Alt 3: Alias/Backward compatibility
-       "deprecated",...)          It will query also for SPF_DEPRECATED,...
-
-   NOTE: ENV.VAR value will be read each time it is accessed
-         (vs constant value after first query)
-
-  · SetEnvKeyReplacer(string...) *strings.Replacer :
-    allows to use strings.Replacer object to rewrite Env keys (to an extent).
-    Use-case: Replace conflictive characters  in Get() with "_" delimiters
-              in (OS) ENV.VARs.
-    ( replacers can also be established in NewWithOptions function
-      using EnvKeyReplacer that also accepts a StringReplacer interface
-      for custom replace-logic ).
-
-  - By default empty ENV.VARs are considered unset, falling back to
-    next conf source). AllowEmptyEnv() will consider them set as "".
-[[}]]
-
-
-
-
-• buffers: [[{io.101]]
-  var buf bytes.buffer // no need to init (make)
-  buf.write([]byte("test"))
-  
-  strings.newreader   // convert string to reader
-  [[}]]
 
 ● Writing a SQL database from scratch in Go: [[{01_PM.TODO}]]
-  https://notes.eatonphil.com/database-basics-indexes.html 
+  https://notes.eatonphil.com/database-basics-indexes.html
 
 • Practical Crypto Tour in Go [[{security.cryptography.101,01_PM.TODO]]
 @[https://cyberspy.io/articles/crypto101/]
@@ -91,97 +18,85 @@
   X509/TLS Certificate and Key based comms and general certificates/key manipulation
   [[}]]
 
-• Readers and writers [[{io.101,01_PM.TODO]]
+● Readers and writers [[{io.101,01_PM.TODO]]
    from  https://www.golang-book.com/public/pdf/gobook.0.pdf pag 138
    many fuctions in go take readers and writers as arguments
     (io:copy, ...)
-  func copy(dst writer, src reader) 
+  func copy(dst writer, src reader)
       (written int64, err error)
   [[}]]
 
 ● TODO:
-  • Search for packages or symbols:
+  - Search for packages or symbols:
   @[http://pkg.go.dev]
 
- • go.mod https://golang.cafe/blog/how-to-fix-go-mod-unknown-revision.html
+● go.mod https://golang.cafe/blog/how-to-fix-go-mod-unknown-revision.html
 
- • https://pkg.go.dev/errors
+● https://pkg.go.dev/errors
 
- • Messaging Framework [[{arch.messaging,}]]
+● Messaging Framework [[{arch.messaging,}]]
    https://blog.gopheracademy.com/advent-2017/messaging-framework/
    https://blog.gopheracademy.com/ "The Best Go Content on the Internet"
 
-  • https://stackoverflow.com/questions/53682247/how-to-point-go-module-dependency-in-go-mod-to-a-latest-commit-in-a-repo
-    Go v1.11+ added support for modules.
-    
-    $ go mod init $package_name
-    $ go build
+● https://stackoverflow.com/questions/53682247/how-to-point-go-module-dependency-in-go-mod-to-a-latest-commit-in-a-repo
+  Go v1.11+ added support for modules.
 
-    would generate go.mod and go.sum files that contain all found 
-    versions for the package dependencies.
-    
-    If a module does not have any releases, the latest commit of that 
-    module is used. If a module does have releases, the latest one is 
-    picked as a dependency.
+  $ go mod init $package_name
+  $ go build
 
-     However sometimes I would need functionality that is not in a 
-    published release yet, but from a commit made after that release. How 
-    do I set go.mod to point not to a release of a module, but to a 
-    specific commit in the module's repository?
+  would generate go.mod and go.sum files that contain all found
+  versions for the package dependencies.
 
-     It looks like I can do it by hand in go.mod with
+  If a module does not have any releases, the latest commit of that
+  module is used. If a module does have releases, the latest one is
+  picked as a dependency.
 
-    module /my/module
-    require (
-    ...
-    github.com/someone/some_module v0.0.0-20181121201909-af044c0995fe
-    ...
-    )
-    
-    where v0.0.0 does not correspond to the last published release 
-    tag, 20181121201909 would be a commit timestamp and af044c0995fe 
-    would be the commit hash? Should such information to be found and 
-    entered by hand, or there is a better way?
-    
-    
-    R: Just 'go get' at the commit hash you want:
-       go get github.com/someone/some_module@af044c0995fe
-      'go get' will correctly update the dependency files (go.mod, go.sum).
+   However sometimes I would need functionality that is not in a
+  published release yet, but from a commit made after that release. How
+  do I set go.mod to point not to a release of a module, but to a
+  specific commit in the module's repository?
 
- • func decorator1(mystring string)
+   It looks like I can do it by hand in go.mod with
+
+  module /my/module
+  require (
+  ...
+  github.com/someone/some_module v0.0.0-20181121201909-af044c0995fe
+  ...
+  )
+
+  where v0.0.0 does not correspond to the last published release
+  tag, 20181121201909 would be a commit timestamp and af044c0995fe
+  would be the commit hash? Should such information to be found and
+  entered by hand, or there is a better way?
+
+
+  R: Just 'go get' at the commit hash you want:
+     go get github.com/someone/some_module@af044c0995fe
+    'go get' will correctly update the dependency files (go.mod, go.sum).
+
+● func decorator1(mystring string)
         func(before, after string) string  ← decorators return another func.
    {
         return func(before, after string) string {
             return fmt.Sprintf("%s %s %s", before, mystring, after)
         }
    }
-   
+
    ...
    d := decorator1("summer")
    fmt.Println(d("A beautiful", "day!")) // a beautiful summer day
-   
 
- • https://github.com/leanovate/gopter [[{qa}]]
-   the GOlang Property TestER  
-   https://en.wikipedia.org/wiki/QuickCheck  
 
- • https://github.com/mitchellh/mapstructure  [[{qa.error_control]]
-   library for decoding generic map values to structures and vice versa,
-    while providing helpful error handling.
-   
-   This library is most useful when decoding values from some data 
-   stream (JSON, Gob, etc.) where you don't quite know the structure of 
-   the underlying data until you read a part of it. You can therefore 
-   read a map[string]interface{} and use this library to decode it into 
-   the proper underlying native Go structure.  [[}]]
+● https://github.com/leanovate/gopter [[{qa}]]
+  the GOlang Property TestER
+  https://en.wikipedia.org/wiki/QuickCheck
+
 
  • https://stackoverflow.com/questions/tagged/go?tab=Votes
 
- • https://golang.org/ref/mod  !!!!!
-  $ go list -m -u    ← (go 1.17+) check information on all deprecated 
-                       modules in build list.
-                       'go get' checks for deprecated modules needed to
-                       build packages named on the command line
+ • https://golang.org/ref/mod @[./go_ref_mod.txt] !!!!!
+
 
   • Go 2 WebAssembly [[{arch.distributed,arch.embedded,security.webasm,01_PM.TODO]]
     Go 1.11 Add WebAssembly, Experimental Module Support,...
@@ -196,7 +111,7 @@
     that you can deploy to your HTTP server or load directly into a browser.
     The js package can be used for DOM manipulation.  [[}]]
 
-● Devel Debugger:[[{golang.debugging,01_PM.TODO]]
+● Devel Debugger:[[{slc.debugging,01_PM.TODO]]
 https://developers.redhat.com/blog/2021/03/03/using-delve-to-debug-go-programs-on-red-hat-enterprise-linux/
 Using Delve to debug Go programs on Red Hat Enterprise Linux
 
@@ -214,7 +129,7 @@ programs as quickly as possible.
 https://github.com/rcrowley/go-metrics
 [[}]]
 
-● Probing with SystemTamp [[{golang.profiling]]
+● Probing with SystemTamp [[{slc.profiling]]
 @[https://developers.redhat.com/blog/2019/07/24/probing-golang-runtime-using-systemtap/]
 
 • Probing golang runtime using SystemTap:
@@ -233,12 +148,12 @@ https://github.com/rcrowley/go-metrics
 @[https://blog.gopheracademy.com/advent-2017/go-grpc-beyond-basics/]
 [[}]]
 
-● Golang Builders and Visitors decorators: [[{golang.101]]
+● Golang Builders and Visitors decorators: [[{101]]
 - Check Golang Builders and Visitors decorators pattern
 - visitor construct: used to iterate across all the resources.
 [[}]]
 
-● make Go scripts shell friendly [[{devops.*,qa,01_PM.low_code]]
+● make Go scripts shell friendly [[{devops,qa,01_PM.low_code]]
 @[https://www.infoq.com/news/2020/03/go-protobuf-apiv2/]
 • To make Go scripts well-behaved citizens among shell scripts,
   Codenation engineers use a number of useful Go packages, including:
@@ -253,7 +168,7 @@ https://github.com/rcrowley/go-metrics
     processing, options, and related documentation.
 [[}]]
 
-● WhereAmI (QA) [[{golang.debugging]]
+● WhereAmI (QA) [[{slc.debugging]]
 @[https://github.com/jimlawless/whereami]:                       [qa]
 · It has one exported function: WhereAmI() which acts as a
   wrapper for runtime.Caller(). The WhereAmi() function returns a
@@ -343,6 +258,25 @@ https://github.com/tldr-pages/tldr/blob/master/pages/common/gox.md
   https://medium.com/@l.peppoloni/how-to-improve-your-go-code-with-empty-structs-3bd0c66bc531
 
 ● https://github.com/stretchr/testify
-  A toolkit with common assertions and mocks that plays nicely with the standard library 
+  A toolkit with common assertions and mocks that plays nicely with the standard library
+
+● Writing an cli API Wrapper in Golang  101
+  https://dzone.com/articles/writing-an-api-wrapper-in-golang
+  by Nicolas Modrzyk
+1)Create a tests.
+  - helper_test.go: skeleton test for a PrepareLogin function saving id/pass in an edn file
+                    compatible with the jquants-api-jvm format.
+  - retrieve the refresh token
+  - use ID token to retrieve daily values
+2)code:
+3)Publish wrapper to GitHub
+
+● DataFrame Go ("Pandas for go")                     [[{01_PM.low_code,]]
+  https://github.com/rocketlaunchr/dataframe-go      [[}]]
+
+● https://github.com/rocketlaunchr/dbq               [[{QA.UX,persistence.sql]]
+  Avoid verbosity in SQL                             [[}]]
+
+
 
 [[}]]
