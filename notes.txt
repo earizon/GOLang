@@ -1,4 +1,4 @@
-●  Apropos:
+# Apropos
 - Visit next Web site for a great experience:
   https://earizon.github.io/txt_world_domination/viewer.html?payload=../GOLang/notes.txt
 
@@ -7,61 +7,81 @@
 @[https://www.github.com/earizon/GOLang]
   Your commits and pull-request will be immortalized
   in the Pantheon of the Unicode Gods.
-────────────────────────────────────────────────────────────────────────────────
-● GOLang Summary [[{101]]
-  • See also: @[https://www.youtube.com/watch?v=PAAkCSZUG1c&ab_channel=TheGoProgrammingLanguage]
-     GLOBAL     1<···> N git repo 1 <····> 1+ package/s
-     WORKSPACE
-     ===========
-     ${GOPATH}/ <···················• "GLOBAL WORKSPACE for GO PROJECTS" (defaults to ${HOME}/go )
-     └ bin/                           $ go env GOPATH   ← print effective/current value
-     · └ hello                        Recommended to fix random problems. Add next lines to .bashrc/...:
-     · └ ...                          + export GOPATH=$(go env GOPATH)
-     ·                                + export PATH=$PATH:${GOPATH}/bin #
-     ·
-     └ src/                        ← All Source project (Git repositories) are placed in this folder
-       └ github.com/user/prj01/ <··· GIT REPO 1
-       · └.git/                      $ go install \          ← Install all compiled go repo's packages
-       · ·                            github.com/user/prj01/   to $GOPATH/pkg, $GOPATH/bin
-       · ·                           $ $GOPATH/bin/hello     ← Exec. installed package.
-       · ·
-       · └ hello/hello.go            <· PACKAGE 1. Import in other projects like:
-       ·   hello/hello_test.go          import github.com/user/proj01/hello/...
-       ·                                       └·· path from $GOPATH/src ··┘
-       · └ outyet/main.go            <· PACKAGE 2
-       ·   ...
-       └ golang.org/x/image/    <··· GIT REPO 2, external project imported like:
-       · .git/                       $ go get golang.org/x/image # <-
-       · bye/bye.go                       └┬┘
-       ·                                  download sources to correct path,
-       ·                                  then install libs(?) to $GOPATH/pkg,
-       ·                                  binaries to $GOPATH/bin
-       └ ···                    <··· GIT REPO 3, (local or external "$go get ")
 
-       WARN : DO NOT SYMLINK SRC/... TO DIRECTORIES
+## External Links                               [[{01_PM.EXT_RESOURCE]]
+* @[https://golang.org/doc/]
+* @[https://golang.org/ref/spec]
+* @[https://golang.org/doc/effective_go.html]
+* @[https://golang.org/pkg/]
+* @[https://golang.org/doc/cmd]
+* @[https://golang.org/doc/diagnostics.html]    [[}]]
+
+# GOLang Summary [[{101,devops.101]]
+
+* See also: @[https://www.youtube.com/watch?v=PAAkCSZUG1c&ab_channel=TheGoProgrammingLanguage]
+
+   GLOBAL     1<···> N git repo 1 <····> 1+ package/s
+   WORKSPACE
+   ===========
+   ${GOPATH}/ <··················· "GLOBAL WORKSPACE for GO PROJECTS" (defaults to ${HOME}/go )
+   ·                                $ go env GOPATH   ← print effective/current value
+   ·                                Recommended (fix random problems). Add next lines to .bashrc/...:
+   ·                              + export GOPATH=$(go env GOPATH)
+   ·                              + export PATH=$PATH:${GOPATH}/bin #
+   └ bin/                  <······ go install installs to $GOBIN (def.: $GOPATH/bin)
+   · bin/hello
+   ·
+   ·
+   ·  ┌··························· Before modules (1.13+) source project (Git repositories) MUST
+   ·  ·                            be placed here. After modules it's still recommended.
+   · ┌┴┐
+   └ src/github.com/user/prj01/ <··· GIT REPO 1
+     · └ .git/                     $ go install \          ← Install all compiled go repo's packages
+     · ·                            github.com/user/prj01/   to $GOPATH/pkg, $GOPATH/bin
+     · ·                           $ $GOPATH/bin/hello     ← Exec. installed package.
+     · ·
+     · └ hello/hello.go            <· PACKAGE 1. Import in other projects like:
+     ·   hello/hello_test.go          import github.com/user/proj01/hello/...
+     ·                                       └·· path from $GOPATH/src ··┘
+     · └ outyet/main.go            <· PACKAGE 2
+     ·   ...
+     src/golang.org/x/image/    <··· GIT REPO 2, external project imported like:
+     · .git/                       $ go get golang.org/x/image # <-
+     · bye/bye.go                       └┬┘
+     ·                                  download sources to correct path,
+     ·                                  then install libs(?) to $GOPATH/pkg,
+     ·                                  binaries to $GOPATH/bin
+     └ ···                    <··· GIT REPO 3, (local or external "$go get ")
+
+     WARN : DO NOT SYMLINK SRC/... TO DIRECTORIES
 
   • Hello World run&build                                COMPILE → EXECUTE
   ┌ ${GOPATH}/src/github.com/"myUser"/hello/hello.go - { $ go run  hello.go      ← alt 1. Quick version
   │                                                      $ go build  && ./hello  ← alt 2.
   │
   │                                           'package' must be first statement in file
-  │ package main        <···················· pkg names are short,clear,lowercase, (without "_", ... chars)
-  │                                           CONVENTION: function called 'New' returns type *pkg.Pkg. e.g:
-  │                                           list.New()@list/list.go returns *list.List
-  │                                           Use NewOtherType for OtherType != pkg.Pkg
+  │ package main        <···················· 'main' tells that pacakge should compile as an executable
+  │                                           (vs shared library), having a "main" entry point.
+  │                                           pkg.names for libraries are short,clear,lowercase (without
+  │                                           conflictive /[_@^...]/ chars)
+  │                                           CONVENTION: function called 'New' returns type *pkg.Pkg
+  │                                           e.g:
+  │                                           list.New() at ./list/list.go returns *list.List
+  │                                           Use New'OtherType' for OtherType != pkg.Pkg
   │
-  │ import (            <··················· importing several types and functions
-  │   "fmt"                               <- [[{strings.101}]]
-  │    m "golang-book/chapter11/math"     <- match ./golang-book/chapert11/math/math.go
-  │                                          m: alias avoid conflicts when using 2 'math' pkgs.
-  │   "time"                                 [[{101.date_time}]]
-  │   "flag"                                 [[{qa.UX}]]
+  │ import (            <···················· importing several types and functions
+  │   "fmt"                               <·· [[{strings.101}]]
+  │    pkgM "golang-book/chapter11/math"  <·· match ./golang-book/chapert11/math/math.go
+  │    pkgN "golang-book/chapter12/math"      pkgM/N: alias avoiding conflicts when using
+  │                                           2 '.../math' packages.
+  │   "time"                                  [[{101.date_time}]]
+  │   "flag"                                  [[{qa.UX}]]
   │   ... )
   │
-  │   if m , _ == functionN() ; m == n  { <· declare/assign  m "inside" i , then pass m == n to if
-  │      return 0, errors.New("n == 0")   <· return N values. Normally (result, errors)
-  │   }                                      errors package is standard (no need to import) [[{qa.error_control}]]
-  │                                          NOTE: return values can be named.
+  │   if m , _ == functionN() ; m == n  { <·· declare/assign  m "inside" i , then pass m == n to if
+  │      return 0, errors.New("n == 0")   <·· return N values. Normally (result, errors)
+  │   }                                       errors package is standard (no need to import) [[{qa.error_control}]]
+  │                                           NOTE: return values can be named.
   │
   │   for i := 0; i < 10; i++ {            ← NO PARENTHESIS USED in 'for' or 'if'
   │     fmt.Println(n, ":", i)               break'|'continue' statements work as in C/Java/...
@@ -88,7 +108,7 @@
   │    default:                            <- exec. when no other case matach condition.
   │       ... default is optional ...
   │  }
-  │  res, err := http.Get("...")           <- open I/O HTTP Resource [[{io.101.http]]
+  │  res, err := http.Get("...")           <- open I/O HTTP Resource [[{io.101,io.http]]
   │  defer res.Body.Close()                <- defer will close resources at function exit [[{qa.101}]]
   │  body, err := ioutil.ReadAll(resp.Body)  [[}]]
   │
@@ -124,117 +144,7 @@
   │ }
   └───────────────────────────────────────── }
 
-• DATA STRUCTURES: [[{101.data_structure]]
-                                          ########################
-  type Circle struct {              <- ● # STRUCTS defininition #
-    x, y, r float64                       ########################
-    color   string
-  }
-  circle1 := Circle{0,0,4,"blue"}
-
-  func (c Circle) area() float64 {      <- friend-function for struct
-    return math.Pi * c * c * r             See also related @[#golang_interfaces]
-  }
-  circle1.area()                        <- Invoking friend function
-
-  type Wheel struct {
-     Circle                             <- embedded (composed) type
-     material string
-  }
-  wheel1 := Wheel1{circle1, "iron"}
-  wheel1.area                           <- calls wheel1.circle1.area
-
-
-                                           ################################
-  var x [5]int        ← 0-initialized   <- # ARRAY DEFINITION.            #  [[{qa.inmu_code}]]
-      x[4] = 100      ← [ 0 0 0 0 100]     # FIXED LENGTH AT COMPILE TIME.#
-      len(x)                               ################################
-  var y := [3]float64 { 1.0, 2.0, 3.0}  <- value-initialized
-
-  y_copy := y                           <- VALUE SEMANTIC, y_copy is a COPY-OF-ARRAY
-  y_cpy[0] = 25                            <- y[0] not modified.
-  byteArrayFromStr := []byte("a slice")
-
-  array01 := []struct {                 <- array of anonymous struct type
-    field1 string,                         used just in scope 'array01'
-    field2 string
-  } {
-    {"value_1_1", "value_1_2"},
-    {"value_2_1", "value_2_2"},
-    ...
-  }
-  cases_l[0].field1
-  cases_l[0].field2
-
-  for idx, element :=  range array1 {  <- WALKING OVER ARRAYS
-    // do something                       ===================
-  }
-
-  slice1 :=  make ( // zero-initialized   # slices (arrays segments, DYNAMIC SIZE) #
-               []float64,                 # (Internally they look to be a link of  #
-                 5 /*len*/,               #  arrays ) ##############################
-                10 /*capacity*/)          - MORE WIDELY USED IN CODE THAN ARRAYS.
-
-  array1 := []int{1,2,3,4,5}
-  slice2 := array1[0:5]                <- Create slice from array
-  slice2 :=append(slice2,4,5,[]int{6}) <- Slice grows on-demand.
-  s3_copy := slice3                    <- reference semantics (both slices modify same values)
-  s3_copy[0] = 1                       <- slice3[0] will change too.
-  copy(slice3,slice2)                  <- copy of slice2 up to len [[{01_PM.TODO}]]
-
-                                          #####################
-  https://golang.org/ref/spec#Map_types]  # MAPS(DYNAMIC SIZE)#
-  (Dictiona./Associat.arrays/hashtables)  #####################
-  map1 :=  make (  map [string]int)       ← Declare map
-  map2 := map[string]int{"three": 3, ...} ← Declare with initial values
-  map1["key"] = 10
-  delete(map1, "key")
-  map1["no_key"]                          ← WARN: "ZERO TYPE VALUE" (no throw, no nil)
-  if value1, ok := map1["key1"]; ok {     ← one line key-exists check
-     ...
-  } else { ... }
-  map2 := map[string]map[string]string{
-    "H": map[string]string{
-      "name":"Hydrogen",
-      "state":"gas",
-    },
-    ...
-  }
-                                            ##################
-  for key, value :=   range  map1 {      ←  # WALK OVER MAPS #
-    fmt.Println(                            ##################
-      "Key:", key, "Value:", value)         Use for _, value if key is not needed.
-  }
-
-  import ("container/list")               #########
-  var x list.List                         # Lists #
-  x.PushBack(1)                           #########
-  x.PushBack(2)
-  ...
-
-  import ("sort")                         ###########
-  type ByOrder1 []MyType                  # Sorting #
-  func (this ByOrder1) Len() int {        ###########
-    return   len (this)
-  }
-  func (this ByOrder1)
-    Less(i, j int) bool {
-    return this[i].Name < this[j].Name
-  }
-  func (this ByOrder1) Swap(i, j int) {
-    this[i], this[j] = this[j], this[i]
-  }
-  ...
-  sort .Sort (ByOrder1(kids))      ←
-
-  for e := l.Front();          ← l == *List   ###################
-       e != nil; e = e.Next() {               # walk over Lists #
-      // do something with e.Value            ###################
-  }
-[[}]]
-
-• Interfaces [[{101.interfaces]] #[golang_interfaces]
-  ==========
+## Interfaces [[{101.interfaces]]
   ▸ Go proverb: "The smaller the interface the best"
   ▸ io.reader, io.writer are the most important interfaces [[{io.101]]
     in Go with just 1 method each.
@@ -309,8 +219,11 @@
       len(strings.TrimSpace(" ")) != 0   <- Alt 2: micro-optimization. Harder to read, but
                                                    still used.
     [[}]]
+[[}]]
 
-● GO Pointers: [[{101.pointers]]
+
+
+## GO Pointers [[{101.pointers]]
   - GOLANG IS GARBAGE COLLECTED. This implies that returning pointers to function
     local variables are "OK". Local variable will stay in memory while some external
     reference is in place:
@@ -327,7 +240,7 @@
     }
 [[}]]
 
-● Channels + GoRutines: [[{101.channels,101.goroutines]]
+## Channels + GoRutines [[{101.channels,101.goroutines]]
   • channel: CONCURRENCY-SAFE COMMUNICATION OBJECT used for:
     • Concurrent internal go routines running in parallel using
       the channel to synchronize work.
@@ -377,7 +290,7 @@
     }
 [[}]]
 
-● GOlang Testing: [[{qa.testing,qa.101]]
+## GOlang Testing [[{qa.testing,qa.101]]
 · @[https://golang.org/cmd/go/#hdr-Test_packages]
 
 · $GOPATH/src/github.com/user/stringutil/reverse.go       <- File to test
@@ -468,11 +381,10 @@ func TestMain(m *testing.M) {    <- Optional, low-level primitive, only necessar
 }
 [[}]]
 
-● File I/O [[{io.101.files]]
-• Simple 'String' ←(read-from/write-to)→ 'File'
+## File I/O [[{io.101.files]]
+* Simple 'String' ←(read-from/write-to)→ 'File'
 
-
-• ·········································· write 'String' to 'File'
+* ·········································· write 'String' to 'File'
   import ( "os" )                            ========================
   func WriteFile() {                         in-memory String → file
       F_NAME := "test.txt"                 (no buffer, no looping, no async,...)
@@ -490,7 +402,7 @@ func TestMain(m *testing.M) {    <- Optional, low-level primitive, only necessar
       }
   }
 
- • ········································· Read 'File' to 'String'
+············································ Read 'File' to 'String'
   import ( "os" )                           =======================
   func ReadFile() {
       F_NAME := "test.txt"                   file → in-memory String
@@ -500,7 +412,7 @@ func TestMain(m *testing.M) {    <- Optional, low-level primitive, only necessar
       }
   }
 
-• ·········································· Read "pieces" of files
+············································ Read "pieces" of files
                                              ========================
   import (
       "io"
@@ -534,7 +446,7 @@ func TestMain(m *testing.M) {    <- Optional, low-level primitive, only necessar
 
   }
 
-• ·········································· Read "pieces" of files  [[{io.101.buffers]]
+············································ Read "pieces" of files  [[{io.101.buffers]]
                                              using buffers:
                                              ========================
   import (
@@ -554,7 +466,7 @@ func TestMain(m *testing.M) {    <- Optional, low-level primitive, only necessar
 
 [[}]]
 
-● buffers: [[{io.101.buffers,01_PM.TODO]]
+## buffers [[{io.101.buffers,01_PM.TODO]]
 @[https://pkg.go.dev/bytes]
   type Buffer        <··· Manage byte[] arrays with File-like interface: Read (with drain) & Write
   -----------
@@ -592,7 +504,7 @@ func TestMain(m *testing.M) {    <- Optional, low-level primitive, only necessar
 [[io.101.buffers}]]
 
 
-● built-in JSON support: data structure <- en|de-coding -> JSON string [[{io.serialization.JSON]]
+## data structure <··> JSON [[{io.serialization.JSON]]
   package main
 
   import (
@@ -692,7 +604,8 @@ func TestMain(m *testing.M) {    <- Optional, low-level primitive, only necessar
     - String
 [[io.serialization.JSON}]]
 
-● Builtin functions (@[https://golang.org/ref/spec#Built-in_functions]) [[{101.builtin]]
+## Builtin functions [[{101.builtin]]
+(@[https://golang.org/ref/spec#Built-in_functions])
 
   @[https://golang.org/pkg/builtin/]
 
@@ -756,25 +669,9 @@ func TestMain(m *testing.M) {    <- Optional, low-level primitive, only necessar
    ...
 [[}]]
 
-● Building a reusable library: [[{]]
-  ┌─ $GOPATH/src/.../strutil/reverse.go ─┐ build:
-  │  package stringutil                  │ $ go build github.com/user01/strutil
-  │                                      │ install:
-  │  func Reverse(s string) string {     │ $ go install github.com/user01/strutil
-  │      r := []rune(s)                  │
-  │      for i, j := 0, len (r)-1;       │ Ussage:
-  │          i <   len (r)/2;            │   package main
-  │          i, j = i+1, j-1 {           │   import  "github.com/user01/strutil"
-  │          r[i], r[j] = r[j], r[i]     │   ...
-  │      }                               │   s := strutil.Reverse("!oG, olleH"))
-  │      return string(r)                │
-  │  }                                   │
-  └──────────────────────────────────────┘
-[[}]]
+## Error Management [[{qa.error_control.101]]
 
-● Error Management: [[{qa.101.error_control]]
-
-• CONTEMPLATED (RECOVERABLE) ERRORS:
+## contemplated errors [[{]]
 @[https://golang.org/ref/spec#Errors]
   predeclared error is defined as:
 
@@ -791,12 +688,62 @@ func TestMain(m *testing.M) {    <- Optional, low-level primitive, only necessar
      THE CONVENTION IN THE GO LIBRARIES IS THAT EVEN WHEN A PACKAGE
      USES PANIC INTERNALLY, ITS EXTERNAL API STILL PRESENTS EXPLICIT ERROR
      RETURN VALUES.
+[[}]]
 
-• NON CONTEMPLATED (UN-RECOVERABLE) ERRORS:
+## error wrapping [[{qa.error_control.101,qa.101]]
+@[httpr://pkg.go.dev/errors]
+* package implementing functions to manipulate errors.
+  * func New   (text string)           error
+  * func Join  (errs ...error)         error
+    returns new error wrapping errs (ignore nils) or nil if errs are all nil.
+    text or error = newline-concatenated text by calling .Error on each element of errs
+  * func Unwrap(err error)             error
+    * If e.Unwrap() returns non-nil error w or a slice containing w,
+      then we say that e wraps w, otherwise we say that e does NOT
+      wrap any error.
+    * Successive unwrapping of an error creates a tree.
+  * func Is    (err, target error)     bool
+    * returns true if `target` match  some element in err-tree.
+    * `Is` It should be used for simple equality checks: [[{qa.best_patterns]]
+      if errors.Is(err, fs.ErrExist) // wright
+      if err == fs.ErrExist          // wrong                    [[qa.best_patterns}]]
+      (former will succeed if err wraps fs.ErrExist)
+    * `Is` should ONLY shallowly compare err and target
+      (vs calling Unwrap on either).
+  * func As    (err error, targetPtr any) bool (v1.13+)
+    run over err-tree searching for an error that can
+    be assigned to targetPtr. If found, it performs the
+    assignment and returns true. false otherwise.
+
+### fmt.Errorf: quick way to create wrapper errors:
+  wrapsErr := fmt.Errorf("... %w ...", ..., err, ...)
+                              └┴─ == error argument
+   var perr *fs.PathError
+
+   if errors.As(err, &perr) {                // Alt 1: Right
+   	fmt.Println(perr.Path)
+   }
+
+   if perr, ok := err.(*fs.PathError); ok {  // Alt 2: Wrong
+   	fmt.Println(perr.Path)
+   }
+   Alt 2 will succeed if err wraps an *fs.PathError
+
+NOTE: `As`/`Is` can also be used by an error type to allow being treated a
+   different/equivalent error type.
+   Ex:
+   func (m MyError) Is(target error) bool {
+     return target == fs.ErrExist
+   }
+   Is(MyError{}, fs.ErrExist) // == true.
+[[qa.error_control.101}]]
+
+### panic (abort) errors [[{]]
 @[https://blog.golang.org/defer-panic-and-recover]
-  · panic  : (java throw  )
-  · defer  : (java finally) cleanup after function exit.
-  · recover: (java catch  ) (only useful inside deferred functions)
+* panic  : (java throw  )
+* defer  : (java finally) cleanup after function exit
+           to return to stable state.
+* recover: (java catch  ) (only useful inside deferred functions)
 
   ┌─ errorhandling.go ─────────────────────────────┐
   │  package main                                  │
@@ -842,8 +789,9 @@ func TestMain(m *testing.M) {    <- Optional, low-level primitive, only necessar
   │  }                                             │
   └────────────────────────────────────────────────┘
 [[}]]
+[[qa.error_control.101}]]
 
-● Context (Core lib 1.7+) [[{101,arch.distributed,async/reactive.101,qa.error_control]]
+## Context (Core lib 1.7+) [[{101,arch.distributed,async/reactive.101,qa.error_control]]
 @[https://pkg.go.dev/context]
 @[https://blog.golang.org/context]
 - Moved to Core lib in 1.7 (from golang.org/x/net/context).
@@ -868,9 +816,9 @@ func TestMain(m *testing.M) {    <- Optional, low-level primitive, only necessar
   cancelation and request-scoped values across a handler chain. [[}]]
 [[}]]
 
-● Viper App Config:("12 factor") [[{devops.configuration.viper,01_PM.low_code]]
-• Low code application configuration library.
-• Features support:
+## Viper (App Config) [[{architecture.distributed.12factor.devops.configuration.viper,01_PM.low_code]]
+* Low code application configuration library.
+* Features support:
   · Find/load/unmarshal JSON/TOML/YAML/HCL/INI/envfile/Java-properties
   · default values.
   · override through command line flags.
@@ -878,12 +826,12 @@ func TestMain(m *testing.M) {    <- Optional, low-level primitive, only necessar
   · Make it easy to tell the difference between when a user has provided
     a command line or config file which is the same as the default.
 
-• PRECEDENCE ORDER:
+* PRECEDENCE ORDER:
   1) explicit call to Set  4) config
   2) command line flag     5) key/value store
   3) env                   6) default
 
-• Working with "injected" OS ENViroment VARiables:
+* Working with "injected" OS ENViroment VARiables:
   · Viper treats ENV VARs variables as case sensitive.
   · Ex.1:
     SetEnvPrefix("SPF") ←  use "SPF_..."  prefix for ENV.VARs.
@@ -908,394 +856,8 @@ func TestMain(m *testing.M) {    <- Optional, low-level primitive, only necessar
     next conf source). AllowEmptyEnv() will consider them set as "".
 [[}]]
 
-[[101}]]
-
-● DevOps 101 [[{devops.101]]
-@[https://github.com/tldr-pages/tldr/blob/master/pages/common/go*.md]
-@[https://github.com/tldr-pages/tldr/blob/master/pages/common/gox.md]
-
-  $ go get github.com/user/uuid← Download+install package, specified by its import path
-  $ go run file.go             ← Compile and run source file containing 'main' pkg+,unc main()
-  $ go install                 ← Compile+install current package
-
-  $ go bug                     ← Open web page to start bug-report           [QA]
-                                 https://golang.org/cmd/go/#hdr-Start_a_bug_report.
- · Compiling:
-   https://golang.org/cmd/go/#hdr-Compile_packages_and_dependencies.
-
-   $ go build path_to_main.go  ← Compile file
-      -o path/bin_exec           ← Optional
-   $ go build                \ ← Compile full package
-        -race flag               ← (optional) Add data race detection [qa]
-        path_to_package
-
-   $ go clean -n               ← Remove object files and cached files.
-                               @[https://golang.org/cmd/go/#hdr-Remove_object_files_and_cached_files]
-                                 -n : Print remove commands, do NOT remove anything.
-   $ go clean -cache           ← Delete build cache
-   $ go clean -testcache       ← Delete all cached test results
-   $ go clean -modcache        ← Delete the module cache:
-                                 WARN!!!: This deletes everything inside ${GOPATH}/go/pkg/mod/cache
-                                 shared by any module (not just the cache for modules realted to the
-                                 one we are working on, requiring potentially expensive downloads )
-
-   $ go doc ...                ← Show documentation for a package | symbol.
-                                @[https://golang.org/cmd/go/#hdr-Show_documentation_for_package_or_symbol]
-
-   $ go doc                    ← Show documentation for current package
-   $ go doc {{encoding/json}}  ← Show package doc. and exported symbols
-                                 -all flag: Show also doc. for symbols
-                                 -src flag: Show also sources
-   $ go doc -all -src \        ← Show a specific symbol.
-            {{encoding/json.Number}}
-
-   $ godoc -http=:6060         ← Serv. doc for go packages on port 6060.
-   $ godoc fmt                 ← Display help for package "fmt"
-   $ godoc fmt Printf          ← Display help for the func. "Printf" of "fmt" package
-   $ godoc -write_index \      ← Create index file
-       -index_files=.../file
-   $  godoc -http=:6060 \      ← Use the given index file to search the docs
-       -index \
-       -index_files=.../file
-
-   $ go env ...                ← Manage env.vars used by the Go toolchain.
-                               @[https://golang.org/cmd/go/#hdr-Print_Go_environment_information]
-
-   $ go env                    ← Show all environment variables
-   $ go env {{GOPATH}}         ← Show a specific environment variable
-   $ go env -w{{GOBIN}}=dir    ← Set an environment variable
-   $ go env -u{{GOBIN}}        ← Reset an environment variable's value
-
-
-   $ go fix {{packages}}       ← Update packages to use new APIs.          [qa]
-                               @[https://golang.org/cmd/go/#hdr-Update_packages_to_use_new_APIs]
-
-
-   $ go generate               ← Generate Go files by running commands     [low_code]
-                                 within source files.
-                               @[https://golang.org/cmd/go/#hdr-Generate_Go_files_by_processing_source]
-
-   $ go list  ....             ← List packages or modules.
-                               @[https://golang.org/cmd/go/#hdr-List_packages_or_modules]
-   $ go list  ./...            ← List packages
-                                 -json: render output in json format
-   $ go list std               ← List standard packages
-   $ go list -m -u all         ← List module dependencies and available    [qa][troubleshooting]
-                                 updates (for deprecated modules)
-                                 'go get' checks for deprecated modules needed to
-                                 build packages named on the command line
-
-   $ go mod ...                ← Module maintenance
-                               @[https://golang.org/cmd/go/#hdr-Module_maintenance]
-   $ go mod init $modName      ← Initialize new module in current directory
-   $ go mod download           ← Download modules to local cache
-   $ go mod tidy               ← Add missing and remove unused modules     [qa]
-   $ go mod verify             ← Verify dependencies have expected content
-   $ go mod vendor             ← Copy sources of all dependencies into the
-                                 vendor directory
-                               @[https://blog.gopheracademy.com/advent-2015/vendor-folder/]
-
-   $ go test ...               ← Tests Go packages ending with _test.go.
-                               @[https://golang.org/cmd/go/#hdr-Testing_flags]
-   $ go test -v -bench         ← Test package found in current directory
-                                 - v     flag (Optional): Verbosely
-                                 - bench flag (Optional): Run all benchmarks
-                                   Use flag similar to -benchtime 50s to restrict
-                                   benchmark run to 50 secs.
-   $ go test -v ./...          ← Test packages in current dir +  all subdirs ("...")
-
-
-   $ gofmt                     ← Tool for formatting Go source code.
-                               @[https://golang.org/cmd/gofmt/]
-   $ gofmt source.go           ← Format file to STDOUT (-w to overwrite)
-   $ gofmt -s source.go        ← Format file, then simplify the code, write result to
-                                 STDOU (-w to overwrite)
-   $ gofmt -e source.go        ← Print all (including spurious) errors
-
-
-   $ goimports ...             Updates Go import lines, add missing, removing unreferenced
-                             @[https://godoc.org/golang.org/x/tools/cmd/goimports]
-   $ goimports file.go         ← Display results to STDOUT (-w to overwrite)
-   $ goimports --d file.go     ← Display diffs to STDOUT (-w to overwrite input)
-   $ goimports -local \        ← Set the import prefix string after 3rd-party packages
-     package_path file.go        (comma-separated list)
-
-   $ gops ...                  CLI tool which lists and diagnoses Go processes currently
-                               running on your system.
-                             @[https://github.com/google/gops]
-   $ gops                      ← Print all go processes running locally
-   $ gops $PID                 ← Print more information about a process
-   $ gops tree                 ← Display process tree
-   $ gops stack $pid|$addr     ← Print current stack trace from a target program
-   $ gops memstats $pid|addr   ← Print current runtime memory statistics
-
-   $ goreload                  Live reload utility
-                             @[https://github.com/acoshift/goreload]
-   $ goreload -b bin_path \    ← Set the name of binary file to watch (defaults to .goreload)
-     file.go
-   $ goreload --logPrefix \    ← Set custom log prefix (defaults to goreload)
-     $prefix file.go
-   $ goreload --all            ← Reload whenever any file changes
-[[}]]
-
-● modules (v1.13+) [[{devops.101.modules]]
-  @[https://golangbyexample.com/package-vs-module-golang/]
-  • module: directory containing a collection of nested and related go packages
-  • ${MODULE_ROOT}/go.mod defines:
-    - module import path.
-    - Dependency requirements for successful build.
-      (It also locks them to their correct version)
-    NOTE: It allows to remove dependency on $GOPATH/src folder.
-  • ${MODULE_ROOT}/go.sum:
-    - cryptographic hash of all project's dependent modules.
-
-  • A collection of packages can now be called as module when
-    there is a requirement to version them separately or
-    a common piece of code to be shred across multiple projects.
-
-    ##################                      │ │      #################
-    # BEFORE MODULES #                      │ │      # AFTER MODULES #
-    # (package only) #                      │ │      #################
-    ##################                      │ │
-    · packages only                         │ │
-                                            │ │
-      $GOPATH/bin/  ←······························→ $GOPATH/bin/
-                                            │ │
-      $GOPATH/src/  ←······························→ Not required anymore
-             └─┬─┘                          │ │
-       All source code must be              │ │
-       placed here                          │ │
-      $GOPATH/pkg/  ←······························→ $GOPATH/pkg/mod/ (with versioning)
-             └─┬─┘                          │ │      $GOPATH/pkg/mod/cache
-               │                            │ │                      └─┬─┘
-      Download route:                       │ │                     download-cache
-      -    No versioning!!! :               │ │                   + zipped-code
-      $ go get github.com/pborman/uuid      │ │
-      will download package to              │ │
-      $GOPATH/src/github.com/pborman/uuid   │ │
-         latest version always used!!!      │ │
-       - No version in downloaded path !!!  │ │
-       - Updates overwrite current ver!!!   │ │
-                                            │ │
-      - No native dependency management ←········→ go.mod, go.sum
-        or method to specify project        │ │    (precise dependencies version
-        dependencies                        │ │     Updates without breaking anythin  ).
-        "Patchy"(non-native) solution used  │ │
-        ("dep","glide")                     │ │
-
-    $ export GOPATH=$(go env GOPATH)
-    $ export DIR="$GOPATH/github.com/user/project
-    $ mkdir $DIR ; cd $DIR          ← Make sure project is inside $GOPATH
-
-    $ go mod init                   ← Initialize go modules in project dir.
-                                      (go.mod will be created)
-    $ cat ./go.mod
-      ┌────────────────────────────────┐
-      │ module github.com/user/project ← Import path
-      │                                │
-      │ go 1.14                        ← go version used to create the module
-      └────────────────────────────────┘
-
-    $ edit ./uuid.go
-      ┌──────────────────
-      │ package main
-      │
-      │     import (
-      │     "fmt"
-      │     ...
-      │     "github.com/pborman/uuid"  ←··· transitive external dependency
-      │ )
-      │
-      │ func main() { ...  }
-      │ ...
-
-    $ go mod tidy   ← Download all required dependencies (indicated in *.go)
-                      Update ./go.mod
-    $ cat ./go.mod
-      ┌──────────────────────────────────────────┐
-      │ module github.com/user/project           │
-      │                                          │
-      │ go 1.14                                  │
-      │ require github.com/pborman/uuid v1.2.1   ← version added
-      │ ....                                     │
-
-
-    $ cat ./go.sum
-      github.com/google/uuid  v1.0.0        h1:b4Gk+7WdP/d3HZH8EJsZpvV7EtDOgaZLtnaNGIu1adA=
-      github.com/google/uuid  v1.0.0/go.mod h1:TIyPZe4MgqvfeYDBFedMoGGpEw/LqOeaOT+nhxU+yHo=
-      github.com/pborman/uuid v1.2.1        h1:+ZZIw58t/ozdjRaXh/3awHfmWRbzYxJoAdNJxe/3pvw=
-      github.com/pborman/uuid v1.2.1/go.mod h1:X/NO0urCmaxf9VXbdlT7C2Yzkj2IKimNn4k+gtPdI/k=
-
-● GOPROXY (go 1.13+ modules)
-@[https://jfrog.com/blog/why-goproxy-matters-and-which-to-pick/]
-
-• Before GOPROXY module dependencies were downloaded directly from
-  their source repositories, triggering build mutability and
-  availability (modules deleted or versions edited remotely).
-
-• GOPROXY (go 1.13+) controls the source of Go module downloads.    [[{qa]]
-  helping to assure deterministic and secure builds by redirecting
-  Go module download requests to a GOPROXY cache repository .       [[}]]
-
-• "GOPROXies" can be:
-  • Public GOPROXY : (free ones like proxy.golang.org , ...)
-    hosting OOSS modules "published" by third parties in public VCS repos.
-    $ export GOPROXY=https://proxy.golang.org   ← redirect downloads to this repo
-
-    In addition, public "GOPROXies" can also provide detailed module info. e.g:
-    http://pkg.go.dev   ← It UI allow to search for modules, show stats, ..
-
-                GitHub    ··┐
-                            ·
-    PUBLIC      BitBucket ··┤                     ┌·· Developer
-  SRC.CODE                  ├··→  GOPROXY ·······─┤
-                SVN       ··┤                     └·· CI System
-                            ·
-                Mercurial ··┘                        ·         ·
-               ·         ·                           ·         ·
-               ·         ·                           ·         ·
-               └────┬────┘                           └────┬────┘
-   ────────── SOURCE PRODUCERS ──────────────────── SOURCE CONSUMERS
-               ┌────┴────┐                           ┌────┴────┐
-               ·         ·                           ·         ·
-               ·         ·                           ·         ·
-                GitHub    ··┐                        ·         ·
-                            ·
-    PUBLIC      BitBucket ··┤    ┌───────┐        ┌·· Developer
-  +PRIVATE                  ├··→ │GOPROXY│←····┬·─┤
-  SRC.CODE      SVN       ··┤    └───────┘     ·  └·· CI System
-                            ·                  ·
-                Mercurial ··┘              $GOPRIVATE
-                                           $GONOSUMDB
-                                               ·
-                ┌───────────┐                  ·
-                │Private VCS│ ←················┘
-                │  repos    │
-                └───────────┘
-
-  • PUBLIC + PRIVATE GO MODULES : (GOPROXY + GOPRIVOTE env.var)
-
-    · Alternative 1, GOPRIVOTE: is used to bypass GOPROXY and GOSUMDB. (preferred)
-      $ export GOPROXY=https://proxy.golang.org,direct    ← for public  repos
-      $ export GOPRIVATE=*.internal.mycompany.com         ← for private repos
-                                                            bypass GOPROXY and GOSUMDB
-        WARN : It also ensures that private module repositories are not "leaked"   [security][101]
-      through requests to a public GOPROXY server.
-
-    · Alternative 2, GONOSUMDB var:  including refs to private modules.
-      It allows Go client to resolve both public and private mod. dependencies,
-      it doesn’t enforce immutability or availability requirements for
-      private modules.
-
-    · Alternative 3, private GOPROXY: Used to store both public and private modules
-      in on your own infrastructure:
-      · Public  modules cached by proxying a public GOPROXY.
-      · Private modules cached by proxying from their VCS repos.
-      e.g. using Artifactory (Enterprise Universal -go modules, npm packages,
-           helm charts,...- Repository Manager)
-      $ export GOPROXY="https://:@my.artifactory.server/artifactory/api/go/go
-      $ export GONOSUMDB="github.com/mycompany/*,github.com/mypersonal/*"
-[[}]]
-
-● Simple HTTP client / server [[{io.http]]
-  • HTTP Simple client @[https://gobyexample.com/http-clients]
-
-    package main                              ← Exec like   $ go run http-clients.go
-
-    import ( "bufio" "fmt" "net/http" )
-
-    func main() {
-      resp, err :=
-         http.Get("http://....")              ←  convenient shortcut around
-      if err != nil {                            creating http.Client instance
-          panic(err)                             , then calling its Get method
-      }                                           using http.DefaultClient with
-                                                  sensible default settings
-
-      defer resp.Body.Close()                 ←  Close I/O resource on defer.
-
-      fmt.Println("Res.Status:", resp.Status)
-
-      scanner := bufio.NewScanner(resp.Body)
-      for i:= 0; scanner.Scan() && i<5; i++ { ← Print first 5-lines of the
-        fmt.Println(scanner.Text())             res.body.
-      }
-
-      if err := scanner.Err(); err != nil {
-          panic(err)
-      }
-    }
-
-  • HTTP Simple server @[https://gobyexample.com/http-servers]
-    import ( "fmt" "net/http" )
-
-    func hello( w    http.ResponseWriter,    ← handler 1
-          req *http.Request) {
-      fmt.Fprintf( w , "hello\n")
-    }
-
-    func headers(                             ← handler 2. echo Req.headers
-        w    http.ResponseWriter,                          to Res.body
-        req *http.Request) {
-      for key, value_l
-          := range req.Header {      ←  key: Header name, value: 1+ values
-        for _, h := range value_l {
-          fmt.Fprintf( w ,
-            "%v: %v\n", key, h)
-        }
-      }
-    }
-
-    func main() {
-        http.HandleFunc("/hello"  , hello  )
-        http.HandleFunc("/headers", headers)
-        http.ListenAndServe(":8090", nil) // nil: use def.router just defined
-    }
-
-  • See also: https://github.com/valyala/fasthttp
-    - HTTP tuned for high performance.
-    - Zero memory allocations in hot paths.
-    - Up to 10x faster than net/http .
-
-• Simple HTTP server using gin-gonic:
-  https://github.com/gin-gonic/
-
-  PRE-SETUP:
-  go 1.16+
-  $ go get -u github.com/gin-gonic/gin
-
-  import "github.com/gin-gonic/gin"
-  import "net/http" // Optional, needed if reusing constants like http.StatusOK
-
-  func main() {
-    router := gin.Default()
-    router.Static("/assets", "./assets")
-    router.StaticFS("/more_static", http.Dir("my_file_system"))
-    router.StaticFile("/favicon.ico", "./resources/favicon.ico")
-    router.StaticFileFS("/more_favicon.ico", "more_favicon.ico", http.Dir("my_file_system"))
-
-    // Listen and serve on 0.0.0.0:8080
-    router.Run(":8080")
-  }
-
-
-● See also https://github.com/gravityblast/fresh:   [[{qa.UX.flesh]]
-  Fresh is a command line tool that builds and (re)starts your web
-  application everytime you save a Go or template file.
-   If the web framework you are using supports the Fresh runner,
-  it will show build errors on your browser.
-   It currently works with Traffic, Martini and gocraft/web.
-  $ go get github.com/pilu/fresh # Installation
-  $ cd /path/to/myapp            # Ussage
-  $ Start fresh
-
-     It will watch for file events, and every time you
-  create/modify/delete a file it will build and restart the
-  application. If go build returns an error, it will log it in the tmp
-  folder.                                         [[01_PM.UX.flesh}]]
-[[io.http}]]
-
-● TIME MANAGEMENT: @[https://golang.org/pkg/time/] [[{101.date_time]]
+## Time Management [[{101.date_time]]
+@[https://golang.org/pkg/time/]
   start   := time.Now()
   elapsed := time.Now().Sub (start) // time diff
 
@@ -1381,7 +943,7 @@ func TestMain(m *testing.M) {    <- Optional, low-level primitive, only necessar
     func (d Weekday) String() string
 [[}]]
 
-● Go Text Templates [[{strings.templates,devops,]]
+## Go Text Templates [[{strings.templates,devops,]]
 @[https://pkg.go.dev/text/template?utm_source=oficina24x7.com]
   - Used, among others, by helm charts.
   - Example:
@@ -1511,7 +1073,7 @@ func TestMain(m *testing.M) {    <- Optional, low-level primitive, only necessar
   {{end}}
   {{template "T3"}}`
 
-  • See also "Sprig: Useful template functions for Go templates."
+## Sprig: Utility lib for Go templates [[{$sprig]]
   @[https://masterminds.github.io/sprig/]
     - String : trim, wrap, randAlpha, plural, etc.
     - String List : splitList, sortAlpha, etc.
@@ -1537,41 +1099,1181 @@ func TestMain(m *testing.M) {    <- Optional, low-level primitive, only necessar
       - Cryptographic and Security: derivePassword, sha256sum,     [cryptography]
         genPrivateKey, etc. [security]
       - Network: getHostByName
+[[$sprig}]]
+[[strings.templates}]]
+
+## Simple HTTP client/server [[{io.http]]
+  • HTTP Simple client @[https://gobyexample.com/http-clients]
+
+    package main                              ← Exec like   $ go run http-clients.go
+
+    import ( "bufio" "fmt" "net/http" )
+
+    func main() {
+      resp, err :=
+         http.Get("http://....")              ←  convenient shortcut around
+      if err != nil {                            creating http.Client instance
+          panic(err)                             , then calling its Get method
+      }                                           using http.DefaultClient with
+                                                  sensible default settings
+
+      defer resp.Body.Close()                 ←  Close I/O resource on defer.
+
+      fmt.Println("Res.Status:", resp.Status)
+
+      scanner := bufio.NewScanner(resp.Body)
+      for i:= 0; scanner.Scan() && i<5; i++ { ← Print first 5-lines of the
+        fmt.Println(scanner.Text())             res.body.
+      }
+
+      if err := scanner.Err(); err != nil {
+          panic(err)
+      }
+    }
+
+  • HTTP Simple server @[https://gobyexample.com/http-servers]
+    import ( "fmt" "net/http" )
+
+    func hello( w    http.ResponseWriter,    ← handler 1
+          req *http.Request) {
+      fmt.Fprintf( w , "hello\n")
+    }
+
+    func headers(                             ← handler 2. echo Req.headers
+        w    http.ResponseWriter,                          to Res.body
+        req *http.Request) {
+      for key, value_l
+          := range req.Header {      ←  key: Header name, value: 1+ values
+        for _, h := range value_l {
+          fmt.Fprintf( w ,
+            "%v: %v\n", key, h)
+        }
+      }
+    }
+
+    func main() {
+        http.HandleFunc("/hello"  , hello  )
+        http.HandleFunc("/headers", headers)
+        http.ListenAndServe(":8090", nil) // nil: use def.router just defined
+    }
+
+  • See also: https://github.com/valyala/fasthttp
+    - HTTP tuned for high performance.
+    - Zero memory allocations in hot paths.
+    - Up to 10x faster than net/http .
+
+* Simple HTTP server using gin-gonic:
+  https://github.com/gin-gonic/
+
+  PRE-SETUP:
+  go 1.16+
+  $ go get -u github.com/gin-gonic/gin
+
+  import "github.com/gin-gonic/gin"
+  import "net/http" // Optional, needed if reusing constants like http.StatusOK
+
+  func main() {
+    router := gin.Default()
+    router.Static("/assets", "./assets")
+    router.StaticFS("/more_static", http.Dir("my_file_system"))
+    router.StaticFile("/favicon.ico", "./resources/favicon.ico")
+    router.StaticFileFS("/more_favicon.ico", "more_favicon.ico", http.Dir("my_file_system"))
+
+    // Listen and serve on 0.0.0.0:8080
+    router.Run(":8080")
+  }
+
+[[io.http}]]
+
+## Flesh [[{IO.http.server,qa.UX.flesh]]
+@[https://github.com/gravityblast/fresh]
+  Fresh is a command line tool that builds and (re)starts your web
+  application everytime you save a Go or template file.
+   If the web framework you are using supports the Fresh runner,
+  it will show build errors on your browser.
+   It currently works with Traffic, Martini and gocraft/web.
+  $ go get github.com/pilu/fresh # Installation
+  $ cd /path/to/myapp            # Ussage
+  $ Start fresh
+
+     It will watch for file events, and every time you
+  create/modify/delete a file it will build and restart the
+  application. If go build returns an error, it will log it in the tmp
+  folder.                                         [[01_PM.UX.flesh}]]
+
+
+## Sling HTTP client [[{IO.http.client]]
+* HTTP client library.
+* Sling stores HTTP Request properties to simplify sending requests and decoding responses.
+[[IO.http}]]
+
+
+
+## Mapstructure map<··>structure [[{IO.serialization,persistence,qa.error_control]]
+@[https://github.com/mitchellh/mapstructure]
+* library for decoding generic map values to structures and vice versa,
+  while providing helpful error handling.
+
+   This library is most useful when decoding values from some data
+  stream (JSON, Gob, etc.) where you don't quite know the structure of
+  the underlying data until you read a part of it. You can therefore
+  read a map[string]interface{} and use this library to decode it into
+  the proper underlying native Go structure.
 [[}]]
 
-● https://github.com/tal-tech/go-zero [[{01_PM.low_code,IO.http,arch.distributed,arch.mobile,01_PM.TODO]]
-• web+rpc framework that integrates lots of engineering practices.
-• go-zero contains simple API description syntax and code generation
+# DATA STRUCTURES [[{101.data_structure]]
+## Structs
+  type Circle struct {
+    x, y, r float64
+    color   string
+  }
+  circle1 := Circle{0,0,4,"blue"}
+
+  func (c Circle) area() float64 {      <- friend-function for struct
+    return math.Pi * c * c * r             See also related @[#golang_interfaces]
+  }
+  circle1.area()                        <- Invoking friend function
+
+  type Wheel struct {
+     Circle                             <- embedded (composed) type
+     material string
+  }
+  wheel1 := Wheel1{circle1, "iron"}
+  wheel1.area                           <- calls wheel1.circle1.area
+
+
+## Arrays
+  var x [5]int        ← 0-initialized   <- ARRAY DEFINITION.             [[{qa.inmu_code}]]
+      x[4] = 100      ← [ 0 0 0 0 100]     FIXED LENGTH AT COMPILE TIME.
+      len(x)
+  var y := [3]float64 { 1.0, 2.0, 3.0}  <- value-initialized
+
+  y_copy := y                           <- VALUE SEMANTIC, y_copy is a COPY-OF-ARRAY
+  y_cpy[0] = 25                            <- y[0] not modified.
+  byteArrayFromStr := []byte("a slice")
+
+  array01 := []struct {                 <- array of anonymous struct type
+    field1 string,                         used just in scope 'array01'
+    field2 string
+  } {
+    {"value_1_1", "value_1_2"},
+    {"value_2_1", "value_2_2"},
+    ...
+  }
+  cases_l[0].field1
+  cases_l[0].field2
+
+  for idx, element :=  range array1 {  <- WALKING OVER ARRAYS
+    // do something                       ===================
+  }
+
+## Slices (array segments, Dyn.Size)
+- Internally, slice they look to be a link of arrays.
+- More widely used in code than arrays.
+  slice1 :=  make ([]float64 /*type*/, // <·· zero-initialized
+                           5 /*len*/   ,
+                          10 /*capacity*/)
+  array1 := []int{1,2,3,4,5}
+  slice2 := array1[0:5]                <- Create slice from array
+  slice2 :=append(slice2,4,5,[]int{6}) <- Slice grows on-demand.
+  s3_copy := slice3                    <- reference semantics (both slices modify same values)
+  s3_copy[0] = 1                       <- slice3[0] will change too.
+  copy(slice3,slice2)                  <- copy of slice2 up to len [[{01_PM.TODO}]]
+
+## Maps (Dyn.size) [[{]]
+  https://golang.org/ref/spec#Map_types]
+  (Dictiona./Associat.arrays/hashtables)
+  map1 :=  make (  map [string]int) // <···Alt 1:Declare map
+  map1["key"] = 10                  //       <·· Init keys
+  map2 := map[string]int            // <·· Alt 2:Declare with initial key/values
+             {"three": 3,...}
+  delete(map1, "key")               // <·· Delete by key.
+  map1["no_key"]                    // <·· WARN: "ZERO TYPE VALUE" returned (no throw, no nil)
+  if value1, ok := map1["key1"]; ok {// <·· one line key-exists check
+     ...
+  } else { ... }
+  map2 := map[string]map[string]string{
+    "H": map[string]string{
+      "name":"Hydrogen",
+      "state":"gas",
+    },
+    ...
+  }
+
+  for key, value :=   range  map1 {      ● WALK OVER MAPS
+    fmt.Println(                           Alt: for _, value := .. if key is not needed
+      "Key:", key, "Value:", value)
+  }
+[[}]]
+
+## Lists [[{data_structure.list]]
+  import ("container/list")
+  var x list.List
+  x.PushBack(1)
+  x.PushBack(2)
+  ...
+
+  import ("sort")                       ● LIST SORTING
+  type ByOrder1 []MyType
+  func (this ByOrder1) Len() int {
+    return   len (this)
+  }
+  func (this ByOrder1)
+    Less(i, j int) bool {
+    return this[i].Name < this[j].Name
+  }
+  func (this ByOrder1) Swap(i, j int) {
+    this[i], this[j] = this[j], this[i]
+  }
+  ...
+  sort .Sort (ByOrder1(kids))  // <······ Execute sort
+
+  for e := l.Front();  <············┐  ● WALK OVER LISTS
+       e != nil; e = e.Next() {     └···· NOTE: l is a *List
+      // do something with e.Value
+  }
+[[}]]
+[[101.data_structure}]]
+[[101}]]
+
+# Functional Programming With Samber Lo [[{lo]]
+## SPEC [https://godoc.org/github.com/samber/lo](https://godoc.org/github.com/samber/lo)
+https://github.com/samber/lo
+
+## **SLICES!!!**: Times Uniq UniqBy GroupBy Chunk PartitionBy Flatten Interleave Shuffle Reverse Fill Repeat RepeatBy KeyBy Associate / SliceToMap Drop DropRight DropWhile DropRightWhile Reject Count CountBy CountValues CountValuesBy Subset Slice Replace ReplaceAll Compact IsSorted IsSortedByKey
+
+lo.Times( // Iterate N times, return array of intermediate results
+          // use lop.Times parallel goroutine processing
+  3 /*Number of iterations*/,
+  func(index int) string {
+    return strconv.FormatInt(int64(i), 10)
+}) // result []string{"0", "1", "2"}
+
+list0_5 :=  []int{0, 1, 2, 3, 4, 5}
+uniqValues := lo.UniqBy( list0_5,
+   func /*criteria of-uniqueness*/ (i int) int { return i%3 }
+) // []int{0, 1, 2}
+
+groups := lo.GroupBy( // lop.GroupBy for parallel processing.
+  list0_5,
+  func /*GroupBy critery*/(i int) int { return i%3 })
+//     ┌──────────────────────────┘
+// map[int][]int{0: []int{0, 3}, 1: []int{1, 4}, 2: []int{2, 5}}
+
+Parallel processing: like `lo.GroupBy()`, but callback is called in goroutine.
+
+lo.Chunk(list0_5, 2 /*size*/) split into groups of length `size`.
+// [][]int{{0, 1}, {2, 3}, {4, 5}} // Final chunk with up to size elements
+
+partitions := lo.PartitionBy( // Split by criteria
+//            lop.PartitionBy(
+  []int{-2, -1, 0, 1, 2, 3, 4, 5},
+  func /*partition criteria*/(x int) string {
+    if x < 0 {
+        return "negative"
+    } else if x%2 == 0 {
+        return "even"
+    }
+    return "odd"
+})
+// [][]int{{-2, -1}, {0, 2, 4}, {1, 3, 5}}
+
+
+flat := lo.Flatten([][]int{{0, 1}, {2, 3}}) // []int{0, 1, 2, 3}
+
+interleaved := lo.Interleave( // Round-robin input, seq append
+  []int{1, 4, 6, 8},
+  []int{2, 5, 7},
+  []int{3, } )
+// []int{1, 2, 3, 4, 5, 6, 7, 8}
+
+randomOrder := lo.Shuffle(list0_5) // Fisher-Yates shuffle algorithm
+// []int{1, 4, 0, 3, 5, 2}
+
+reverseOrder := lo.Reverse(list0_5) // []int{5, 4, 3, 2, 1, 0}
+helper is **mutable**. behavior might change in `v2.0.0`
+
+initializedSlice := lo.Fill([5]int, 3 /*init value*/) // [3 3 3 3 3]
+
+
+Builds a slice with N copies of initial value.
+slice := lo.Repeat(2, foo{"a"}) // []foo{foo{"a"}, foo{"a"}}
+slice := lo.RepeatBy(5, // [0 1 4 9 16]
+   func(i int) int { return math.Pow(i, 2) }
+)
+
+
+m := lo.KeyBy( // slice||array ··> map, based on pivot func
+  []string{"a", "aa", "aaa"},
+  func /*pivot */(str string) int { return len(str) }
+) // map[int]string{1: "a", 2: "aa", 3: "aaa"}
+
+(if two pairs have the same key last one gets added)
+in := []*foo{
+    {baz: "apple" , bar: 1, biz: 23.0},
+    {baz: "banana", bar: 2, biz: 23.0},
+}
+aMap := lo.Associate( // slice ··> |transform func| ··> key-value map
+    in,
+    func /*transform*/ (f *foo) (string, int) {
+    return f.baz, f.bar // <·· transform by "projecting") struct in map
+}) // map[string][int]{ "apple":1, "banana":2 }
+
+l := lo.Drop     (list0_5, 2/* drop N from start*/) // []int{2, 3, 4, 5}
+l := lo.DropRight(list0_5, 2/* drop N from end  */) // []int{0, 1, 2, 3}
+l := lo.DropWhile(list0_5, func(i int) bool { i < 3 }) // []int{3, 4, 5}
+//     .DropRightWhile ...                     i > 3    // []int{0, 1, 2}
+
+count := lo.Count(list0_5, 1 /* ref */ ) // 1 (#Elements matching ref value)
+count := lo.CountBy(list0_5,
+    func /* match criteria */(i int) bool { // 5: #Elem. matching criteria
+      return i < 4
+    })
+
+lo.CountValues([]string{"foo", "bar", "bar"}) // map[string]int{"foo": 1, "bar": 2}
+
+isEven := func(v int) bool {
+    return v%2==0
+}
+
+lo.CountValuesBy(list0_5, isEvenFunc) // map[bool]int{false: 3, true: 3}
+   └───────────┴─ equal to chaining lo.Map ··> lo.CountValues
+
+sub := lo.Subset(list0_5, 2 /*offset*/, 3/*length*/) // Like `slice[start:start+length]`,
+// returns new fresh "copy" []int{2, 3, 4}           // but does not panic on overflow.
+// negative offset start from right.
+
+slice := lo.Slice(list0_5, 0/*start*/, 5/*end, no-incl.*/) // []int{0, 1, 2, 3, 4}
+
+slice := lo.Replace(in, 0, 42, 1) []int{42, 1, 2, 3, 4, 5}
+                        ·   ·  └ replace first n ocurrences
+                        ·   └··· new value
+                        └······· matching element to replace
+           .ReplaceAll (Replaces all occurrences)
+
+slice := lo.Compact[string]( // return slice of all non-"zero" elements
+        []string{"", "foo", "", "bar", ""})
+
+slice := lo.IsSorted(list0_5)          // true
+slice := lo.IsSortedByKey(list0_5,
+           func(i int) { return -i } ) // false
+
+map01= map[string]int{"foo": 1, "bar": 2, "baz": 3}
+
+## **MAPS!!!**: Keys|Values ValueOr PickBy(Keys/Values) OmitBy(Keys/Values) (From|To)Entries/(From|To)Pairs Invert Assign Map(Keys|Values|Entries) MapToSlice
+keys := lo.Keys  [string, int](map01) // []string{"foo", "bar", "baz"}
+vals := lo.Values[string, int](map01) // []int{1, 2, 3}
+
+val  := lo.ValueOr[string, int](map01, "foo", 42) // 1
+val  := lo.ValueOr[string, int](map01, "buf", 42) // 42
+
+Returns same map type filtered by given predicate.
+
+m := lo.PickBy(map01,  // map[string]int{"foo": 1, "baz": 3}
+       .OmitBy to omit (vs pick)
+   func /*filter predicate*/(key string, value int) bool {
+    return value%2 == 1
+})
+
+m := lo.PickByKeys  (map01, []string{"foo"}) // ...{"foo": 1}
+       .OmitByKeys
+m := lo.PickByValues(map01, []int{1, 3}) // ..{"foo": 1, "baz": 3}
+       .OmitByValues
+
+
+
+entries := lo.Entries(map01) // transform map to list of key/value pairs
+// []lo.Entry[string, int]{  // (alias: ToPairs)
+//     { Key: "foo", Value: 1 },
+//     { Key: "bar", Value: 2 },
+// }
+
+m := lo.FromEntries(...) // transform key/value list to map
+
+m1 := lo.Invert(map01) // map[int]string{1: "foo", 2: "bar", 3: "baz"}
+         └ "switch" key <··> value. For colling values, last one is
+                                    taken as key
+
+mergedMaps := lo.Assign[string, int]( // "merge" arrays
+    map[string]int{"a": 1, "b": 2},
+    map[string]int{"b": 3, "c": 4},
+)
+ // map[string]int{"a": 1, "b": 3, "c": 4}
+
+m2 := lo.MapKeys( // transform keys
+   // lo.MapValues to transform values
+  map01, func /*key transformer*/(idx int, v string) string {
+    return fmt.Sprintf("%d %s, idx, strings.ToUpper(v))
+}) // map[string]int{"0 FOO": 1, "1 BAR": 2, "2 BAZ": 3}
+
+out := lo.MapEntries( map01,
+   func(k string, v int) (int, string) {
+    return v,k
+}) // map01= map[int]string{1: "foo", 2: "bar", 3: "baz"}
+
+s := lo.MapToSlice(map01,
+    func(k int, v string) string {
+    return fmt.Sprintf("%d_%s", k, v)
+}) // []string{"foo_1", "bar_2", "baz_3"}
+
+
+## **MATH!!!**: Range(From|WithSteps), RangeWithSteps, Clamp, Sum(By)
+
+result := lo.Range(4) // [0, 1, 2, 3]
+result := lo.RangeFrom(1, 5) // [1, 2, 3, 4, 5]
+result := lo.RangeFrom[float64](1.0, 4) // [1.0, 2.0, 3.0, 4.0 ]
+result := lo.RangeWithSteps(0, 20, 5) // [0, 5, 10, 15]
+result := lo.RangeWithSteps[float32](-1.0, -4.0, -1.0) // [-1.0, -2.0, -3.0]
+
+r1 := lo.Clamp(0, -10, 10)   // 0
+r2 := lo.Clamp(-42, -10, 10) // -10
+r3 := lo.Clamp(42, -10, 10)  // 10
+
+sum := lo.Sum(list0_5) // 15
+sum := lo.SumBy(list0_5, func(e int) int { return e*2 }) // 30
+
+## **STRINGS!!!**: Random|Sub|Chunk|String, RuneLength [[{strings.lo]]
+str := lo.RandomString(5, lo.LettersCharset) // example: "eIGbt"
+sub := lo.Substring("hello", 2, 3) // "llo"
+sub := lo.Substring("hello", -2, math.MaxUint) // "lo"
+lo.ChunkString("123456", 2) // []string{"12", "34", "56"}
+[[}]]
+
+sub := lo.RuneLength("hellô") // 5
+sub := len("hellô") // 6
+
+## **TUPLES!!!**: TN (Un)packN, (Un)ZipN
+tuple2 := lo.T2("x", 1) // Tuple2[string, int]{A: "x", B: 1}
+              └ 2...9
+r1, r2 := lo.Unpack2(tuple2) // "x", 1
+                   └ 2...9
+                ┌····┘
+tuples := lo.Zip2(       // []Tuple2[string, int]{
+        // UnZip2
+  []string{"a", "b"},    //   {A: "a", B: 1},
+  []int   {1  , 2  } )   //   {A: "b", B: 2}     }
+
+## **CHANNELS!!!**: ChannelDispatcher SliceToChannel Generator Buffer(WithTimeout) Fan(In|Out)
+input_ch := make(chan int, 42);
+consumerFunc := func(c <-chan int) { ... }
+children := lo.ChannelDispatcher(  // Distributes messages into N child channels.
+  input_ch,
+  5 /*child number*/,
+  10 /*buffer capacity, 0=> unbuffered*/,
+  lo.DispatchingStrategyRoundRobin[int])
+  // └──────────────┬────────────┘
+//   DispatchingStrategyRoundRobin
+//   DispatchingStrategyRandom
+//   DispatchingStrategyWeightedRandom
+//   DispatchingStrategyFirst /* to first non full channel */
+//   DispatchingStrategyLeast /* Distribute to emptiest channel */
+//   DispatchingStrategyMost /* Distribute to the fullest channel. */
+
+for i := range children { go consumerFunc(children[i]) }
+for i := 0; i <= 10; i++ { input_ch <- i }
+
+NOTE: Some strategies bring fallback, in order to favor non-blocking behaviors.  See implementations.
+      Custom strategies can be defined with `lo.DispatchingStrategy` prototype.
+
+
+for v := range lo.SliceToChannel(2, list0_5) { println(v) } // prints 0, then 1, ...
+                  ^^^^^
+Returns a read-only channels of collection elements.
+Channel is closed after last element. Channel capacity can be customized.
+
+ch_list := lo.SliceToChannel(2, list0_5)
+items :=   lo.ChannelToSlice(ch_list) // []int{0, 1, 2, 3, 4, 5}
+
+generator := func(yield func(int)) {
+    yield(1)
+    yield(2)
+    yield(3)
+}
+for v := range lo.Generator(2, generator) { println(v) } // prints 1, then 2, then 3
+
+
+ch_list := lo.SliceToChannel(2, list0_5)
+items1, length1, duration1, ok1 := lo.Buffer(ch_list, 3) // []int{0, 1, 2}, 3, 2s, true
+items2, length2, duration2, ok2 := lo.Buffer(ch_list, 3) // []int{3, 4, 5}, 3, 0s, false
+Creates slice of n el. from channel  ─┴────┘
+Returns the slice, slice length,
+read time and channel status (opened/closed).
+A lo.BufferWithTimeout(ch_list, N, 100*time.Milliseconds) version exists.
+
+Example: RabbitMQ consumer !!!!
+ch := readFromQueue()
+for {
+    items, length, _, ok := lo.Buffer(ch, 1000 /* read 1k items */)       // Alt 1.
+    //                   := lo.BufferWithTimeout(ch, 1000, 1*time.Second) // Alt 2. With timeouts
+    // ... batch stuff
+    if !ok { break }
+}
+
+Example: Multithreaded RabbitMQ consumer
+INPUT_CH := readFromQueue()
+
+children := lo.ChannelDispatcher(
+     INPUT_CH, 5, 1000 /* 1k per worker */, lo.DispatchingStrategyFirst[int])
+
+consumer := func(c <-chan int) {
+    for {
+        items, length, _, ok := lo.BufferWithTimeout(ch, 1000, 1*time.Second) // read 1k items
+        // ... batch stuff
+        if !ok { break }
+    }
+}
+for i := range children { go consumer(children[i]) }
+
+
+all := lo.FanIn (100, ch1, ch2, ch3) Merge N input channels into 1 buffered channel
+all := lo.FanOut(5, 100, input_channel) // [5]<-chan int
+
+## **INTERSECT!!!**: Contains(By) Every(By) Some(By) None(By) Intersect, Diff. Union Without(Empty)
+
+present := lo.Contains(list0_5, 5) // true
+present := lo.ContainsBy(list0_5, func(x int) bool { return x == 3 })
+
+ok := lo.Every  (list0_5, list0_2) // true (every element of subset are contained in collection
+ok := lo.Every  (list0_5, list0_7) // false
+        .EveryBy(collection, predicateFun)
+ok := lo.Some   (list0_5, list0_7) // true (at least 1 element is contained in collection)
+        .SomeBy (collection, predicateFun)
+ok := lo.None   (list0_5, list0_2) // false (true if none element is contained)
+        .NoneBy (collection, predicateFun)
+
+lo.Intersect (list0_5, list0_2) // []int{0, 2}
+lo.Difference(list0_5, list0_2) // []int{3, 4, 5}
+lo.Union     (list0_5, list0_7) // []int{0, 1, 2, 3, 4, 5, 6, 7}
+lo.Without   (list0_5, 0, 1, 2) // []int{3, 4, 5}
+  .WithoutEmpty(list0_5)        // []int{1, 2, 3, 4, 5}
+
+
+## **SEARCH!!!**: (Last)IndexOf Find(|(Last)IndexOfOrElse|Key|KeyBy|Uniques|UniquesBy|Duplicates(By))
+Min MinBy Max MaxBy Last Nth Sample Samples
+lo.IndexOf  (list0_5, 2)        // 2 (-1 if not found)
+  .LastIndexOf ...
+lo.Find(list0_5,     // 0, true (return first element found)
+        func(i int) bool { return i%2 == 0 })
+lo.FindIndexOf(...) // return element, index and true|fals
+lo.FindLastIndexOf
+lo.FindOrElse       // Like Find, if not found, returns default value
+lo.FindKey
+lo.FindKeyBy
+lo.FindUniques   ([]int{1, 2, 2, 1, 2, 3}) // []int{3}
+  .FindUniquesBy
+lo.FindDuplicates([]int{1, 2, 2, 1, 2, 3}) // []int{1, 2}
+  .FindDuplicatesBy
+
+min := lo.Min([]int{1, 2, 3}) // 1
+         .MinBy(collection, comparison function)
+         .Max
+         .MaxBy(collection, comparison function)
+last, err := lo.Last(list0_5) // 5, false (error if empty)
+nth, err := lo.Nth(list0_5, 2) // 1, false return at index N
+lo.Sample(list0_5)    // 3,    fetch random element
+lo.Samples(list0_5,3) // 1,5,0 fetch random elements
+
+## **CONDITIONAL!!!**: Ternary(F) If/ElseIf/Else Switch/Case/Default
+result := lo.Ternary(true, "a", "b") // "a"
+result := lo.TernaryF(true,          // "a"
+                      func() string { return "a" },
+                      func() string { return "b" })
+ Very useful to avoid nil-pointer dereferencing in intializations, [[{QA]]
+  or avoid running unnecessary code                                [[}]]
+
+
+lo.If(true, 1).ElseIf(false, 2).Else(3) // 1
+lo.IfF(true, func1).ElseIfF(false, func2).ElseF(func3)
+lo.IfF(true, func1).ElseIfF(false, func2).Else(42)  // If/IfF can mixed
+
+result := lo.Switch(1).Case (1, "1"). Case (2, "2"). Default ("3")
+result := lo.Switch(1).CaseF(1,  f1). CaseF(2, f2 ). DefaultF(f3)
+
+## **TYPE MNG!!!**: (Emptyable)ToPtr FromPtr(Or) To|From(SlicePtr|AnySlice) (Is)(Not)Empty Coalesce
+ptr := lo.ToPtr("hello world") // *string{"hello world"}
+         .EmptyableToPtr       // nil pointer if element is zero
+value := lo.FromPtr(&strPtr) // "hello world"
+           .FromPtrOr        // value or default value if prt is nill.
+Returns a slice of pointer copy of value.
+ptr := lo.ToSlicePtr([]string{...}) // []*string{"hello", "world"}
+elements := lo.ToAnySlice([]int{1, 5, 1}) // []any{1, 5, 1}. All elements mapped to `any` type
+elements, ok := lo.FromAnySlice([]any{"foobar", 42})
+elements, ok := lo.FromAnySlice([]any{"foobar", "42"}) // []string{"foobar", "42"}, true
+                   └ maps all `any` elements to a type or fails
+lo.Empty[int](), lo.Empty[string](), lo.Empty[bool]() // 0, "", false
+lo.IsEmpty(0), lo.IsEmpty(""), lo.IsEmpty(test{foobar: ""}) // true, true, true
+  .IsNotEmpty
+
+result, ok := lo.Coalesce(0, 1, 2, 3) // 1 true. Returns the 1st non-empty argument
+
+## **FUNCTION!!!**: Partial
+add := func(x, y int) int { return x + y }
+f := lo.Partial(add, 5)     // Returns new func. that, when called, has its 1st arg set to provided value.
+        Partial2 -> Partial5// Returns new func. that, when called, has its 1st arg set to provided value.
+
+## **CONCURRENCY!!!**: Attempt(While)(WithDelay) Debounce(By) Synchronize Async Transaction
+iter, err := lo.Attempt( // Invokes func. N times until it returns valid output.
+            // .AttemptWithDelay
+            // .AttemptWhile
+            // .AttemptWhileWithDelay
+    42, // number of trials, 0 or negative to attempt forever
+    func(i int) error {
+       if i == 5 { return nil }
+       return fmt.Errorf("failed") // Fail after N attemps
+    }) // 6 nil
+
+NOTE: For more advanced retry strategies (delay, exponential backoff...),
+      please take a look on [cenkalti/backoff](https://github.com/cenkalti/backoff).
+
+debounceWrap, cancel := lo.NewDebounce(    // creates wrapper around func. that delays invoking
+    100 * time.Millisecond, f1)        // the func. until after wait milliseconds,
+for j := 0; j < 10; j++ { debounce() } // or until `cancel` is called.
+time.Sleep(1 * time.Second)
+cancel()
+
+debounceWrap, cancel := lo.NewDebounceBy(  // create new debounce by key
+     100 * time.Millisecond, f1)
+for j := 0; j < 10; j++ {
+    debounceWrap("first key")
+    debounceWrap("second key")
+}
+time.Sleep(1 * time.Second)
+cancel("first key")
+cancel("second key")
+
+
+s := lo.Synchronize() // Wraps underlying callback in a mutex. (It receives an optional mutex)
+for i := 0; i < 10; i++ {
+    go s.Do(func () { println("will be called sequentially") })
+}
+Equivalent to:
+mu := sync.Mutex{}
+func foobar() {
+    mu.Lock()
+    defer mu.Unlock()
+    // ...
+}
+
+ch := lo.Async2(func() (int, string) { // chan lo.Tuple2[int, string] ({42, "Hello"})
+  time.Sleep(10 * time.Second);
+  return 42, "Hello"
+})
+
+Implements a Saga pattern
+transaction := NewTransaction[int]().
+      Then( func(state int) (int, error) { fmt.Println("step 1"); return state + 10, nil },
+            func(state int)          int { fmt.Println("rollback 1"); return state - 10 },
+    ).Then( func(state int) (int, error) { fmt.Println("step 2"); return state + 15, nil },
+            func(state int)          int { fmt.Println("rollback 2") ; return state - 15 },
+    ).Then( func(state int) (int, error) { return state, fmt.Errorf("error") } // return error
+            func(state int)          int { fmt.Println("rollback 3") ; return state - 42 } )
+_, _ = transaction.Process(-5) // step 1 > step 2 > rollback 2 > rollback 1
+
+## **ERROR MNG!!!**: Try(Or){0..6} Try(WithErrorValue)(Catch(WithErrorValue)))))))))) ErrorsAs
+val := lo.Validate( // Error helper func.
+      len(someSlice) == 0,
+       "Slice should be empty but contains %v", slice)
+// error("Slice should be empty but contains [a]")
+
+lo.Must // Must{0-6}
+if 2nd argument is `error`||`false` panic, Otherwise returns value
+
+lo.Must( time.Parse("2006-01-02", "2022-01-15")) // == 2022-01-15
+lo.Must( time.Parse("2006-01-02", "bad-value" )) // panics
+lo.Must0(...,"panic hint %s", someStringParam)
+lo.Must0(ok, "'%s' must always contain '%s'", myString, requiredChar)
+val1 := lo.Must1(example1())    // alias to Must
+val1, val2 := lo.Must2(example2())
+val1, val2, val3 := lo.Must3(example3())
+val1, val2, val3, val4 := lo.Must4(example4())
+val1, val2, val3, val4, val5 := lo.Must5(example5())
+val1, val2, val3, val4, val5, val6 := lo.Must6(example6())
+
+lo.Try(func() error { return nil })                 // true
+lo.Try(func() error { return fmt.Errorf("error") }) // false
+
+Like `Try`, but callback returns 0,1,2,...6 variables.
+
+Like Try but returns default value in case of error||panic.
+str, ok := lo.TryOr(
+   func() (string, error) { panic("error") ; return nil },
+   "defVal") // world, false
+str, ok := lo.TryOr(
+   func() error { return "hello", nil },
+   "world") hello true
+
+Like `Try`, but also returns value passed to panic
+err, ok := lo.TryWithErrorValue(
+  func() error { panic("error") ; return nil }) // "error", false
+
+Like `Try`, but calls catch function in case of error.
+caught := false
+ok := lo.TryCatch(
+   func() error { panic("error") ; return nil },
+   func() { caught = true }) // false
+
+The same behavior than `TryWithErrorValue`, but calls the catch function in case of error.
+
+caught := false
+ok := lo.TryCatchWithErrorValue(func() error {
+    panic("error")
+    return nil
+}, func(val any) { caught = val == "error" }) // false; (caught == true)
+
+A shortcut for:
+err := doSomething()
+
+var rateLimitErr *RateLimitError
+if ok := errors.As(err, &rateLimitErr); ok {
+    // retry later
+}
+
+err := doSomething()
+if rateLimitErr, ok := lo.ErrorsAs[*RateLimitError](err); ok {
+    // retry later
+}
+[[lo}]]
+
+# DevOps 101 [[{devops.101]]
+## Packages:
+* Basic unit of code-reuse, code-compilation (go build) and code-documentation (godoc)
+  residing in a given folder.
+* Runnable programs must have a package called "main", entry point to the program.
+  Any other package can have an (almost) arbitrary name. They are "library" packages
+  by convention.
+* As a rule of thumb a different folder is a different package.
+  TIP: Learning to properly build small and reusable packages can take your Go career
+       to the next level.
+* Essentially a package is a library in other languages. They are NOT called 'libraries'
+  since they are statically linked to the final executable and there is not concept of
+  C/C++ library loader (ldd).
+  Rembember: All Go source code is linked at compile-time.
+             Only when linking against external C/C++ exiting libraries dynamic link is used.
+             `$ ldd main` will output "not a dynamic executable"
+* Provide support with "namespaces" in source code avoiding name collisions.
+* Speed up recompilation (Only changed packaged are recompiled).
+* Packages differ from C/C++/... libraries in the sense that the package is always statically
+  linked.
+## Modules (v1.13+) [[{devops.101.modules]]
+  @[https://golangbyexample.com/package-vs-module-golang/]
+  @[https://golang.org/ref/mod]
+* A collection of packages can now be called as module when
+  there is a requirement to version them separately or
+  a common piece of code to be shred across multiple projects.
+
+    BEFORE MODULES (packages only)        │    AFTER MODULES
+  ────────────────────────────────────────┼───────────────────────────────────────
+                                          │
+    |package|     <·······················│·> |module|1 <···> N|package|
+     ^^^^^^^                              │    ^^^^^^^
+     collection src files IN THE SAME     │    set of packages released+versioned
+     DIRECTORY compiled together.         │    +distributed together
+     package path == module path + subdir.│
+                                          │
+    - No native dependency management <·····> go.mod, go.sum
+      or method to specify project        │   (precise dependencies version
+      dependencies                        │    Updates without breaking anything).
+      "Patchy"(non-native) solution used  │
+      ("dep","glide")                     │
+                                          │
+    $GOPATH/bin/  <·························> $GOPATH/bin/
+                                          │
+    $GOPATH/src/  <·························> Not required anymore
+           └─┬─┘                          │
+     All src code must be placed here     │
+                                          │
+                                          │
+    External pkgs downloaded to: <··········> External modules downloaded to:
+      $GOPATH/pkg/                            $GOPATH/pkg/mod/ (with versioning)
+             └─┬─┘                        │   $GOPATH/pkg/mod/cache
+               │                          │                   └─┬─┘
+    Download route with NO versioning!!   │               download-cache
+    $ go get github.com/pborman/uuid      │             + zipped-code
+    will download package to              │
+    $GOPATH/src/github.com/pborman/uuid   │
+    latest version always used!!!         │
+    - No version in downloaded path !!!   │
+    - Updates overwrite current vers!!!   │
+  ────────────────────────────────────────┴───────────────────────────────────────
+
+  $ export GOPATH=$(go env GOPATH)
+  $ export DIR="$GOPATH/github.com/user/project
+  $ mkdir $DIR ; cd $DIR        # <··· Make sure project is inside $GOPATH
+  $ go mod init                 # <··· Initialize new ./go.mod
+                                       (file designed to to be human readable
+                                        and machine writable).
+
+
+
+  $ cat ./go.mod
+    │ module github.com/user/project <·· module path indentifies de module
+    │                                    It should describe what the module does & where to find it.
+    │
+    │ go 1.14 <························· go version used to create the module
+
+   In genral
+
+   golang.org/x/net/v2/go.mod <·· module path with version
+                   └──┴··········· major version suffix (only v2 or higher).
+   └──────────────┴─   (ussually matching root-dir or subdir of git repo)
+
+### Module versioning
+  version identifies an IMMUTABLE SNAPSHOT of a module, which may be
+  either a RELEASE or A PRE-RELEASE.
+  major.minor.patch-${pre_release}+${build_metadata_string}
+  ^   ^ ^   ^ ^   ^^             ^└──────────┬────────────┘
+  ·   · ·   · ·   ··             · - optional (eg: +meta, ...)
+  ·   · ·   · ·   ··             · - ignored by VCS, preserved in go.mod.
+  ·   · ·   · ·   ·└─────────────┴─··optional (eg:-pre-release,-alpha.1,-beta.2)
+  ·   · ·   · ·   ·                  If not set, go tools default to release.
+  ·   · ·   · ·   ·                  As with v0, no backwards compatibility guarantee exists
+  ·   · ·   · └───┴─··· increase after bug-fix.
+  ·   · └───┴─··· increase after compatible (feature) update (reset patch)
+  └───┴─··· increase after incompatible update (reset minor/patch)
+            Use v0 for unstable version (not subject to compatibility requirements)
+
+  $ go mod edit \              # <··· Fix problem when working with local code.
+    replace=mycomp.com/mymoduleA@v0.0.0-unpublished=../mymoduleA
+    └────────────────────────────┬─────────────────────────────┘
+    A line similar to next one will be added to go.mod:
+   + replace mycomp.com/mymoduleA v0.0.0-unpublished => ../mymoduleA
+
+  go.mod
+  ...
+  exclude (
+      golang.org/x/crypto v1.4.5  <···· exclude dependency traking
+      golang.org/x/text v1.6.7
+  )
+  ...
+  replace (
+      golang.org/x/net v1.2.3 => example.com/fork/net v1.4.5
+      golang.org/x/net => example.com/fork/net v1.4.5
+      golang.org/x/net v1.2.3 => ./fork/net
+      golang.org/x/net => ./fork/net
+  )
+
+
+  $ editor ./uuid.go
+    ┌──────────────────
+    │ package main
+    │
+    │ import (
+    │   "fmt"
+    │   ...
+    │   "github.com/pborman/uuid"  ←··· transitive external dependency
+    │ )
+    │
+    │ func main() { ...  }
+    │ ...
+
+  $ go mod tidy  # <··· 1. Download all required dependencies
+                           by inspecting imports in *.go source files.
+                        2. Update ./go.mod
+  $ cat ./go.mod
+  │ module github.com/user/project           <·· path used to import this module
+  │                                              (code in modules nows supports
+  │ go 1.14                                       dependency tracking)
+  │ require (
+  │   github.com/xxx/modA v1.2.1             <·· tagged in repo release.     Fully tested and ready to use.
+  │   github.com/xxx/modB v1.2.1-beta.1      <·· tagged in repo pre-release. "Future in test release.
+  │
+  │   github.com/xxx/modC v0.0.0-2018-af0... <·· commit pseudo-version. No stability or well-defined API
+  │                                              must be assumed by consumers.
+  │                                              Remember. go tooling default behaviour:
+  │                                              module ...                     def. dependency resolution
+  │                                              -----------------------------  ------------------------------
+  │                                              ...does not have any release  => latest commit  picked
+  │                                              ...does     have     releases => latest release picked
+  │                                                                               └──┬─┘
+  │                                                                      latest == greatest semantic actually
+  │   github.com/xxx/yyy v1.2.3 // indirect  <·· transitive dependency
+  │   ...
+  │ )
+### Module release ("publish") KEY-POINTS:
+* Once we start tagging behaviour changes and we need to we need to keep tagging.
+   Untagged commits will be ignored by go tools unless the explicit pseudo-version is used.
+* Do not delete version tags, release new versions with new tags.
+  Otherwise builds depending on such version will fail.
+* Do not change or overwrite a version. Checksums will fail.
+
+## Module release checks:
+$ go mod tidy            # remove any dependencies no longer necessary.
+$ go test ./...          # make sure "everything" (or at least tests) is working.
+$ git add A.go A_test.go
+$ git add go.mod go.sum  # Add go.mod, go.sum to release commit
+$ git commit -m "..."
+$ git tag v0.1.0         # tag release commit following semantic versioning
+$ git push origin v0.1.0 # "publish" to git.
+$ go list \              # Double-check that version is available in repo.
+  -m github.com/XX@v0.1.0
+
+AT THIS POINT OTHER PROJECTS CAN DEPEND ON OUR MODULE AT VERSION V0.1.0.
+
+### GOPROXY (Default in Go 1.13+)
+(REF: https://go.dev/doc/modules/managing-dependencies)
+* GOPROXY can modify the download behaviour of go get/install/list ...
+* By default packages are donwloaded from the default GOPROXY route:
+  GOPROXY="https://proxy.golang.org,direct"   # <·· default config. Download from Google.
+                                                    fallback to (github/others) repository.
+  The proxy (by default Google-run proxy.golang.org) also         [[{qa]]
+  checks against mutability of packages (the author changes the
+  original code keeping the same version).                        [[}]]
+
+* To customize using first myCustomProxy.com:
+  export GOPROXY="https://myCustomProxy.com,https://proxy.golang.org,direct"
+* To skip checksums for private modules (local development):
+  * Alt 1, GOPRIVATE: bypass GOPROXY and GOSUMDB. (preferred)
+    $ export GOPROXY=https://proxy.golang.org,direct    ← for public  repos
+    $ export GOPRIVATE=*.internal.mycompany.com         ← for private repos
+                                                          bypass GOPROXY and GOSUMDB
+
+    WARN : It also ensures that private module repositories are not "leaked" [[{security.101]]
+    through requests to a public GOPROXY server.                             [[}]]
+  * Alt 2, GONOSUMDB:  including refs to private modules.
+    It allows Go client to resolve both public and private mod. dependencies,
+    it doesn’t enforce immutability or availability requirements for
+    private modules.
+  * Alt 3, private GOPROXY: Used to store both public and private modules
+    in on your own infrastructure:
+    · Public  modules cached by proxying a public GOPROXY.
+    · Private modules cached by proxying from their VCS repos.
+    e.g. using Artifactory (Enterprise Universal -go modules, npm packages,
+         helm charts,...- Repository Manager)
+    $ export GOPROXY="https://:@my.artifactory.server/artifactory/api/go/go
+    $ export GONOSUMDB="github.com/mycompany/*,github.com/mypersonal/*"
+  * Alt 4 GONOPROXY
+[[devops.101.modules}]]
+
+@[https://github.com/tldr-pages/tldr/blob/master/pages/common/go*.md]
+
+
+  $ go get \                    <·· Add/update/adjust dependencies in go.mod
+    github.com/user/uuid@v1.2 #       for dependency-tracking.
+                        └─┬─┘       - NEW BEHAVIOUR (modules go v1.13+)
+                          ·           1. Download to $GOPATH/pkg/mod/
+                          ·              directly from potentially mutable sources
+                          ·              or through saferGOPROXY
+                          ·              use '$ go install' to install
+                          ·         - OLD BEHAVIOUR (export GO111MODULE=off):
+                          ·           1. download src to $GOPATH/src/github.com/user/uuid
+                          ·           2. build
+                          ·           3. install  bin to $GOPATH/bin
+                          └········ Version is optional. Defaults to latest
+                                    Can be used to upgrade and downgrade.
+                                    - A commit-hash or a branch can also be used to
+                                      fetch a given commit.
+                                    - @none can be used to stop tracking the dependency.
+                                      (any other dependency dependent of this dependency
+                                       will be downgraded to a version not dependent on it)
+
+  $ go list -m -u all         # <·· discover update: list of already tracked   [[{qa.101,qa.troubleshooting]]
+                                    dependencies dumping local  current version
+                                    and any newer version available remotely.
+                                    -m : list modules (vs packages)
+                                    -u : (v 1.17+) add information about available upgrades.
+                                    all: check for all dependencies in go.mod
+                                         (or just github.com/... for a particular one)
+                                    (opt) -json: render output as json
+                                    NOTE: It can takes about 1 minute while querying
+                                    remote services.
+  $ go mod tidy               # <·· Add missing and remove unused dependencies
+                                    to go.mod (update dependency tracking)      [[}]]
+
+  $ go vet                    # <·· examines src code, reporting suspicious constructs [[{qa.101]]
+                                    such as Printf calls whose arguments do not align
+                                    with the format string.                            [[}]]
+
+  $ go list std               # <·· List standard packages
+
+
+  $ go run file.go            # <·· Compile+run file.go
+           └─────┴··················> + package main  # 'main' package is mandatory
+                                        ...
+                                      + func main() {..} # fun. main is mandatory
+
+  $ go install                # <··     compile+install current package
+  $ go install github.com/... # <·· get+compile+install
+
+  $ go bug                     ← Open web page to start bug-report           [QA]
+                                 https://golang.org/cmd/go/#hdr-Start_a_bug_report.
+ · Compiling:
+   https://golang.org/cmd/go/#hdr-Compile_packages_and_dependencies.
+
+   $ go build path_to_main.go  ← Compile file
+      -o path/bin_exec           ← Optional
+   $ go build        \        <·· Compile full package
+        -race flag   \            <· (opt) Add data race detection [qa]
+        -race        \            <· (opt) enable data race detection.
+        -msan        \            <· (opt) enable interoperation with memory sanitizer.
+        -asan        \            <· (opt) enable interoperation with address sanitizer.
+        -v           \            <· (opt) print the names of packages as they are compiled.
+        -work        \            <· (opt) print  temporary work dir and do NOT rm it on exit.
+        path_to_package
+
+   $ go clean -n               ← Remove object files and cached files.
+                               @[https://golang.org/cmd/go/#hdr-Remove_object_files_and_cached_files]
+                                 -n : Print remove commands, do NOT remove anything.
+   $ go clean -cache           ← Delete build cache
+   $ go clean -testcache       ← Delete all cached test results
+   $ go clean -modcache        ← Delete the module cache:
+                                 WARN!!!: This deletes everything inside ${GOPATH}/go/pkg/mod/cache
+                                 shared by any module (not just the cache for modules realted to the
+                                 one we are working on, requiring potentially expensive downloads )
+
+   $ go doc ...                ← Show documentation for a package | symbol.
+                                @[https://golang.org/cmd/go/#hdr-Show_documentation_for_package_or_symbol]
+
+   $ go doc                    ← Show documentation for current package
+   $ go doc {{encoding/json}}  ← Show package doc. and exported symbols
+                                 -all flag: Show also doc. for symbols
+                                 -src flag: Show also sources
+   $ go doc -all -src \        ← Show a specific symbol.
+            {{encoding/json.Number}}
+
+   $ godoc -http=:6060         ← Serv. doc for go packages on port 6060.
+   $ godoc fmt                 ← Display help for package "fmt"
+   $ godoc fmt Printf          ← Display help for the func. "Printf" of "fmt" package
+   $ godoc -write_index \      ← Create index file
+       -index_files=.../file
+   $  godoc -http=:6060 \      ← Use the given index file to search the docs
+       -index \
+       -index_files=.../file
+
+   $ go env ...                ← Manage env.vars used by the Go toolchain.
+                               @[https://golang.org/cmd/go/#hdr-Print_Go_environment_information]
+
+   $ go env                    ← Show all environment variables
+   $ go env {{GOPATH}}         ← Show a specific environment variable
+   $ go env -w{{GOBIN}}=dir    ← Set an environment variable
+   $ go env -u{{GOBIN}}        ← Reset an environment variable's value
+
+
+   $ go fix {{packages}}       ← Update packages to use new APIs.          [qa]
+                               @[https://golang.org/cmd/go/#hdr-Update_packages_to_use_new_APIs]
+
+
+   $ go generate               ← Generate Go files by running commands     [low_code]
+                                 within source files.
+                               @[https://golang.org/cmd/go/#hdr-Generate_Go_files_by_processing_source]
+   $ go mod ...                ← Module maintenance
+                               @[https://golang.org/cmd/go/#hdr-Module_maintenance]
+   $ go mod init $modName      ← Initialize new module in current directory
+   $ go mod download           ← Download modules to local cache
+   $ go mod verify             ← Verify dependencies have expected content
+   $ go mod vendor             ← Copy sources of all dependencies into the vendor directory
+
+                               @[https://blog.gopheracademy.com/advent-2015/vendor-folder/]
+
+   $ go test ...               ← Tests Go packages ending with _test.go.
+                               @[https://golang.org/cmd/go/#hdr-Testing_flags]
+   $ go test -v -bench         ← Test package found in current directory
+                                 - v     flag (Optional): Verbosely
+                                 - bench flag (Optional): Run all benchmarks
+                                   Use flag similar to -benchtime 50s to restrict
+                                   benchmark run to 50 secs.
+   $ go test -v ./...          ← Test packages in current dir +  all subdirs ("...")
+
+
+   $ gofmt                     ← Tool for formatting Go source code.
+                               @[https://golang.org/cmd/gofmt/]
+   $ gofmt source.go           ← Format file to STDOUT (-w to overwrite)
+   $ gofmt -s source.go        ← Format file, then simplify the code, write result to
+                                 STDOU (-w to overwrite)
+   $ gofmt -e source.go        ← Print all (including spurious) errors
+
+
+   $ goimports ...             Updates Go import lines, add missing, removing unreferenced
+                             @[https://godoc.org/golang.org/x/tools/cmd/goimports]
+   $ goimports file.go         ← Display results to STDOUT (-w to overwrite)
+   $ goimports --d file.go     ← Display diffs to STDOUT (-w to overwrite input)
+   $ goimports -local \        ← Set the import prefix string after 3rd-party packages
+     package_path file.go        (comma-separated list)
+
+   $ gops ...                  CLI tool which lists and diagnoses Go processes currently
+                               running on your system.
+                             @[https://github.com/google/gops]
+   $ gops                      ← Print all go processes running locally
+   $ gops $PID                 ← Print more information about a process
+   $ gops tree                 ← Display process tree
+   $ gops stack $pid|$addr     ← Print current stack trace from a target program
+   $ gops memstats $pid|addr   ← Print current runtime memory statistics
+
+   $ goreload                  Live reload utility
+                             @[https://github.com/acoshift/goreload]
+   $ goreload -b bin_path \    ← Set the name of binary file to watch (defaults to .goreload)
+     file.go
+   $ goreload --logPrefix \    ← Set custom log prefix (defaults to goreload)
+     $prefix file.go
+   $ goreload --all            ← Reload whenever any file changes
+[[devops.101}]]
+
+# go-gin [[{01_PM.low_code,IO.http,arch.distributed,arch.mobile,01_PM.TODO]]
+* HTTP web framework featuring Martini-like API but up to 40x faster.
+* key features:
+  * Zero allocation router
+  * Fast
+  * Middleware support
+  * Crash-free
+  * JSON validation
+  * Routes grouping
+  * Error management
+  * Rendering built-in
+  * Extendable: @[https://github.com/orgs/gin-contrib/repositories]
+    sessions : Gin middleware for session management
+    pprof    : Gin pprof middleware
+    location : Gin expose server's hostname and scheme
+    cache    : Gin middleware/handler to enable Cache
+    sse      : Forked, Server-Sent Events implementation in Go
+               HTML5 standard way to send automatic updates to a browser from a server
+               via HTTP connection.
+    secure   :
+    i18n     : Gin i18n middleware
+    logger   : Gin middleware to logger url path using rs/zerolog
+    static   : Static middleware
+    authz    : authorization middleware
+    timeout  :
+    cors     :
+    opengintracing: trace requests using opentracing specification
+    gzip     : enable GZIP support
+    multitemplate: custom HTML render
+    zap      : Alternative logging through zap
+    requestid: Request ID middleware for Gin Framework
+    httpsign : (RSA/HMAC) HTTP Messages signature support.
+    size     : Limit size of POST requests for Gin framework
+    expvar   : expvar handler provides a standardized interface to public variables.
+    rollbar  : integrate with rollbar error monitoring.
+    sentry   : integrate with sentry crash reporting.
+    graceful : allows to restart and/or switch gin engine WITHOUT DROPPING EXISTING CONNS
+
+[[}]]
+
+
+
+# go-zero [[{01_PM.low_code,IO.http,arch.distributed,arch.mobile,01_PM.TODO]]
+@[https://github.com/tal-tech/go-zero]
+* web+rpc framework that integrates lots of engineering practices.
+* go-zero contains simple API description syntax and code generation
  'goctl' to generate Go, iOS, Android, Kotlin, Dart, TypeScript,
   JavaScript from .api files with goctl.
 [[}]]
 
-● GraphQL Server [[{01_PM.low_code,arch.integration,IO.graphql,persistence.sql,01_PM.TODO]]
+# GraphQL Server [[{01_PM.low_code,arch.integration,IO.graphql,persistence.sql,01_PM.TODO]]
   - Related: low_code/automatic DDBB to GraphQL tools:
     - https://graphjin.com "Build APIs in 5 minutes not weeks"
     - https://www.graphile.org/postgraphile/
       Extensible high-performance automatic GraphQL API for PostgreSQL
 
 @[https://betterprogramming.pub/implement-a-graphql-server-with-ent-and-gqlgen-in-go-8840f086b8a8]
-• This post will walk you through how to implement GraphQL server
-  using ent, and gqlgen.
-• ...In terms of statically typed APIs, sqlboiler has similar
+"...This post will walk you through how to implement GraphQL server
+  using ent, and gqlgen....
+ ...In terms of statically typed APIs, sqlboiler has similar
   functionality, but the difference is that the ent is a scheme-first
   tool that creates a database and typed API from a schema file. The
   sqlboilder is a database-first ORM that creates a typed API from a
-  database
+  database "
 [[}]]
 
-● External Links: [[{01_PM.EXT_RESOURCE]]
-  - @[https://golang.org/doc/]
-  - @[https://golang.org/ref/spec]
-  - @[https://golang.org/doc/effective_go.html]
-  - @[https://golang.org/pkg/]
-  - @[https://golang.org/doc/cmd]
-  - @[https://golang.org/doc/diagnostics.html]
-[[}]]
-
-● Goxygen ("JHipster" like in Go) [[{01_PM.low_code,io.http]]
+# Goxygen ("JHipster" like) [[{01_PM.low_code,io.http]]
   https://github.com/Shpota/goxygen
 
   Goxygen generates a Web-project-skeleton with:
@@ -1620,18 +2322,14 @@ func TestMain(m *testing.M) {    <- Optional, low-level primitive, only necessar
     └─ README.md            # guide on how to use the generated repo
   [[}]]
 
-● https://github.com/mitchellh/mapstructure  [[{IO.serialization,persistence,qa.error_control]]
-   library for decoding generic map values to structures and vice versa,
-  while providing helpful error handling.
-
-   This library is most useful when decoding values from some data
-  stream (JSON, Gob, etc.) where you don't quite know the structure of
-  the underlying data until you read a part of it. You can therefore
-  read a map[string]interface{} and use this library to decode it into
-  the proper underlying native Go structure.
+# health-go (SLA) [[{qa.SLA]]
+@[https://github.com/hellofresh/health-go]
+- Expose HTTP handler retrieving health-status of the application
+- Implements some generic checkers for the following services:
+  [RabbitMQ,PostgreSQL,Redis,HTTP,MongoDB,MySQL,gRPC,Memcached,InfluxDB]
 [[}]]
 
-● What's new: [[{01_PM.WHATS_NEW]]
+# What's new [[{01_PM.WHATS_NEW]]
 @[https://golang.org/doc/devel/release]
   • go1.19 (released 2021-08-16) @[https://go.dev/doc/go0.19]
   • go1.18 (released 2021-08-16) @[https://go.dev/doc/go0.18]
