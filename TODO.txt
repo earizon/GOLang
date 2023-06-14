@@ -1,12 +1,163 @@
+[[{101]]
 
-● Shared GO Packages in MONOREPO: [[{01_PM.TODO}]]
+# make Go scripts shell friendly [[{devops,qa,01_PM.low_code]]
+@[https://www.infoq.com/news/2020/03/go-protobuf-apiv2/]
+* To make Go scripts well-behaved citizens among shell scripts,
+  Codenation engineers use a number of useful Go packages, including:
+
+  · @[https://github.com/fatih/color"] colorize Go output
+  · @[https://github.com/schollz/progressbar]
+  · @[https://github.com/jimlawless/whereami]:                       [qa]
+       capture info like filename, line number, function, etc.
+       where it is used, Useful to improve error messages.
+  · @[https://github.com/spf13/cobra]                                [qa][low_code]
+    make it easier to create complex scripts with input
+    processing, options, and related documentation.
+[[}]]
+
+# Shared GO Packages in MONOREPO: [[{01_PM.TODO}]]
   https://passage.id/post/shared-go-packages-in-a-monorepo
 
-
-● Writing a SQL database from scratch in Go: [[{01_PM.TODO}]]
+# Writing a SQL database from scratch in Go: [[{01_PM.TODO}]]
   https://notes.eatonphil.com/database-basics-indexes.html
 
-• Practical Crypto Tour in Go [[{security.cryptography.101,01_PM.TODO]]
+# Readers and writers [[{io.101,01_PM.TODO]]
+   from  https://www.golang-book.com/public/pdf/gobook.0.pdf pag 138
+   many fuctions in go take readers and writers as arguments
+    (io:copy, ...)
+  func copy(dst writer, src reader)
+      (written int64, err error)
+  [[}]]
+
+
+
+# Golang Builders and Visitors decorators: [[{101]]
+- Check Golang Builders and Visitors decorators pattern
+- visitor construct: used to iterate across all the resources.
+[[}]]
+
+# Writing an cli API Wrapper in Golang  101 [[{]]
+  https://dzone.com/articles/writing-an-api-wrapper-in-golang
+  by Nicolas Modrzyk
+1)Create a tests.
+  - helper_test.go: skeleton test for a PrepareLogin function saving id/pass in an edn file
+                    compatible with the jquants-api-jvm format.
+  - retrieve the refresh token
+  - use ID token to retrieve daily values
+2)code:
+3)Publish wrapper to GitHub
+[[}]]
+
+# vendor folder: [[{devops]]
+@[https://blog.gopheracademy.com/advent-2015/vendor-folder/]
+
+* Introduced in go 1.5,   deprecated with go modules (go 1.14)
+  See warning at https://github.com/kardianos/govendor:
+  """
+    Use Go modules
+    Go modules Work well now. ...
+    Please don't use this tool anymore.
+    Please use Go modules.
+  """
+* go 1.14+: automatic vendoring may be enabled.
+  If vendor/modules.txt is present and consistent with go.mod,
+  there is no need to explicitly use the -mod=vendor flag.
+
+
+
+## PROBLEM: Go program depending on many different sources:
+  - Only source's project is subject to their own source control.
+  - To avoid breaking when dependent packages change / went away had to:
+    there were many custom non-standard alternative like
+    Copying dependent packages into project source tree, then
+    rewriting imports!!!, custom-build GOPATH setups, ....
+
+* SOLUTION (before module support):
+  • vendor folder: (go 1.5+ - go 1.14)
+  • Packages must still reside in GOPATH but ...
+    if a package(or parent folder of a package) contains
+    a folder named vendo  , then it will be searched for
+    dependencies using the vendor folder as an import path root.
+  • Any package in the vendor folder will be found before the
+    standard library.
+  • Ex:
+   $GOPATH/src/github.com/kardianos/spider/main.go
+   package main                            ├ css_test.go
+                                           ├ main.go
+   import (                                └ vendor/      ← flat vendor layout.
+       ...                                   ├ github.com/
+       "github.com/andybalholm/cascadia" ···→│ ├ andybalholm/cascadia/
+       "github.com/tdewolff/parse/css" ···┐  │ │ └ parser.go, ...
+       "golang.org/x/net/html" ···┐       └···→└ tdewolff/parse/css
+   )                              ·          │   └ parse.go, ...
+   ...                            └········→ ├ golang.org/x/net/html/atom/...
+                                             └ vendor.json
+
+
+* SOLUTION (with modules support go 1.14+):
+@[https://medium.com/@bnprashanth256/dependency-management-and-vendoring-in-go-golang-5ec6d6b7590e]
+
+    $ go mod vendor       ← initialize vendoring module.
+    $ touch go.sum
+    $ mkdir vendor/       ← add vendor to .gitignore (generally not commited)
+                            And vendor folder can be compared to a node_modules
+                            folder and hence is not pushed to git.
+
+## TODO: Very well explained article about GOPATH, vendor/ and modules:!!!!!  @ma
+@[https://medium.com/@adiach3nko/package-management-with-go-modules-the-pragmatic-guide-c831b4eaaf31]
+  • Managing Dependencies Per Project
+    Historically, all Go code was stored in one giant monorepo, because
+    that’s how Google organizes their codebase internally and that took
+    its toll on the design of the language.
+
+    Go Modules is somewhat of a departure from this approach. You’re no
+    longer required to keep all your projects under $GOPATH.
+
+    Personally, I think overriding GOPATH is a cleaner approach because
+    it doesn’t compromise go get functionality. Still, I wanted to
+    cover both strategies because vendor folder may seem natural for
+    people coming from other languages like PHP, Ruby, Javascript etc. As
+    you can see from shenanigans described in this article, it’s not a
+    particularly good choice for Go.
+
+# https://www.docker.com/blog/containerize-your-go-developer-environment-part-2/
+  Speed up container build
+
+# How to improve your GO code with empty structs
+  https://medium.com/@l.peppoloni/how-to-improve-your-go-code-with-empty-structs-3bd0c66bc531
+
+# https://github.com/stretchr/testify
+  A toolkit with common assertions and mocks that plays nicely with the standard library
+
+
+
+# DataFrame Go ("Pandas for go")                     [[{01_PM.low_code,]]
+  https://github.com/rocketlaunchr/dataframe-go      [[}]]
+
+# https://github.com/rocketlaunchr/dbq               [[{QA.UX,persistence.sql]]
+  Avoid verbosity in SQL                             [[}]]
+
+
+# https://github.com/holiman/billy        [[{PERSISTENCE]]
+  "Very symple data store"
+
+  A 'proper' database is very complex. ...  Without an index, we
+don't need to maintain a complex index-implementation, but can be
+very low on resource consumption. No extra allocated memory for index
+maintenance, no background threads for compaction work.
+
+  Use-case: ...  The data is somewhat transient, meaning that
+  it's expected that the mean-storage time for a piece of data
+  is measured in minutes rather than weeks.
+
+                [[}]]
+
+[[}]]
+
+
+[[101}]]
+
+## Practical Crypto Tour in Go [[{security.cryptography.101,01_PM.TODO]]
 @[https://cyberspy.io/articles/crypto101/]
   AES encryption (also known as FIPS 197)
   Block Ciphers
@@ -18,50 +169,27 @@
   X509/TLS Certificate and Key based comms and general certificates/key manipulation
   [[}]]
 
-● Readers and writers [[{io.101,01_PM.TODO]]
-   from  https://www.golang-book.com/public/pdf/gobook.0.pdf pag 138
-   many fuctions in go take readers and writers as arguments
-    (io:copy, ...)
-  func copy(dst writer, src reader)
-      (written int64, err error)
-  [[}]]
-
-● TODO:
-  - Search for packages or symbols:
+# Search for packages or symbols:
   @[http://pkg.go.dev]
 
-● go.mod https://golang.cafe/blog/how-to-fix-go-mod-unknown-revision.html
+# fix go.mod "unknown revision"  [[{]]
+https://golang.cafe/blog/how-to-fix-go-mod-unknown-revision.html
+[[}]]
 
-● https://pkg.go.dev/errors
-
-● Messaging Framework [[{arch.messaging,}]]
-   https://blog.gopheracademy.com/advent-2017/messaging-framework/
-   https://blog.gopheracademy.com/ "The Best Go Content on the Internet"
-
-● https://stackoverflow.com/questions/53682247/how-to-point-go-module-dependency-in-go-mod-to-a-latest-commit-in-a-repo
+# https://stackoverflow.com/questions/53682247/how-to-point-go-module-dependency-in-go-mod-to-a-latest-commit-in-a-repo
   Go v1.11+ added support for modules.
-
-  $ go mod init $package_name
-  $ go build
-
-  would generate go.mod and go.sum files that contain all found
-  versions for the package dependencies.
-
-  If a module does not have any releases, the latest commit of that
-  module is used. If a module does have releases, the latest one is
-  picked as a dependency.
-
-   However sometimes I would need functionality that is not in a
-  published release yet, but from a commit made after that release. How
-  do I set go.mod to point not to a release of a module, but to a
-  specific commit in the module's repository?
-
-   It looks like I can do it by hand in go.mod with
 
   module /my/module
   require (
   ...
   github.com/someone/some_module v0.0.0-20181121201909-af044c0995fe
+  //                             └─────────────┬──────────────────┘
+  // Pick functionality from a given commit not yet in release
+  // Remember: Default behaviour:
+  // module ...                     def. dependency resolution
+  // -----------------------------  ------------------------------
+  // ...does not have any release  => latest commit  picked
+  // ...does     have     releases => latest release picked
   ...
   )
 
@@ -75,7 +203,7 @@
      go get github.com/someone/some_module@af044c0995fe
     'go get' will correctly update the dependency files (go.mod, go.sum).
 
-● func decorator1(mystring string)
+# func decorator1(mystring string)
         func(before, after string) string  ← decorators return another func.
    {
         return func(before, after string) string {
@@ -88,7 +216,7 @@
    fmt.Println(d("A beautiful", "day!")) // a beautiful summer day
 
 
-● https://github.com/leanovate/gopter [[{qa}]]
+# https://github.com/leanovate/gopter [[{qa}]]
   the GOlang Property TestER
   https://en.wikipedia.org/wiki/QuickCheck
 
@@ -111,7 +239,7 @@
     that you can deploy to your HTTP server or load directly into a browser.
     The js package can be used for DOM manipulation.  [[}]]
 
-● Devel Debugger:[[{slc.debugging,01_PM.TODO]]
+# Devel Debugger:[[{slc.debugging,01_PM.TODO]]
 https://developers.redhat.com/blog/2021/03/03/using-delve-to-debug-go-programs-on-red-hat-enterprise-linux/
 Using Delve to debug Go programs on Red Hat Enterprise Linux
 
@@ -124,15 +252,15 @@ programs as quickly as possible.
 [[}]]
 
 
-● Metrics library [[{monitoring.metrics]]
+# Metrics library [[{monitoring.metrics]]
 (used for example by Geth)
 https://github.com/rcrowley/go-metrics
 [[}]]
 
-● Probing with SystemTamp [[{slc.profiling]]
+# Probing with SystemTamp [[{slc.profiling]]
 @[https://developers.redhat.com/blog/2019/07/24/probing-golang-runtime-using-systemtap/]
 
-• Probing golang runtime using SystemTap:
+## Probing golang runtime using SystemTap:
   "" I recently saw an article from Uber Engineering describing an
     issue they were having with an increase in latency. The Uber
     engineers suspected that their code was running out of stack space
@@ -144,31 +272,11 @@ https://github.com/rcrowley/go-metrics
     could have been used.""
 [[}]]
 
-● gRPC: beyond basics [[{IO.gRPC]]
+# gRPC: beyond basics [[{IO.gRPC]]
 @[https://blog.gopheracademy.com/advent-2017/go-grpc-beyond-basics/]
 [[}]]
 
-● Golang Builders and Visitors decorators: [[{101]]
-- Check Golang Builders and Visitors decorators pattern
-- visitor construct: used to iterate across all the resources.
-[[}]]
-
-● make Go scripts shell friendly [[{devops,qa,01_PM.low_code]]
-@[https://www.infoq.com/news/2020/03/go-protobuf-apiv2/]
-• To make Go scripts well-behaved citizens among shell scripts,
-  Codenation engineers use a number of useful Go packages, including:
-
-  · @[https://github.com/fatih/color"] colorize Go output
-  · @[https://github.com/schollz/progressbar]
-  · @[https://github.com/jimlawless/whereami]:                       [qa]
-       capture info like filename, line number, function, etc.
-       where it is used, Useful to improve error messages.
-  · @[https://github.com/spf13/cobra]                                [qa][low_code]
-    make it easier to create complex scripts with input
-    processing, options, and related documentation.
-[[}]]
-
-● WhereAmI (QA) [[{slc.debugging]]
+# WhereAmI (QA) [[{slc.debugging]]
 @[https://github.com/jimlawless/whereami]:                       [qa]
 · It has one exported function: WhereAmI() which acts as a
   wrapper for runtime.Caller(). The WhereAmi() function returns a
@@ -176,107 +284,49 @@ https://github.com/rcrowley/go-metrics
   name, and line number.
 [[}]]
 
-● BitTorrent client from the ground up [[{arch.distributed.p2p2]]
+# BitTorrent client from the ground up [[{arch.distributed.p2p2]]
 @[https://blog.jse.li/posts/torrent/]
 [[}]]
 
-● GOX (cross-compiling): [[{arch.embedded,01_PM.backlog]]
+# GOX (cross-compiling): [[{arch.embedded,01_PM.backlog]]
 https://github.com/tldr-pages/tldr/blob/master/pages/common/gox.md
 [[}]]
 
-● vendor folder: [[{devops.101]]
-@[https://blog.gopheracademy.com/advent-2015/vendor-folder/]
+# go build help [[{]]
+	...
+	-mod mode
+		module download mode to use: readonly, vendor, or mod.
+		By default, if a vendor directory is present and the go version in go.mod
+		is 1.14 or higher, the go command acts as if -mod=vendor were set.
+		Otherwise, the go command acts as if -mod=readonly were set.
+		See https://golang.org/ref/mod#build-commands for details.
 
-• Introduced in go 1.5,   deprecated with go modules (go 1.14)
-  See warning at https://github.com/kardianos/govendor:
-  """
-    Use Go modules
-    Go modules Work well now. ...
-    Please don't use this tool anymore.
-    Please use Go modules.
-  """
+	-tags tag,list
+		a comma-separated list of additional build tags to consider satisfied
+		during the build. For more information about build tags, see
+		'go help buildconstraint'.
 
-• PROBLEM: Go program depending on many different sources:
-  - Only source's project is subject to their own source control.
-  - To avoid breaking when dependent packages change / went away had to:
-    there were many custom non-standard alternative like
-    Copying dependent packages into project source tree, then
-    rewriting imports!!!, custom-build GOPATH setups, ....
-
-• SOLUTION (before module support):
-  • vendor folder: (go 1.5+ - go 1.14)
-  • Packages must still reside in GOPATH but ...
-    if a package(or parent folder of a package) contains
-    a folder named vendo  , then it will be searched for
-    dependencies using the vendor folder as an import path root.
-  • Any package in the vendor folder will be found before the
-    standard library.
-  • Ex:
-   $GOPATH/src/github.com/kardianos/spider/main.go
-   package main                            ├ css_test.go
-                                           ├ main.go
-   import (                                └ vendor/      ← flat vendor layout.
-       ...                                   ├ github.com/
-       "github.com/andybalholm/cascadia" ···→│ ├ andybalholm/cascadia/
-       "github.com/tdewolff/parse/css" ···┐  │ │ └ parser.go, ...
-       "golang.org/x/net/html" ···┐       └···→└ tdewolff/parse/css
-   )                              ·          │   └ parse.go, ...
-   ...                            └········→ ├ golang.org/x/net/html/atom/...
-                                             └ vendor.json
-
-
-• SOLUTION (with modules support go 1.14+):
-@[https://medium.com/@bnprashanth256/dependency-management-and-vendoring-in-go-golang-5ec6d6b7590e]
-
-    $ go mod vendor       ← initialize vendoring module.
-    $ touch go.sum
-    $ mkdir vendor/       ← add vendor to .gitignore (generally not commited)
-                            And vendor folder can be compared to a node_modules
-                            folder and hence is not pushed to git.
-
-• TODO: Very well explained article about GOPATH, vendor/ and modules:!!!!!  @ma
-@[https://medium.com/@adiach3nko/package-management-with-go-modules-the-pragmatic-guide-c831b4eaaf31]
-  • Managing Dependencies Per Project
-    Historically, all Go code was stored in one giant monorepo, because
-    that’s how Google organizes their codebase internally and that took
-    its toll on the design of the language.
-
-    Go Modules is somewhat of a departure from this approach. You’re no
-    longer required to keep all your projects under $GOPATH.
-
-    Personally, I think overriding GOPATH is a cleaner approach because
-    it doesn’t compromise go get functionality. Still, I wanted to
-    cover both strategies because vendor folder may seem natural for
-    people coming from other languages like PHP, Ruby, Javascript etc. As
-    you can see from shenanigans described in this article, it’s not a
-    particularly good choice for Go.
-
-● https://www.docker.com/blog/containerize-your-go-developer-environment-part-2/
-  Speed up container build
-
-● How to improve your GO code with empty structs
-  https://medium.com/@l.peppoloni/how-to-improve-your-go-code-with-empty-structs-3bd0c66bc531
-
-● https://github.com/stretchr/testify
-  A toolkit with common assertions and mocks that plays nicely with the standard library
-
-● Writing an cli API Wrapper in Golang  101
-  https://dzone.com/articles/writing-an-api-wrapper-in-golang
-  by Nicolas Modrzyk
-1)Create a tests.
-  - helper_test.go: skeleton test for a PrepareLogin function saving id/pass in an edn file
-                    compatible with the jquants-api-jvm format.
-  - retrieve the refresh token
-  - use ID token to retrieve daily values
-2)code:
-3)Publish wrapper to GitHub
-
-● DataFrame Go ("Pandas for go")                     [[{01_PM.low_code,]]
-  https://github.com/rocketlaunchr/dataframe-go      [[}]]
-
-● https://github.com/rocketlaunchr/dbq               [[{QA.UX,persistence.sql]]
-  Avoid verbosity in SQL                             [[}]]
-
-
+	-trimpath
+		remove all file system paths from the resulting executable.
+		Instead of absolute file system paths, the recorded file names
+		will begin either a module path@version (when using modules),
+		or a plain import path (when using the standard library, or GOPATH).
 
 [[}]]
+
+# The standard library’s strings package is a prime example of
+  maintaining backwards compatibility at the cost of API consistency.
+  * Split slices a string into all substrings separated by a
+    separator and returns a slice of the substrings between those separators.
+  * SplitN can be used to control the number of substrings to return.
+  However, Replace took a count of how many instances of the string
+  to replace from the beginning (unlike Split).
+
+    Given Split and SplitN, you would expect functions like Replace and
+  ReplaceN. But, we couldn’t change the existing Replace without
+  breaking callers, which we promised not to do. So, in Go 1.12, we
+  added a new function, ReplaceAll. The resulting API is a little odd,
+  since Split and Replace behave differently, but that inconsistency is
+  better than a breaking change.
+
+# https://awesome-go.com/#database

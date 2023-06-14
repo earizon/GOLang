@@ -1837,23 +1837,39 @@ if rateLimitErr, ok := lo.ErrorsAs[*RateLimitError](err); ok {
 # DevOps 101 [[{devops.101]]
 ## Packages:
 * Basic unit of code-reuse, code-compilation (go build) and code-documentation (godoc)
-  residing in a given folder.
-* Runnable programs must have a package called "main", entry point to the program.
-  Any other package can have an (almost) arbitrary name. They are "library" packages
-  by convention.
-* As a rule of thumb a different folder is a different package.
-  TIP: Learning to properly build small and reusable packages can take your Go career
-       to the next level.
-* Essentially a package is a library in other languages. They are NOT called 'libraries'
-  since they are statically linked to the final executable and there is not concept of
-  C/C++ library loader (ldd).
-  Rembember: All Go source code is linked at compile-time.
-             Only when linking against external C/C++ exiting libraries dynamic link is used.
+  RESIDING IN A GIVEN FOLDER.
+  ```
+
+              ┌····················· RULE OF THUMB: a different folder is a different package
+          ┌───┴───┐
+  cat .../packageN/packageN.go  <··· packageN.go name is recomended(NOT MANDATORY).
+                                     Use "packageN.go" for "main" file inside packageN/
+  package "packageN"
+  cat  .../packageN/utils.go    <··· To go compiler packageN.go and utils.go are part of the
+  package "packageN"                 same source code package. Spliting into files makes no
+          └────┬───┘                 different to putting it all in a same "big" *go file.
+               ·                     UpperCase types and functions are "exported" (visible
+               ·                     outside the package), anything else is internal.
+               ·
+    the name "packageN" is arbitrary, and must NOT
+    necesarely match the parent directory (but it's recommended)
+    EXCEPT for go files containing entry functions to build
+    RUNNABLE PROGRAMS. In that case we must declare them as
+    package "main"
+    By default "go build" will also create an executable with
+    name "package" (the name of the containing directory
+    Any NON-MAIN package is considered a "library" in conventional
+    languages (They are NOT called 'libraries' since they are
+    statically linked to the final executable and there is not
+    concept of C/C++ library loader (ldd).
+    Reminder: All Go source code is linked at compile-time.
+              Only when linking against C/C++ libraries dyn.link is used.
              `$ ldd main` will output "not a dynamic executable"
-* Provide support with "namespaces" in source code avoiding name collisions.
-* Speed up recompilation (Only changed packaged are recompiled).
-* Packages differ from C/C++/... libraries in the sense that the package is always statically
-  linked.
+  ```
+* Packages form a unit of reusable code to external packages.
+
+* KEY-POINT: build small and reusable packages  [[{QA.best_patterns}]]
+
 ## Modules (v1.13+) [[{devops.101.modules]]
   @[https://golangbyexample.com/package-vs-module-golang/]
   @[https://golang.org/ref/mod]
@@ -1911,10 +1927,15 @@ if rateLimitErr, ok := lo.ErrorsAs[*RateLimitError](err); ok {
     │
     │ go 1.14 <························· go version used to create the module
 
-   In genral
+   In general
 
    golang.org/x/net/v2/go.mod <·· module path with version
                    └──┴··········· major version suffix (only v2 or higher).
+                                   the v2/ path is only needed in MONOREPOS
+                                   with a relation MONOREPO 1<···>N modules
+                                   In monorepos we can just "tag" commits with
+                                   sem.ver tags
+
    └──────────────┴─   (ussually matching root-dir or subdir of git repo)
 
 ### Module versioning

@@ -1,4 +1,4 @@
-● VIM-GO PLUGIN INSTALL:
+# VIM-GO PLUGIN INSTALL:
   $ mkdir -p ~/.vim/pack/plugins/start              STEP 1) INSTALL PLUGIN
   $ cd ~/.vim/pack/plugins/start
   $ git clone https://github.com/fatih/vim-go.git
@@ -13,13 +13,13 @@
   Step 3. alt1) :GoInstallBinaries  <- alt 1: first install
   Step 3. alt2) :GoUpdateBinaries   <- alt 2: update current binaries.
 
-● VIM-GO PLUGIN TROUBLESHOOTING:
+# VIM-GO PLUGIN TROUBLESHOOTING:
  - g:go_debug
  - g:go_gopls_enabled :  ← limit the load on dev.station.
                          Probably g:go_gopls_options is a better option
                          (Allowing to share gopls instance)
 
-● SOURCE NAVIGATION: [[{]]
+# SOURCE NAVIGATION: [[{]]
   ':GoFreevars'     : Enumerates free vars (referenced but not defined) of selection.
                       And call |:GoChannelPeers| on it. It will show where it was allocated, and
                       the sending and receiving endings.
@@ -53,7 +53,7 @@
 
 
 
-● VIM-GO PLUGIN SETTINGS [[{]]
+# VIM-GO PLUGIN SETTINGS [[{]]
   let g:go_version_warning = 1            let g:go_updatetime = 800
   let g:go_code_completion_enabled = 1    let g:go_jump_to_error = 1
   let g:go_code_completion_icase = 0      let g:go_fmt_autosave = 1
@@ -116,7 +116,7 @@
   let g:go_debug = []
 [[}]]
 
-● SYNTAX HIGHLIGHTING [[{]]
+# SYNTAX HIGHLIGHTING [[{]]
   - enhanced version of Vim`s Go syntax highlighting.
   - most features disabled by default.
   let g:go_fold_enable = ['block', 'import', 'varconst', 'package_comment', 'import']
@@ -142,7 +142,7 @@
   let g:go_highlight_diagnostic_warnings = 1
 [[}]]
 
-● DEBUGGER: (Vim 8.0.0087+, Neovim)  [[{SLC.debugging]]
+# DEBUGGER: (Vim 8.0.0087+, Neovim)  [[{SLC.debugging]]
   :GoDebugStart . arg1, ...   ← compile code, launch `dlv debug`
                                 Alt.1: :GoDebugAttach  $pid
                                 Alt.2: :GoDebugConnect $dlv_ip:port
@@ -185,23 +185,23 @@
     · let g:go_highlight_debug = 1 ← Highlight current line and breakpoints
 [[}]]
 
-● :GoTest | :GoTestFunc | :GoCoverage            [[{qa.testing]]
+# :GoTest | :GoTestFunc | :GoCoverage            [[{qa.testing]]
   :GoVet        ← reports suspicious constructs 
                  (Printf non-aligned arguments,...)
   :GoErrCheck   ← make sure errors are checked   [[}]]
 
 
-● :GoBuild → :GoRun → :GoInstall            [[{devops]]
+# :GoBuild → :GoRun → :GoInstall            [[{devops]]
   :GoImport | :GoDrop  (Packages)
   :GoPlay   ← Share code to play.golang.org [[}]]
 
 
-● SOURCE REFACTORING: [[{]]
+# SOURCE REFACTORING: [[{]]
   - :GoRename[!] [to]   ← type-safe ( identifier under cursor) to desired name.
   - :GoMetaLinter! [path]
 [[}]]
 
-● Others:
+# Others:
   - :GoDoc  :GoDocBrowser [[{qa.doc}]]
   - :GoGuruScope [pattern] ...  Changes custom scope. Ex
       golang.org/x/tools/...      # all packages beneath dir
@@ -237,7 +237,7 @@
    Integrated and improved snippets, supporting `ultisnips`, `neosnippet`, `vim-minisnip`.
 
 
-● VIM-GO PLUGIN FUNDING: https://www.patreon.com/bhcleek
+# VIM-GO PLUGIN FUNDING: https://www.patreon.com/bhcleek
   ... invest in bug fixes, new documentation Thanks!
   
   
