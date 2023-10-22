@@ -1,12 +1,6 @@
-# Apropos
-- Visit next Web site for a great experience:
-  https://earizon.github.io/txt_world_domination/viewer.html?payload=../GOLang/notes.txt
-
-- If you want to contribute to great gistory of this
-  document you can take the next flight to:
+## Apropos:
+  Content is versioned in git.  commits, issues and pull-requests welcome!
 @[https://www.github.com/earizon/GOLang]
-  Your commits and pull-request will be immortalized
-  in the Pantheon of the Unicode Gods.
 
 ## External Links                               [[{01_PM.EXT_RESOURCE]]
 * @[https://golang.org/doc/]
@@ -2467,4 +2461,65 @@ AT THIS POINT OTHER PROJECTS CAN DEPEND ON OUR MODULE AT VERSION V0.1.0.
   • go1.1  (released 2013-05-13) @[https://golang.org/doc/go1.1]
 
   • go1    (released 2012-03-28) @[https://golang.org/doc/go1]
+[[}]]
+
+## SQLBoiler [[{persistence.sql]]
+* https://github.com/volatiletech/sqlboiler
+
+
+* C&P from https://www.reddit.com/r/golang/comments/umkgk3/gorm_is_a_bad_idea/
+  Biggest issue with GORM is the lack of type safety and use of
+  reflection. Means there are some issues that can be caught during
+  compile time that are instead moved to runtime.
+
+  Instead, check out `SQLBoiler`, `ent` and `sqlc`
+
+[[}]]
+
+## sqlc  [[{persistence.sql]]
+https://sqlc.dev/
+sqlc generates type-safe code from SQL. Here's how it works:
+
+* I used to use https://github.com/volatiletech/sqlboiler,
+but now I use https://github.com/ent/ent which has in my opinion
+surpassed it in a very short time by adding a ton of useful features
+and having a great documentation.
+
+ You write queries in SQL.
+ You run sqlc to generate code with type-safe interfaces to those queries.
+ You write application code that calls the generated code.
+[[}]]
+
+## ent [[{persistence.sql]]
+https://entgo.io/
+Simple, yet powerful ORM for modeling and querying data.
+[[}]]
+
+## gorm [[{persistence.sql]]
+Problems with Gorm:
+https://www.reddit.com/r/golang/comments/umkgk3/gorm_is_a_bad_idea/
+
+* Exiting the Vietnam (of Gorm):
+  https://alanilling.com/exiting-the-vietnam-of-programming-our-journey-in-dropping-the-orm-in-golang-3ce7dff24a0f
+
+  ...  Alternatives:
+  We bucketed projects in the Go community along two lines:
+      Code-generating SQL at runtime (example: squirrel)
+      Generating application code at compile time(examples: jet, sqlc)
+
+   We looked closely at two code generators: jet and sqlc, ultimately
+  selecting sqlc. With jet you write SQL within your application as a
+  DSL. But because it generates code it goes a step beyond what a
+  runtime SQL generator like squirrel offers. Models and fields and are
+  first-class referenceable types, rather than requiring string
+  interpolation, which avoids the need to grep through code in an audit
+  process when you want to make changes.
+[[}]]
+
+## Squirrel [[{persistence.sql]]
+https://github.com/Masterminds/squirrel
+[[}]]
+
+## go-jet [[{persistence.sql]]
+https://github.com/go-jet/jet
 [[}]]

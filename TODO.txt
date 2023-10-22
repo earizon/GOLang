@@ -330,3 +330,8 @@ https://github.com/tldr-pages/tldr/blob/master/pages/common/gox.md
   better than a breaking change.
 
 # https://awesome-go.com/#database
+
+# Google Makes it Easier to Create Go Applications on Google Cloud [[{cloud.GCP]]
+https://cloud.google.com/blog/products/application-development/simplifying-creation-of-go-applications-on-google-cloud
+https://www.infoq.com/news/2023/08/google-cloud-gonew-templates/
+[[}]]
