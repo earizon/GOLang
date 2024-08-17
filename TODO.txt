@@ -1,27 +1,28 @@
+# Non Classified / TODO
 [[{101]]
 
-# make Go scripts shell friendly [[{devops,qa,01_PM.low_code]]
-@[https://www.infoq.com/news/2020/03/go-protobuf-apiv2/]
+## make Go scripts shell friendly [[{devops,qa,01_PM.low_code]]
+<https://www.infoq.com/news/2020/03/go-protobuf-apiv2/>
 * To make Go scripts well-behaved citizens among shell scripts,
   Codenation engineers use a number of useful Go packages, including:
 
-  · @[https://github.com/fatih/color"] colorize Go output
-  · @[https://github.com/schollz/progressbar]
-  · @[https://github.com/jimlawless/whereami]:                       [qa]
+  * <https://github.com/fatih/color"> colorize Go output
+  * <https://github.com/schollz/progressbar>
+  * <https://github.com/jimlawless/whereami>:                       [qa]
        capture info like filename, line number, function, etc.
        where it is used, Useful to improve error messages.
-  · @[https://github.com/spf13/cobra]                                [qa][low_code]
+  * <https://github.com/spf13/cobra>                                [qa][low_code]
     make it easier to create complex scripts with input
     processing, options, and related documentation.
 [[}]]
 
-# Shared GO Packages in MONOREPO: [[{01_PM.TODO}]]
-  https://passage.id/post/shared-go-packages-in-a-monorepo
+## Shared GO Packages in MONOREPO: [[{01_PM.TODO}]]
+  <https://passage.id/post/shared-go-packages-in-a-monorepo>
 
-# Writing a SQL database from scratch in Go: [[{01_PM.TODO}]]
-  https://notes.eatonphil.com/database-basics-indexes.html
+## Writing a SQL database from scratch in Go: [[{01_PM.TODO}]]
+  <https://notes.eatonphil.com/database-basics-indexes.html>
 
-# Readers and writers [[{io.101,01_PM.TODO]]
+## Readers and writers [[{io.101,01_PM.TODO]]
    from  https://www.golang-book.com/public/pdf/gobook.0.pdf pag 138
    many fuctions in go take readers and writers as arguments
     (io:copy, ...)
@@ -31,12 +32,12 @@
 
 
 
-# Golang Builders and Visitors decorators: [[{101]]
+## Golang Builders and Visitors decorators: [[{101]]
 - Check Golang Builders and Visitors decorators pattern
 - visitor construct: used to iterate across all the resources.
 [[}]]
 
-# Writing an cli API Wrapper in Golang  101 [[{]]
+## Writing an cli API Wrapper in Golang  101 [[{]]
   https://dzone.com/articles/writing-an-api-wrapper-in-golang
   by Nicolas Modrzyk
 1)Create a tests.
@@ -48,8 +49,8 @@
 3)Publish wrapper to GitHub
 [[}]]
 
-# vendor folder: [[{devops]]
-@[https://blog.gopheracademy.com/advent-2015/vendor-folder/]
+## vendor folder: [[{devops]]
+<https://blog.gopheracademy.com/advent-2015/vendor-folder/>
 
 * Introduced in go 1.5,   deprecated with go modules (go 1.14)
   See warning at https://github.com/kardianos/govendor:
@@ -95,7 +96,7 @@
 
 
 * SOLUTION (with modules support go 1.14+):
-@[https://medium.com/@bnprashanth256/dependency-management-and-vendoring-in-go-golang-5ec6d6b7590e]
+<https://medium.com/@bnprashanth256/dependency-management-and-vendoring-in-go-golang-5ec6d6b7590e>
 
     $ go mod vendor       ← initialize vendoring module.
     $ touch go.sum
@@ -104,7 +105,7 @@
                             folder and hence is not pushed to git.
 
 ## TODO: Very well explained article about GOPATH, vendor/ and modules:!!!!!  @ma
-@[https://medium.com/@adiach3nko/package-management-with-go-modules-the-pragmatic-guide-c831b4eaaf31]
+<https://medium.com/@adiach3nko/package-management-with-go-modules-the-pragmatic-guide-c831b4eaaf31>
   • Managing Dependencies Per Project
     Historically, all Go code was stored in one giant monorepo, because
     that’s how Google organizes their codebase internally and that took
@@ -120,25 +121,25 @@
     you can see from shenanigans described in this article, it’s not a
     particularly good choice for Go.
 
-# https://www.docker.com/blog/containerize-your-go-developer-environment-part-2/
+## https://www.docker.com/blog/containerize-your-go-developer-environment-part-2/
   Speed up container build
 
-# How to improve your GO code with empty structs
+## How to improve your GO code with empty structs
   https://medium.com/@l.peppoloni/how-to-improve-your-go-code-with-empty-structs-3bd0c66bc531
 
-# https://github.com/stretchr/testify
+## https://github.com/stretchr/testify
   A toolkit with common assertions and mocks that plays nicely with the standard library
 
 
 
-# DataFrame Go ("Pandas for go")                     [[{01_PM.low_code,]]
+## DataFrame Go ("Pandas for go")                     [[{01_PM.low_code,]]
   https://github.com/rocketlaunchr/dataframe-go      [[}]]
 
-# https://github.com/rocketlaunchr/dbq               [[{QA.UX,persistence.sql]]
+## https://github.com/rocketlaunchr/dbq               [[{QA.UX,persistence.sql]]
   Avoid verbosity in SQL                             [[}]]
 
 
-# https://github.com/holiman/billy        [[{PERSISTENCE]]
+## https://github.com/holiman/billy        [[{PERSISTENCE]]
   "Very symple data store"
 
   A 'proper' database is very complex. ...  Without an index, we
@@ -158,7 +159,7 @@ maintenance, no background threads for compaction work.
 [[101}]]
 
 ## Practical Crypto Tour in Go [[{security.cryptography.101,01_PM.TODO]]
-@[https://cyberspy.io/articles/crypto101/]
+<https://cyberspy.io/articles/crypto101/>
   AES encryption (also known as FIPS 197)
   Block Ciphers
   DES and TDEA (also known as FIPS 46-3)
@@ -169,14 +170,14 @@ maintenance, no background threads for compaction work.
   X509/TLS Certificate and Key based comms and general certificates/key manipulation
   [[}]]
 
-# Search for packages or symbols:
-  @[http://pkg.go.dev]
+## Search for packages or symbols:
+  <http://pkg.go.dev>
 
-# fix go.mod "unknown revision"  [[{]]
+## fix go.mod "unknown revision"  [[{]]
 https://golang.cafe/blog/how-to-fix-go-mod-unknown-revision.html
 [[}]]
 
-# https://stackoverflow.com/questions/53682247/how-to-point-go-module-dependency-in-go-mod-to-a-latest-commit-in-a-repo
+## https://stackoverflow.com/questions/53682247/how-to-point-go-module-dependency-in-go-mod-to-a-latest-commit-in-a-repo
   Go v1.11+ added support for modules.
 
   module /my/module
@@ -203,7 +204,7 @@ https://golang.cafe/blog/how-to-fix-go-mod-unknown-revision.html
      go get github.com/someone/some_module@af044c0995fe
     'go get' will correctly update the dependency files (go.mod, go.sum).
 
-# func decorator1(mystring string)
+## func decorator1(mystring string)
         func(before, after string) string  ← decorators return another func.
    {
         return func(before, after string) string {
@@ -216,14 +217,14 @@ https://golang.cafe/blog/how-to-fix-go-mod-unknown-revision.html
    fmt.Println(d("A beautiful", "day!")) // a beautiful summer day
 
 
-# https://github.com/leanovate/gopter [[{qa}]]
+## https://github.com/leanovate/gopter [[{qa}]]
   the GOlang Property TestER
   https://en.wikipedia.org/wiki/QuickCheck
 
 
  • https://stackoverflow.com/questions/tagged/go?tab=Votes
 
- • https://golang.org/ref/mod @[./go_ref_mod.txt] !!!!!
+ • https://golang.org/ref/mod <./go_ref_mod.txt> !!!!!
 
 
   • Go 2 WebAssembly [[{arch.distributed,arch.embedded,security.webasm,01_PM.TODO]]
@@ -239,7 +240,7 @@ https://golang.cafe/blog/how-to-fix-go-mod-unknown-revision.html
     that you can deploy to your HTTP server or load directly into a browser.
     The js package can be used for DOM manipulation.  [[}]]
 
-# Devel Debugger:[[{slc.debugging,01_PM.TODO]]
+## Devel Debugger:[[{troubleshooting.debugging,01_PM.TODO]]
 https://developers.redhat.com/blog/2021/03/03/using-delve-to-debug-go-programs-on-red-hat-enterprise-linux/
 Using Delve to debug Go programs on Red Hat Enterprise Linux
 
@@ -252,13 +253,13 @@ programs as quickly as possible.
 [[}]]
 
 
-# Metrics library [[{monitoring.metrics]]
+## Metrics library [[{monitoring.metrics]]
 (used for example by Geth)
 https://github.com/rcrowley/go-metrics
 [[}]]
 
-# Probing with SystemTamp [[{slc.profiling]]
-@[https://developers.redhat.com/blog/2019/07/24/probing-golang-runtime-using-systemtap/]
+## Probing with SystemTamp [[{troubleshooting.profiling]]
+<https://developers.redhat.com/blog/2019/07/24/probing-golang-runtime-using-systemtap/>
 
 ## Probing golang runtime using SystemTap:
   "" I recently saw an article from Uber Engineering describing an
@@ -272,27 +273,27 @@ https://github.com/rcrowley/go-metrics
     could have been used.""
 [[}]]
 
-# gRPC: beyond basics [[{IO.gRPC]]
-@[https://blog.gopheracademy.com/advent-2017/go-grpc-beyond-basics/]
+## gRPC: beyond basics [[{IO.gRPC]]
+<https://blog.gopheracademy.com/advent-2017/go-grpc-beyond-basics/>
 [[}]]
 
-# WhereAmI (QA) [[{slc.debugging]]
-@[https://github.com/jimlawless/whereami]:                       [qa]
+## WhereAmI (QA) [[{troubleshooting.debugging]]
+<https://github.com/jimlawless/whereami>:                       [qa]
 · It has one exported function: WhereAmI() which acts as a
   wrapper for runtime.Caller(). The WhereAmi() function returns a
   formatted string indicating the current source file name, function
   name, and line number.
 [[}]]
 
-# BitTorrent client from the ground up [[{arch.distributed.p2p2]]
-@[https://blog.jse.li/posts/torrent/]
+## BitTorrent client from the ground up [[{arch.distributed.p2p2]]
+<https://blog.jse.li/posts/torrent/>
 [[}]]
 
-# GOX (cross-compiling): [[{arch.embedded,01_PM.backlog]]
+## GOX (cross-compiling): [[{arch.embedded,01_PM.backlog]]
 https://github.com/tldr-pages/tldr/blob/master/pages/common/gox.md
 [[}]]
 
-# go build help [[{]]
+## go build help [[{]]
 	...
 	-mod mode
 		module download mode to use: readonly, vendor, or mod.
@@ -314,7 +315,7 @@ https://github.com/tldr-pages/tldr/blob/master/pages/common/gox.md
 
 [[}]]
 
-# The standard library’s strings package is a prime example of
+## The standard library’s strings package is a prime example of
   maintaining backwards compatibility at the cost of API consistency.
   * Split slices a string into all substrings separated by a
     separator and returns a slice of the substrings between those separators.
@@ -329,9 +330,49 @@ https://github.com/tldr-pages/tldr/blob/master/pages/common/gox.md
   since Split and Replace behave differently, but that inconsistency is
   better than a breaking change.
 
-# https://awesome-go.com/#database
+## https://awesome-go.com/#database
 
-# Google Makes it Easier to Create Go Applications on Google Cloud [[{cloud.GCP]]
+## Google Makes it Easier to Create Go Applications on Google Cloud [[{cloud.GCP]]
 https://cloud.google.com/blog/products/application-development/simplifying-creation-of-go-applications-on-google-cloud
 https://www.infoq.com/news/2023/08/google-cloud-gonew-templates/
 [[}]]
+
+## Rust-Written Borgo Language Brings Algebraic Data Types and More to Go - InfoQ
+https://www.infoq.com/news/2024/05/borgo-adds-types-to-go/
+
+GOLang Refactoring tools
+https://github.com/davidrjenni/reftools
+
+
+## golang-standards/project-layout: Standard Go Project Layout
+https://github.com/golang-standards/project-layout
+
+
+## Golang go-gorm/gorm: The fantastic ORM library for Golang, aims to be developer friendly
+https://github.com/go-gorm/gorm
+
+[[{PM.low_code]]
+## From Spring Boot to Sponge
+* <https://dev.to/zhufuyi/from-spring-boot-to-sponge-how-to-easily-develop-high-performance-web-services-with-golang-30g5>
+
+... Unlike Spring Boot, Golang lacks a mature framework....
+sponge that can help you transition smoothly  to Golang. Sponge is a 
+powerful Golang productivity tool that integrates features such as 
+automatic code generation, web and microservices frameworks, and 
+foundational development frameworks.
+
+### Why Choose Sponge?
+
+* Ease of Use: Sponge employs a modular design with a user-friendly 
+UI for code generation, making operations simple and enabling the 
+construction of complex web applications with ease.
+
+Powerful Features: Sponge offers a rich set of out-of-the-box 
+features, including logging, ORM, authentication, validation, 
+caching, messaging, tracing, monitoring, configuration management, 
+CI/CD, automatic API documentation, distributed transactions, and 
+more.
+
+Excellent Performance: Sponge is built on the gin framework, 
+providing outstanding performance for web service development.
+[[PM.low_code}]]

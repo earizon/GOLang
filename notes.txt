@@ -1,727 +1,483 @@
-## Apropos:
-  Content is versioned in git.  commits, issues and pull-requests welcome!
-@[https://www.github.com/earizon/GOLang]
-
 ## External Links                               [[{01_PM.EXT_RESOURCE]]
-* @[https://golang.org/doc/]
-* @[https://golang.org/ref/spec]
-* @[https://golang.org/doc/effective_go.html]
-* @[https://golang.org/pkg/]
-* @[https://golang.org/doc/cmd]
-* @[https://golang.org/doc/diagnostics.html]    [[}]]
+* <https://golang.org/doc/>
+* <https://golang.org/ref/spec>
+* <https://golang.org/doc/effective_go.html>
+* <https://golang.org/pkg/>
+* <https://golang.org/doc/cmd>
+* <https://golang.org/doc/diagnostics.html>    [[}]]
 
 # GOLang Summary [[{101,devops.101]]
 
-* See also: @[https://www.youtube.com/watch?v=PAAkCSZUG1c&ab_channel=TheGoProgrammingLanguage]
+* See also: <https://www.youtube.com/watch?v=PAAkCSZUG1c&ab_channel=TheGoProgrammingLanguage>
 
-   GLOBAL     1<···> N git repo 1 <····> 1+ package/s
-   WORKSPACE
-   ===========
-   ${GOPATH}/ <··················· "GLOBAL WORKSPACE for GO PROJECTS" (defaults to ${HOME}/go )
-   ·                                $ go env GOPATH   ← print effective/current value
-   ·                                Recommended (fix random problems). Add next lines to .bashrc/...:
-   ·                              + export GOPATH=$(go env GOPATH)
-   ·                              + export PATH=$PATH:${GOPATH}/bin #
-   └ bin/                  <······ go install installs to $GOBIN (def.: $GOPATH/bin)
-   · bin/hello
-   ·
-   ·
-   ·  ┌··························· Before modules (1.13+) source project (Git repositories) MUST
-   ·  ·                            be placed here. After modules it's still recommended.
-   · ┌┴┐
-   └ src/github.com/user/prj01/ <··· GIT REPO 1
-     · └ .git/                     $ go install \          ← Install all compiled go repo's packages
-     · ·                            github.com/user/prj01/   to $GOPATH/pkg, $GOPATH/bin
-     · ·                           $ $GOPATH/bin/hello     ← Exec. installed package.
-     · ·
-     · └ hello/hello.go            <· PACKAGE 1. Import in other projects like:
-     ·   hello/hello_test.go          import github.com/user/proj01/hello/...
-     ·                                       └·· path from $GOPATH/src ··┘
-     · └ outyet/main.go            <· PACKAGE 2
-     ·   ...
-     src/golang.org/x/image/    <··· GIT REPO 2, external project imported like:
-     · .git/                       $ go get golang.org/x/image # <-
-     · bye/bye.go                       └┬┘
-     ·                                  download sources to correct path,
-     ·                                  then install libs(?) to $GOPATH/pkg,
-     ·                                  binaries to $GOPATH/bin
-     └ ···                    <··· GIT REPO 3, (local or external "$go get ")
+  ```
+  | GLOBAL     1<···> N git repo 1 <····> 1+ package/s
+  | WORKSPACE
+  | ===========
+  | ${GOPATH}/ <······ "GLOBAL WORKSPACE for GO PROJECTS" (defaults to ${HOME}/go )
+  | ·                   $ go env GOPATH   ← print effective/current value
+  | ·                   Recommended (fix random problems). Add next lines to .bashrc/...:
+  | ·                 + export GOPATH=$(go env GOPATH)
+  | ·                 + export PATH=$PATH:${GOPATH}/bin #
+  | └ bin/         <·· go install installs to $GOBIN (def.: $GOPATH/bin)
+  | · bin/hello
+  | ·
+  | ·
+  | ·  ┌········ Before modules (1.13+) source project (Git repositories) MUST
+  | ·  ·         be placed here. After modules it's still recommended.
+  | · ┌┴┐
+  | └ src/github.com/user/prj01/ <· GIT REPO 1
+  |   · └ .git/                  $ go install \          < Install all compiled go repo's packages
+  |   · ·                         github.com/user/prj01/   to $GOPATH/pkg, $GOPATH/bin
+  |   · ·                        $ $GOPATH/bin/hello     < Exec. installed package.
+  |   · ·
+  |   · └ hello/hello.go            <· PACKAGE 1. Import in other projects like:
+  |   ·   hello/hello_test.go          import github.com/user/proj01/hello/...
+  |   ·                                       └·· path from $GOPATH/src ··┘
+  |   · └ outyet/main.go            <· PACKAGE 2
+  |   ·   ...
+  |   src/golang.org/x/image/    <··· GIT REPO 2, external project imported like:
+  |   · .git/                       $ go get golang.org/x/image # <-
+  |   · bye/bye.go                       └┬┘
+  |   ·                                  download sources to correct path,
+  |   ·                                  then install libs(?) to $GOPATH/pkg,
+  |   ·                                  binaries to $GOPATH/bin
+  |   └ ···                    <··· GIT REPO 3, (local or external "$go get ")
+  |
+  |   WARN : DO NOT SYMLINK SRC/... TO DIRECTORIES
+  ```
 
-     WARN : DO NOT SYMLINK SRC/... TO DIRECTORIES
-
-  • Hello World run&build                                COMPILE → EXECUTE
-  ┌ ${GOPATH}/src/github.com/"myUser"/hello/hello.go - { $ go run  hello.go      ← alt 1. Quick version
-  │                                                      $ go build  && ./hello  ← alt 2.
-  │
-  │                                           'package' must be first statement in file
-  │ package main        <···················· 'main' tells that pacakge should compile as an executable
-  │                                           (vs shared library), having a "main" entry point.
-  │                                           pkg.names for libraries are short,clear,lowercase (without
-  │                                           conflictive /[_@^...]/ chars)
-  │                                           CONVENTION: function called 'New' returns type *pkg.Pkg
-  │                                           e.g:
-  │                                           list.New() at ./list/list.go returns *list.List
-  │                                           Use New'OtherType' for OtherType != pkg.Pkg
-  │
-  │ import (            <···················· importing several types and functions
-  │   "fmt"                               <·· [[{strings.101}]]
-  │    pkgM "golang-book/chapter11/math"  <·· match ./golang-book/chapert11/math/math.go
-  │    pkgN "golang-book/chapter12/math"      pkgM/N: alias avoiding conflicts when using
-  │                                           2 '.../math' packages.
-  │   "time"                                  [[{101.date_time}]]
-  │   "flag"                                  [[{qa.UX}]]
-  │   ... )
-  │
-  │   if m , _ == functionN() ; m == n  { <·· declare/assign  m "inside" i , then pass m == n to if
-  │      return 0, errors.New("n == 0")   <·· return N values. Normally (result, errors)
-  │   }                                       errors package is standard (no need to import) [[{qa.error_control}]]
-  │                                           NOTE: return values can be named.
-  │
-  │   for i := 0; i < 10; i++ {            ← NO PARENTHESIS USED in 'for' or 'if'
-  │     fmt.Println(n, ":", i)               break'|'continue' statements work as in C/Java/...
-  │     amt := time.Duration(rand.Intn(250)) [[{101.date_time]]
-  │     time.Sleep(time.Millisecond * amt)   [[}]]
-  │   }
-  │   ... m.Average(...)
-  │   rawString01 := `lorem ipsum...       ← Multiline string definition. See also:[[{strings.101]]
-  │ ... lorem ipsum ...                    @[#text_templates_summary]
-  │ ....`                                    [[}]]
-  │  x := 42.0
-  │  //
-  │  sumToX := func(b float) bool {        <- Declare+Define clouse, funct. within current exec. ctx
-  │   return b == x                          x point to x defined above (WARN: x value can be changed
-  │  }                                       by some other code)
-  │  switch x {
-  │    case x>10:                          <- code will be executed fallthrough keyword makes next
-  │      ... ; fallthrough                    case be evaluated.(by default, end after 1st match)
-  │                                           WARN: This behaviour differs from buggy default in C/JAVA/...
-  │    case x>20:                          <- code will be executed (thanks to previous fallthrough)
-  │      ...
-  │    case x>30:                          <- code will NOT be executed. (Not previous fallthrough )
-  │      ...
-  │    default:                            <- exec. when no other case matach condition.
-  │       ... default is optional ...
-  │  }
-  │  res, err := http.Get("...")           <- open I/O HTTP Resource [[{io.101,io.http]]
-  │  defer res.Body.Close()                <- defer will close resources at function exit [[{qa.101}]]
-  │  body, err := ioutil.ReadAll(resp.Body)  [[}]]
-  │
-  │  switch c := instance.(type) {         ← switch-case based on instance type
-  │    case string:
-  │        ...
-  │  }
-  │
-  │ func main() {                         <- Entry point to App
-  │   const (                             <- DEFINE CONSTANT VALUES [[{qa.101.inmu_code]]
-  │      HELLO = "Hello"                     (The more constants, the best)
-  │      WORLD = "World"
-  │   )                                      [[}]]
-  │ type IPv4    [4]byte                 <- Easy way to assign a type to a "bunch-of-bytes"
-  │ type IPv6   [10]byte                    To convert back to []byte array: return myIPv4[:]
-  │
-  │                                         PARSING COMMAND LINE ARGUMENTS (@package main only) [[{qa.UX]]
-  │   maxp := flag.int(
-  │      "max", 6 /*def.value*/,            <- define CLI flag 'max'.
-  │      "the max value")
-  │   flag.parse()                          // parse
-  │   fmt.println(...*maxp)                 // Referencing parsed value. [[}]]
-  │
-  │   var x string = HELLO+" "+WORLD       ← alt 1.  [[{strings.101}]]
-  │   //  x       := HELLO+" "+WORLD       ← alt 2. (Type inference)
-  │
-  │
-  │   var input01 float64                           [[{IO.101,strings.101]]
-  │   fmt .Scanf ("%f", &input01)          ← formated input from STDIN to 'input01' var.
-  │   fmt .Printf("%f", input01 )          ← formated output to STDOUT
-  │   fmt .Printf(x)                       ← Printf. alt 1
-  │   fmt .Println("1 + 1 = ", 1.0 + 1.0)  ← Printf. alt 2  [[}]]
-  │ }
-  └───────────────────────────────────────── }
+## Hello World run&build                              
+  ```
+  |  COMPILE ··> EXECUTE like:
+  |  $ go run  hello.go     # alt 1. Quick version
+  |  $ go build  && ./hello # alt 2.
+  |
+  | $ cat ${GOPATH}/src/github.com/"myUser"/hello/hello.go 
+  |
+  |                                     // 'package' statement must be first statement in file
+  | package main                        //< 'main' tells that pacakge should compile as an executable
+  |                                     //  (vs shared library), having a "main" entry point.
+  |                                     //  pkg.names for libraries are short,clear,lowercase (without
+  |                                     //  conflictive /[_@^...]/ chars)
+  |                                     //  CONVENTION: function called 'New' returns type *pkg.Pkg
+  |                                     //  e.g:
+  |                                     //  list.New() at ./list/list.go returns *list.List
+  |                                     //  Use New'OtherType' for OtherType != pkg.Pkg
+  |                                
+  | import (                            //< importing several types and functions
+  |   "fmt"                             //< [[{strings.101}]]
+  |    pkgM "book/chapter11/math"       //< match ./golang-book/chapert11/math/math.go
+  |    pkgN "book/chapter12/math"           pkgM/N: alias avoiding conflicts when using
+  |                                         2 '.../math' packages.
+  |   "time"                                [[{101.date_time}]]
+  |   "flag"                                [[{qa.UX}]]
+  |   ... )
+  |
+  |   if m , _ == functionN() ; m == 0  //< declare/assign  m "inside" i , then pass m == n to if
+  |    { return 0, errors.New("n==0") } //< return N values. Normally (result, errors)
+  |                                     //  errors package is standard (no need to import) 
+  |                                     //  NOTE: return values can be named. [[{qa.error_control}]]
+  |
+  |   for i := 0; i < 10; i++ {         //< NO PARENTHESIS USED in 'for' or 'if'
+  |     fmt.Println(n, ":", i)          //  break'|'continue' statements work as in C/Java/...
+  |     amt :=                          //
+  |       time.Duration(rand.Intn(250)) //  [[{101.date_time]]
+  |     time.Sleep                      //  
+  |       (time.Millisecond * amt)      //  [[101.date_time}]]
+  |   }
+  |   ... m.Average(...)
+  |   rawString01 := `lorem ipsum...    //< Multiline string def. 
+  | ... lorem ipsum ...                 //                       
+  | ....`                               //
+  |  x := 42.0
+  |  //
+  |  sumToX := func(b float) bool {     //< Declare+Define clouse, funct. within 
+  |                                     //   current exec. ctx (sumToX will have stack
+  |                                     //   == private Stack + "parent" stack at def. point
+  |   return b == x                     //   x point to x defined above
+  |  }                                  //   WARN: x value can be changed by some other code
+  |  switch x {
+  |    case x>10:                       //
+  |      ...                            // 
+  |      ... ; fallthrough              //< `fallthrough`: evaluate next case  (x>20)
+  |                                     // WARN: This behaviour differs from (buggy)
+  |                                     // C/JAVA/... (a break is needed to stop evaluating)
+  |    case x>20: 
+  |      ...
+  |    case x>30:
+  |    default:                         //< (optional) execute if no previous case matches.
+  |      ... 
+  |  }
+  |  res, err := http.Get("...")        //< open I/O HTTP Resource [[{io.101,io.http]]
+  |  defer res.Body.Close()             //< defer will close resources at fun.exit [[{qa.101}]]
+  |  body, err :=                       //
+  |    ioutil.ReadAll(resp.Body)        // [[}]]
+  |
+  |  switch c := instance.(type) {      //< switch-case based on instance type
+  |    case string:
+  |        ...
+  |  }
+  |
+  | func main() {                       //< Entry point to App
+  |   const (                           //< DEFINE CONSTANT VALUES [[{qa.101.inmu_code]]
+  |      HELLO = "Hello"                //  (The more constants, the best)
+  |      WORLD = "World"
+  |   )                                 //  [[}]]
+  | type IPv4    [4]byte                //< Easy way to assign a type to a "bunch-of-bytes"
+  | type IPv6   [10]byte                // To convert back to []byte array: return myIPv4[:]
+  |
+  |                                     // PARSING COMMAND LINE ARGUMENTS (@package main only) [[{qa.UX]]
+  |   maxp := flag.int(
+  |      "max", 6 /*def.value*/,        //< define CLI flag 'max'.
+  |      "the max value")
+  |   flag.parse()                      //< parse
+  |   fmt.println(...*maxp)             //< Referencing parsed value. [[}]]
+  |
+  |   var x string = HELLO+" "+WORLD    //< alt 1.  [[{strings.101}]]
+  |   //  x       := HELLO+" "+WORLD    //< alt 2. (Type inference)
+  |
+  |
+  |   var input01 float64               //         [[{IO.101,strings.101]]
+  |   fmt .Scanf ("%f", &input01)       //< formated input from STDIN to 'input01' var.
+  |   fmt .Printf("%f", input01 )       //< formated output to STDOUT
+  |   fmt .Printf(x)                    //< Printf. alt 1
+  |   fmt .Println("1+1=", 1.0+1.0)     //< Printf. alt 2  [[}]]
+  | }
+  ```
 
 ## Interfaces [[{101.interfaces]]
-  ▸ Go proverb: "The smaller the interface the best"
-  ▸ io.reader, io.writer are the most important interfaces [[{io.101]]
-    in Go with just 1 method each.
-    io.writer represents the ability to write a byte slice into a stream of data.
-    io.reader represents the "read-end" of a stream of data.
-    [[}]]
+* Go proverb: "The smaller the interface the best"  [[{qa.best_patterns,qa.101}]]
+* io.reader, io.writer are the most important interfaces [[{io.101]]
+  in Go with just 1 method each.
+  `io.writer` represents the ability to write a byte slice into a stream of data.
+  `io.reader` represents the "read-end" of a stream of data.
+[[io.101}]]
 
-  ┌ ../devices/IDevice.go ──────
-  │ type Device interface {     <- INTERFACE DECLARATION
-  │   Open(string) int, error      ( type ... interface vs type ... struct )
-  │   Read()       int, error
-  │   Close()      error
-  │ }
-  └─────────────────────────────
+* ```
+  |$ cat ../devices/IDevice.go 
+  | type Device interface {    //< INTERFACE DECLARATION
+  |   Open(string) int, error  //  ( type ... interface 
+  |   Read()       int, error  //    vs type ... struct )
+  |   Close()      error
+  | }
+  ```
 
-  ▸ THERE ARE NO CLASSES IMPLEMENTING INTERFACES
-   The combination of structs + struct-friends-funct play the role of classes.
+* KEYPOINT: THERE ARE NO CLASSES IMPLEMENTING INTERFACES.<br/>
+  The combination of structs + struct-friends-funct play the role of classes.
 
-  ┌ ../devices/harddisk.go ─────
-  │ type HardDisk struct { ... }  <- standard type ... struct (vs type ... interface)
-  │ func (d HardDisk) Open(string) ...  <- Mark Open(string) as "friend" of HardDisk
-  │ func (d HardDisk) Read() ...        <- Mark Read()       as "friend" of HardDisk
-  │ func (d HardDisk) Close()...        <- Mark Close()      as "friend" of HardDisk
-  └─────────────────────────────                ^^^^^^^^^^^^
-                                           struct friend-functions must implement all
-                                           functions defined in interface.
-  ┌ ../devices/tty.go ──────────                vvvvvvvvvvvv
-  │ type sTTY     struct { ... }
-  │ func (d HardDisk) Open(string) ...  <- Mark Open(string) as "friend" of sTTY
-  │ func (d sTTY    ) Read() ...        <- Mark Read()       as "friend" of sTTY
-  │ func (d sTTY    ) Close()...        <- Mark Close()      as "friend" of sTTY
-  └─────────────────────────────
+  ```
+  | $ cat .../devices/harddisk.go 
+  | type HardDisk struct { ... }  <- standard type ... struct (vs type ... interface)
+  | func (d HardDisk) Open(string) ...  <- Mark Open(string) as "friend" of HardDisk
+  | func (d HardDisk) Read() ...        <- Mark Read()       as "friend" of HardDisk
+  | func (d HardDisk) Close()...        <- Mark Close()      as "friend" of HardDisk
+  |                                             └────┬─────┘
+  |                                        struct friend─functions must implement all
+  |                                        functions defined in interface.
+  |                                             ┌────┴─────┐
+  | type sTTY     struct { ... }
+  | func (d HardDisk) Open(string) ...  <- Mark Open(string) as "friend" of sTTY
+  | func (d sTTY    ) Read() ...        <- Mark Read()       as "friend" of sTTY
+  | func (d sTTY    ) Close()...        <- Mark Close()      as "friend" of sTTY
+  ```
 [[}]]
 
-  • BUILT-IN numeric types: [[{]]
-  @[https://go.dev/ref/spec#Types]
-    - (u)int8/16/32/64      - rune: alias for int32
-      var u uint = 7        - byte: alias for uint8
-      n := byte('\n')
-    - float32/64
-      f1 := float64(len(int01)) ← type conversion
-      var pi float32 = 22. / 7
-    - complex64/128
-      c := 3 + 4i   ← complex128
-    - NaN, positive/negative inifinity  [[}]]
+## BUILT-IN numeric types [[{data_structures.101]]
+* <https://go.dev/ref/spec#Types>
+  ```
+  · (u)int8/16/32/64      - rune: alias for int32
+    var u uint = 7        - byte: alias for uint8
+    n := byte('\n')
+  · float32/64
+    f1 := float64(len(int01)) ← type conversion
+    var pi float32 = 22. / 7
+  · complex64/128
+    c := 3 + 4i   ← complex128
+  · NaN, positive/negative inifinity  [[data_structures.101}]]
+  ```
 
-  • Built-in Strings: [[{strings.101]]
-    - "asdf" + `asdf`  newlines allowed
-    - len("asdf")      4
-    - "asdf"[0]        ← returns a
-    - String package:
-      strings.Contains("test", "es")  // true
-      strings.Count("test", "t")      // 2
-      strings.HasPrefix("test", "te") // true
-      strings.HasSuffix("test", "st") // true
-      strings.Index("test", "e")      // 1
-      strings.Join([]string{"a","b"}, // "a-b"
-                   "-")
-      strings.Repeat("a", 3)          // == "aaa"
-      strings.Replace("aa","a","b",1) // "ba"
-      strings.Split("a-b-c", "-")     // []string {"a","b","c"}
-      strings.ToLower("TEST")         // "test"
-      strings.ToUpper("test")         // "TEST"
+## Built-in Strings [[{strings.101]]
+  ```
+  "asdf" + `asdf`  // newlines allowed
+  len("asdf")      // 4
+  "asdf"[0]        // ← returns a
 
-      arr := []byte("test")           // string to byte-array
-      str := string(                  // byte-array to string
-              []byte{'t','e','s','t'})
-    - See also: @[text_templates_summary]
+  // ------ String package --------------------------------
+    strings.Contains("test", "es")  // true
+    strings.Count("test", "t")      // 2
+    strings.HasPrefix("test", "te") // true
+    strings.HasSuffix("test", "st") // true
+    strings.Index("test", "e")      // 1
+    strings.Join([]string{"a","b"}, // "a-b"
+                 "-")
+    strings.Repeat("a", 3)          // == "aaa"
+    strings.Replace("aa","a","b",1) // "ba"
+    strings.Split("a-b-c", "-")     // []string {"a","b","c"}
+    strings.ToLower("TEST")         // "test"
+    strings.ToUpper("test")         // "TEST"
 
-    - Check if string is empty:
-          strings.TrimSpace(" ")  != ""  <- Alt 1: Prefered in later versions of Go
-      len(strings.TrimSpace(" ")) != 0   <- Alt 2: micro-optimization. Harder to read, but
-                                                   still used.
-    [[}]]
-[[}]]
+    arr := []byte("test")           // string to byte-array
+    str := string(                  // byte-array to string
+            []byte{'t','e','s','t'})
+  // See also: text_templates
 
-
+  // ------ Check if string is empty ------------------------
+        strings.TrimSpace(" ")  != ""  //< Alt 1: Prefered in later versions of Go
+    len(strings.TrimSpace(" ")) != 0   //< Alt 2: micro-optimization. Harder to read, but
+                                       //         still used.
+  ```
+  [[strings.101}]]
 
 ## GO Pointers [[{101.pointers]]
-  - GOLANG IS GARBAGE COLLECTED. This implies that returning pointers to function
-    local variables are "OK". Local variable will stay in memory while some external
-    reference is in place:
-    val1 := 1
-    xPtr *int = &val1 ← new pointer to val1.
-    ptr1 := new(int)  ← new Pointer unnasigned
-  - NO POINTER ARITHMETIC EXISTS.
-  - nil pointer and nil pointer errors can arise :(
+- GOLANG IS GARBAGE COLLECTED. This implies that returning pointers to function
+  local variables are "OK". Local variable will stay in memory while some external
+  reference is in place:
+  ```
+  | val1 := 1
+  | xPtr *int = &val1 ← new pointer to val1.
+  | ptr1 := new(int)  ← new Pointer unnasigned
+  ```
+- NO POINTER ARITHMETIC EXISTS.
+- nil pointer and nil pointer errors can arise :(
 
-    func learnMemory() (p1, p2 *int) {
-        s := make([]int, 20) // Allocate 20 ints as a single block of memory.
-        s[3] = 7             // Assign one of them.
-        return &s[3], &s;    // & fetch address of object.
-    }
+  ```
+  | func learnMemory() (p1, p2 *int) {
+  |     s := make([]int, 20) // Allocate 20 ints as a single block of memory.
+  |     s[3] = 7             // Assign one of them.
+  |     return &s[3], &s;    // & fetch address of object.
+  | }
+  ```
 [[}]]
 
 ## Channels + GoRutines [[{101.channels,101.goroutines]]
-  • channel: CONCURRENCY-SAFE COMMUNICATION OBJECT used for:
-    • Concurrent internal go routines running in parallel using
-      the channel to synchronize work.
-    • Async/reactive implementation (Concurrent code sending / receiving
-      data in another machine outside our control).
 
-  • Channel / Go-routines interaction:
-                                             Standard function to be run as go-routine
-    func goRoutine1(i int, c chan int) {   ← (vs called as part of a thread). Syntax is
-        ...                                  similar to standard functions but we must
-        c <- i + 1 //  <- write to channel   pass 1+ channel/s object/s to allow the
-    }                                        go routine to communicate with other threads
+* channel: CONCURRENCY-SAFE COMMUNICATION OBJECT used for:
+  * Concurrent internal go routines running in parallel using
+    the channel to synchronize work.
+  * Async/reactive implementation (Concurrent code sending / receiving
+    data in another machine outside our control).
 
-    NOTE: We can restrict whether function/go-routine will be able to read/write
-          from channel like:
+* Channel / Go-routines interaction:
+  ```
+                                           Standard function to be run as go-routine
+  func goRoutine1(i int, c chan int) {   ← (vs called as part of a thread). Syntax is
+      ...                                  similar to standard functions but we must
+      c <- i + 1 //  <- write to channel   pass 1+ channel/s object/s to allow the
+  }                                        go routine to communicate with other threads
+  ```
 
-    func func1(c chan   string) ... ← func1 can read/write to/from channel
-    func func2(c chan<- string) ... ← func2 can write      to      channel
-    func func3(c <-chan string) ... ← func3 can read          from channel
+  NOTE: We can restrict whether function/go-routine will be able to read/write
+        from channel like:
 
-    func funcXXX (...) {
-      c   := make(chan int)         // ← create new unbuffered    int channel
-      cs  := make(chan string)      // ← create new unbuffered string channel
-      ccs := make(chan chan string) // ← create new unbuffered string-channel channel
-                                                    └────┬───┘
-         ┌───────────────────────────────────────────────┘
-      // • goroutines writting (trying to write) to Unbuffered channel will block
-      //   when no 'peer' thread is waiting to read from such channel.
-      // • Use make( chan T, N /*buffer capacity*/ ) for buffered channels.
-      //   Writting goroutines will continue to writing until buffer is full.
-
-      go goRoutine1(  0,  c) // ← start go rutine 1 ┐ Any go routine can be first
-      go goRoutine1( 10,  c) // ← start go rutine 2 ├ writing to unique channel c
-      go goRoutine1(─805, c) // ← start go rutine 3 ┘ and so output will be random
-      fmt.Println(<-c, <-c, <-c) //                 ← in this line
-
-      go func()   { c <- 84  }()  // inline go-routine writing value to c  channel.
-      go func()   { cs<- "." }()  // inline go-routine writing value to cs channel.
-      select {           ← select will wait until something is received from channel
-        case i := <-c:     ←┐ // varX := <- c translates to "wait trying to read from c"
-            ...             ├ One go-routine will win. All other "competing" goroutines
-        case s <-cs:       ←┘ will block. (No one will be reading what they write)
-            ...
-        case sc <-ccs:     ←  Empty channel, NOT ready for communication.
-            ...
-      }
-    }
-[[}]]
-
-## GOlang Testing [[{qa.testing,qa.101]]
-· @[https://golang.org/cmd/go/#hdr-Test_packages]
-
-· $GOPATH/src/github.com/user/stringutil/reverse.go       <- File to test
-  $GOPATH/src/github.com/user/stringutil/reverse_test.go  <- Sibling of reverse.go
-                                                             excluded in package builds
-  package stringutil
-  import "testing"                      <-  @[https://golang.org/pkg/testing/]
-
-  func TestReverse( t  *testing.T) {    <- TestXxx marks funct. as test routine
-                                            var  t  injected by testing framework?
-
-    cases_l := []struct {               <- Define struct, init array of struct inline
-      input          string,
-      expectedOutput string
-    }{
-      {"Hello, world", "dlrow ,olleH"}, ← Single array element of type struct
-      ...
-    }
-    for _, c := range cases_l {
-      output := Reverse(c.input)        <- function being tested
-      if output != c.expectedOutput {
-      t .Errorf(                        <- alternatively t.Fail, t.Fatal or "panic"
-        "Reverse(%q) == %q, Expected %q",
-         c.input, output, c.expectedOutput)
-
-      }
-    }
-  }
-
-  $ go test github.com/user/stringutil                   ← Running tests:
-  → ok github.com/user/stringutil 0.165s
-
-  func BenchmarkXxx(b *testing.B) {   <- Mark funct as Benchmarks
-                                         run sequentially ($ go test -bench)
-                                         (See official doc for running in parallel)
-      ... some "slow" presetup ...
-      b.ResetTimer()                  <- Reset benchmark after "slow" presetup.
-      for i := 0; i < b.N; i++ {      <- @benchmark execution b.N b.N is adjusted
-          rand.Int()                     until the benchmark function lasts long
-      }                                  enough to be timed reliably.
-  }                                      ( Maybe tens of millions for short codes)
-
-
-                                         FUZZ TESTING (https://go.dev/doc/fuzz)
-  func FuzzHex(f *testing.F) {        <- FuzzXxx marks func. as fuzz-test
-                                         It will be called with random inputs in
-                                         go test --fuzz
-
-    for _, seed := range [][]byte{    <- optional. seed corpus (inputs run by default)
-       {}, {0}, {0x232}, {1, 2} }
-    { f.Add(seed) }                   <- register seed input.
-                                       alternative, use testdata/fuzz/"Name_of_fuzz_test"
-
-    f.Fuzz(
-      func(t *testing.T               <- Fuzz test target function to be tested.
-           in []byte ) {                 'in' random input, must match type of seed.
-      enc := hex.EncodeToString(in)
-      out, err := hex.DecodeString(enc)
-      if err != nil {
-        t.Fatalf("%v: decode: %v", in, err)
-      }
-      if !bytes.Equal(in, out) {
-        t.Fatalf("%v: not equal after round trip: %v", in, out)
-      }
-    })
-  }
-
-Use t.Skip("...") to skip a test or a non-valid input in Fuzz tests.
-
-  func TestFoo(t *testing.T) {                    SUBTESTS AND SUB-BENCHMARKS
-      // <setup code>                             ===========================
-      t.Run("A=1", func(t *testing.T) { ... }) <- Run allow to define subtest/sub-benchmarks
-      t.Run("A=2", func(t *testing.T) { ... })    allowing to share common setup/tear-down
-      t.Run("B=1", func(t *testing.T) { ... })
-      // <tear-down code>
-  }
-  $ go test -run ''                   <- Run all tests.
-  $ go test -run Foo                  <- Run test  matching top-level "TestFoo*".
-  $ go test -run Foo/A=               <- Run tests matching top-level "TestFoo*" && subtests matching "A="
-  $ go test -run /A=1                 <- Run tests matching top-level "Test*"    && subtests matching "A=1"
-  $ go test -run=FuzzFoo/9ddb952d9814 <- run Fuzz test matching top-level "FuzzFoo" with given input.
-
-
-func TestMain(m *testing.M) {    <- Optional, low-level primitive, only necessary for casual testing
-                                    Control code run on main-thread, pre-setup, teardown
-                                    - call flag.Parse() here if TestMain uses flags
-  os.Exit(m.Run())                  If present it will be run (instead of Test*, Benchmarks*, Fuzz*)
-}
-[[}]]
-
-## File I/O [[{io.101.files]]
-* Simple 'String' ←(read-from/write-to)→ 'File'
-
-* ·········································· write 'String' to 'File'
-  import ( "os" )                            ========================
-  func WriteFile() {                         in-memory String → file
-      F_NAME := "test.txt"                 (no buffer, no looping, no async,...)
-      const data []byte := []("lorem...")
-      if err := os.WriteFile(F_NAME,
-         err != nil {
-          panic(err)
-      }
-      defer file.Close()                   ← Don't forget!!!
-
-      if writtenLen, err := file.WriteString("...") ;
-      /* └────┬───┘*/err != nil {
-      // effectively written string len.
-          panic(err)
-      }
-  }
-
-············································ Read 'File' to 'String'
-  import ( "os" )                           =======================
-  func ReadFile() {
-      F_NAME := "test.txt"                   file → in-memory String
-      if data, err := os.ReadFile(F_NAME);   ← go 1.16+
-               err != nil {                    go 1.15-: ioutils.ReadFile
-         panic(err)
-      }
-  }
-
-············································ Read "pieces" of files
-                                             ========================
-  import (
-      "io"
-      "os"
-  )
-
-  func ReadPieceOfFile() {              ←   WARN:  error control removed
-      f, err := os.Open("/tmp/dat")
-      ... error control ...
-      defer  f.Close()                  ← "defer": Don't forget to close
-
-      b1 := make([]byte, 5)
-      n1, err := f.Read(b1)             ← read 5 bytes (@ start-of-file)
-      ... error control ...               n1: effective bytes read
-
-      o2, err := f.Seek(6, 0)           ← Move in file for next read/write
-      ^                 ^  ^              Move relative to:
-      ·                 ·  └─············ 0: file-origin
-      ·                 ·                 1: current offset
-      ·                 ·                 2: file-end
-      ·                 └················ offset "jump" in bytes
-      └·································· new file offset
-                                          For write-append behavior is undefined
-      b2 := make([]byte, 2)
-      n2, err := io.ReadAtLeast(f, b2, 2) ← TODO: Wait otherwise?
-
-      _, err = f.Seek(0, 0)
-
-      r4 := bufio.NewReader(f)
-      b4, err := r4.Peek(5 /* bytes */)
-
-  }
-
-············································ Read "pieces" of files  [[{io.101.buffers]]
-                                             using buffers:
-                                             ========================
-  import (
-      "bufio"             ← bufio implements a buffered reader
-      "io"                  efficiency with many small reads
-      "os"
-  )
-
-  func ReadPieceOfFile() {              ←   WARN:  error control removed
-      f, err := os.Open("/tmp/dat")
-      ... error control ...
-      defer  f.Close()                  ← "defer": Don't forget to close
-
-      r4 := bufio.NewReader(f)          ← "wrap" File into buiffer
-      b4, err := r4.Peek(5 /* bytes */) ← Operate on buffer
-  }                                          // [[}]]
-
-[[}]]
+  ```
+  | func func1(c chan   string) ... ← func1 can read/write to/from channel
+  | func func2(c chan<- string) ... ← func2 can write      to      channel
+  | func func3(c <-chan string) ... ← func3 can read          from channel
+  |
+  | func funcXXX (...) {
+  |   c   := make(chan int)         // ← create new unbuffered    int channel
+  |   cs  := make(chan string)      // ← create new unbuffered string channel
+  |   ccs := make(chan chan string) // ← create new unbuffered string-channel channel
+  |                                                 └────┬───┘
+  |      ┌───────────────────────────────────────────────┘
+  |   // • goroutines writting (trying to write) to Unbuffered channel will block
+  |   //   when no 'peer' thread is waiting to read from such channel.
+  |   // • Use make( chan T, N /*buffer capacity*/ ) for buffered channels.
+  |   //   Writting goroutines will continue to writing until buffer is full.
+  |
+  |   go goRoutine1(  0,  c) // ← start go rutine 1 ┐ Any go routine can be first
+  |   go goRoutine1( 10,  c) // ← start go rutine 2 ├ writing to unique channel c
+  |   go goRoutine1(─805, c) // ← start go rutine 3 ┘ and so output will be random
+  |   fmt.Println(<-c, <-c, <-c) //                 ← in this line
+  |
+  |   go func()   { c <- 84  }()  // inline go-routine writing value to c  channel.
+  |   go func()   { cs<- "." }()  // inline go-routine writing value to cs channel.
+  |   select {           ← select will wait until something is received from channel
+  |     case i := <-c:     ←┐ // varX := <- c translates to "wait trying to read from c"
+  |         ...             ├ One go-routine will win. All other "competing" goroutines
+  |     case s <-cs:       ←┘ will block. (No one will be reading what they write)
+  |         ...
+  |     case sc <-ccs:     ←  Empty channel, NOT ready for communication.
+  |         ...
+  |   }
+  | }
+  ```
+[[101.channels}]]
 
 ## buffers [[{io.101.buffers,01_PM.TODO]]
-@[https://pkg.go.dev/bytes]
-  type Buffer        <··· Manage byte[] arrays with File-like interface: Read (with drain) & Write
-  -----------
-  func NewBuffer      (buf []byte) *Buffer
-  func NewBufferString(s string  ) *Buffer
-  func (b *Buffer) Bytes() []byte
-  func (b *Buffer) Cap()   int
-  func (b *Buffer) Grow(n int)
-  func (b *Buffer) Len() int
-  func (b *Buffer) Next(n int) []byte                    <··· returns slice containing next-n-bytes from buffer,
-                                                              advancing the buffer as if bytes had been returned by Read
-  func (b *Buffer) Read(p []byte) (n int, err error)     <··· reads next-len(p) bytes from buffer (or until buffer is drained).
-                                                              return effective 'n' bytes read. err == io.EOF if there are no
-                                                              more bytes to read, (unless len(p) is zero); otherwise it is nil.
-  func (b *Buffer) ReadByte() (byte, error)
-  func (b *Buffer) ReadBytes(delim byte) (line []byte, err error)
-  func (b *Buffer) ReadFrom(r io.Reader) (n int64, err error)
-  func (b *Buffer) ReadRune() (r rune, size int, err error)
-  func (b *Buffer) ReadString(delim byte) (line string, err error)
-  func (b *Buffer) Reset()
-  func (b *Buffer) String() string
-  func (b *Buffer) Truncate(n int)
-  func (b *Buffer) UnreadByte() error
-  func (b *Buffer) UnreadRune() error
-  func (b *Buffer) Write(p []byte) (n int, err error)
-  func (b *Buffer) WriteByte(c byte) error
-  func (b *Buffer) WriteRune(r rune) (n int, err error)
-  func (b *Buffer) WriteString(s string) (n int, err error)
-  func (b *Buffer) WriteTo(w io.Writer) (n int64, err error)
 
-
-  var buf bytes.buffer // no need to init (make)
-  buf.write([]byte("test"))
-
+* <https://pkg.go.dev/bytes>
+  ```
+  | type Buffer        <··· Manage byte[] arrays with File-like interface: Read (with drain) & Write
+  | -----------
+  | func NewBuffer      (buf []byte) *Buffer
+  | func NewBufferString(s string  ) *Buffer
+  | func (b *Buffer) Bytes() []byte
+  | func (b *Buffer) Cap()   int
+  | func (b *Buffer) Grow(n int)
+  | func (b *Buffer) Len() int
+  | func (b *Buffer) Next(n int) []byte                    <··· returns slice containing next-n-bytes from buffer,
+  |                                                             advancing the buffer as if bytes had been returned by Read
+  | func (b *Buffer) Read(p []byte) (n int, err error)     <··· reads next-len(p) bytes from buffer (or until buffer is drained).
+  |                                                             return effective 'n' bytes read. err == io.EOF if there are no
+  |                                                             more bytes to read, (unless len(p) is zero); otherwise it is nil.
+  | func (b *Buffer) ReadByte() (byte, error)
+  | func (b *Buffer) ReadBytes(delim byte) (line []byte, err error)
+  | func (b *Buffer) ReadFrom(r io.Reader) (n int64, err error)
+  | func (b *Buffer) ReadRune() (r rune, size int, err error)
+  | func (b *Buffer) ReadString(delim byte) (line string, err error)
+  | func (b *Buffer) Reset()
+  | func (b *Buffer) String() string
+  | func (b *Buffer) Truncate(n int)
+  | func (b *Buffer) UnreadByte() error
+  | func (b *Buffer) UnreadRune() error
+  | func (b *Buffer) Write(p []byte) (n int, err error)
+  | func (b *Buffer) WriteByte(c byte) error
+  | func (b *Buffer) WriteRune(r rune) (n int, err error)
+  | func (b *Buffer) WriteString(s string) (n int, err error)
+  | func (b *Buffer) WriteTo(w io.Writer) (n int64, err error)
+  |
+  | var buf bytes.buffer // no need to init (make)
+  | buf.write([]byte("test"))
+  ```
 [[io.101.buffers}]]
 
-
-## data structure <··> JSON [[{io.serialization.JSON]]
-  package main
-
-  import (
-      "encoding/json"                   <- Builtin library!!!
-      "fmt"
-      "os"
-  )
-
-  type customStruct01 struct {
-      Page   int
-      Fruits []string
-  }
-
-  type customStruct02 struct {
-      Page   int      `json:"page_i"`   <- Only Fields starting with capital
-      Fruits []string `json:"fruit_l"`     letters will be en|de-coded to/from
-  }                                        JSON
-                       └···········┴─   <- tags allow to customized output
-                                           JSON key names (otherwise same name
-                                           is used).
-
-  func main() {                            OBJECT to JSON string
-                                           =====================
-    bolB, _ := json.Marshal(true)       <- encoding basic data types to JSON
-    fmt.Println(string(bolB))              (boolean, int, float, strings,..,
-                                           as well as slices and maps.
-
-    res1D := &customStruct01{           <- No problem to encode custom structs.
-        Page:   1,
-        Fruits: []string{"...", ...}
-    }
-    res1B, _ := json.Marshal(res1D)
-
-                                           JSON string to OBJECT  (example 1)
-                                           =====================
-    byt := []byte(                      <- INPUT JSON
-           `{"num":6.1,"strs":["a","b"]}`)
-
-    var dat map[string]interface{}      <- STEP 1) Variable to store decoded JSON
-                                           map of strings to arbitrary data types.
-
-    if err := json.Unmarshal(byt, &dat);<- STEP 2) Unmarshal
-       err != nil { panic(err) }        <- error control
-    fmt.Println(dat)
-
-    num := dat["num"].(float64)         <- STEP 3) convert map values to suitable type.
-
-                                           nested data requires a series of conversions.
-    strs := dat["strs"].([]interface{}) <- 1) Convert "strs" values to array of any-type
-    str1 := strs[0].(string)            <- 2) Convert element to string
-    fmt.Println(str1)
-                                           JSON string to OBJECT  (example 2)
-                                           =====================
-    str :=                              <- INPUT JSON (to be decoded to custom data type)
-        `{                                 - Adds additional type-safety
-           "page": 1,                      - eliminates manual type assertions.
-         "fruits": ["apple", "peach"]
-        }`
-
-    res := customStruct02{}
-    json.Unmarshal([]byte(str), &res)
-    fmt.Println(res.Fruits[0])
-
-                                           USING STREAMS (os.Writers children)
-                                           =============
-
-    enc := json.NewEncoder(os.Stdout)    <- Create JSON stream encoder (os.Stdout, HTTP response bodie,...)
-    d := map[string]int{"...": 5, ...}
-    enc.Encode(d)
-  }
-
-  https://go.dev/blog/json
-
-  • JSON API Summary  (https://pkg.go.dev/encoding/json)
-    func Compact                type UnsupportedTypeError
-    func HTMLEscape             type UnsupportedValueError
-    func Indent                 type SyntaxError
-    func Marshal                type MarshalerError
-    func MarshalIndent          type InvalidUnmarshalError
-    func Unmarshal              type UnmarshalTypeError
-    func Valid /*isValid?*/
-
-
-    type Decoder             type Encoder     type   MarshalJSON
-    - NewDecoder             - NewEncoder     type UnmarshalJSON
-    - Buffered               - Encode         type Unmarshaler
-    - Decode v any           - SetEscapeHTML  type Marshaler
-    - DisallowUnknownFields  - SetIndent      - Error
-    - InputOffset                             - Unwrap
-    - More                                    - Error
-    - Token                                   - Unwrap
-    - UseNumber
-
-    type Number   type Delim  type RawMessage
-    - Float64     - String()  type Token
-    - Int64
-    - String
-[[io.serialization.JSON}]]
-
 ## Builtin functions [[{101.builtin]]
-(@[https://golang.org/ref/spec#Built-in_functions])
 
-  @[https://golang.org/pkg/builtin/]
+* (<https://golang.org/ref/spec#Built-in_functions>)
 
-  • append(slice []Type, elems ...Type) []Type :
-    - append elements to the end-of-slice. Returns new updated slice.
-      that must be stored, often in existing var. holding the original slice.
+* <https://golang.org/pkg/builtin/>
 
-     sliceRefInFunc  = append( sliceRefInFunc , elem1, elem2)
-     sliceRefInFunc  = append( sliceRefInFunc , anotherSlice...)
+* `append(slice []Type, elems ...Type) []Type` :<br/>
+  append elements to the end-of-slice. Returns new updated slice.
+  that must be stored, often in existing var. holding the original slice.
+  ```
+  |sliceRefInFunc  = append( sliceRefInFunc , elem1, elem2)
+  |sliceRefInFunc  = append( sliceRefInFunc , anotherSlice...)
+  |
+  |slice           = append([]byte("hello "), "world"...)  ← appending string to
+  |                                                          byte slice is legal
+  ```
 
-     slice           = append([]byte("hello "), "world"...)  ← appending string to
-                                                               byte slice is legal
+* `cap(v Type) int`: return capacity of v, according to its type
 
-  • cap(v Type) int : ← return capacity of v, according to its type
+* close(c chan<- Type) :  closes channel.
+  * channel must be either bidirectional or send-only.
+    WARN: It should be executed only by the sender, never the receiver,
+          effect: shuts down channel after last-sent-value is received.
+  * WARN: After last-value has been received from a closed channel c,
+         any receive from c will succeed without blocking, returning the
+         zero value for the channel element.
+  * WARN: "x, ok := <-c" will also set ok to false for a closed channel.
 
-  • close(c chan<- Type) :  closes channel.
-    · channel must be either bidirectional or send-only.
-      WARN: It should be executed only by the sender, never the receiver,
-            effect: shuts down channel after last-sent-value is received.
-    · WARN: After last-value has been received from a closed channel c,
-           any receive from c will succeed without blocking, returning the
-           zero value for the channel element.
-    · WARN: "x, ok := <-c" will also set ok to false for a closed channel.
+* copy(dst, src []Type) int :                                               [slice]
+  * copy elements from source-slice into destination-slice.
+  * return number-of-elements copied, (it will be the minimum of len(src)|len(dst).
+  * WARN: source and destination may overlap.
 
-  • copy(dst, src []Type) int :                                               [slice]
-    · copy elements from source-slice into destination-slice.
-    · return number-of-elements copied, (it will be the minimum of len(src)|len(dst).
-    · WARN: source and destination may overlap.
+* delete(m map[Type]Type1, key Type) :                                      [map]
+  * delete element with specified key from map.
+  * If m == nil or key not in map, it results in a no-op.
+    WARN: This could mean a programming error. Check first that key
+          exists and throw like .
+    ```
+    | if !val, ok := map01["key"]; ok {
+    |   // raise error
+    | }
+    ```
 
-  • delete(m map[Type]Type1, key Type) :                                      [map]
-    · delete element with specified key from map.
-    · If m == nil or key not in map, it results in a no-op.
-      WARN: This could mean a programming error. Check first that key
-            exists and throw like .
-            if !val, ok := map01["key"]; ok {
-              // raise error
-            }
+* len(v Type) int : returns length-of-v, according to its type              [[{data_structure}]]
 
-  • len(v Type) int : returns length-of-v, according to its type              [data_structure]
+* make(t Type, size ...IntegerType) Type :
+  * allocate+initialize object of type slice|map|chan
+      Like "new", 1st argument is a type, not a value.
+    Unlike "new", return type is same as argument-type (vs pointer )
 
-  • make(t Type, size ...IntegerType) Type :
-    · allocate+initialize object of type slice|map|chan
-        Like "new", 1st argument is a type, not a value.
-      Unlike "new", return type is same as argument-type (vs pointer )
+* new(Type) *Type : allocates memory and return pointer to newly
+                    allocated type's "zero-value"
 
-  • new(Type) *Type : allocates memory and return pointer to newly
-                      allocated type's "zero-value"
+* panic(v interface{}) :
+  · stop normal execution of current-goroutine
+  · termination sequence can be controlled by the built-in func. recover() .
 
-  • panic(v interface{}) :
-    · stop normal execution of current-goroutine
-    · termination sequence can be controlled by the built-in func. recover() .
-
-  • recover() interface{} :
-    · allows program to manage behavior for panicking goroutine.
-      Executing a call to recover inside a deferred function                    [TODO]
-      (but not any function called by it) stops the panic sequence
-      by restoring normal execution and retrieves the error
-      value passed to the call of panic.
-    · If recover called outside deferred-function it will not stop panic sequence.
-
-   ...
+* recover() interface{} :
+  * allows program to manage behavior for panicking goroutine.
+    Executing a call to recover inside a deferred function                    [[{PM.TODO}]]
+    (but not any function called by it) stops the panic sequence
+    by restoring normal execution and retrieves the error
+    value passed to the call of panic.
+  * If recover called outside deferred-function it will not stop panic sequence.
+    ...
 [[}]]
 
 ## Error Management [[{qa.error_control.101]]
 
 ## contemplated errors [[{]]
-@[https://golang.org/ref/spec#Errors]
-  predeclared error is defined as:
 
-  type error interface {  ← interface adopted by convention to
-      Error() string        represent contemplated error condition
-  }                         (nil value representing no error).
-
-  n, err := os.Read(f,...)
-  if err != nil {             ← Check for errors.
-     // Fix contemplated error
-     // (otherwise panic...)
-  }
-
-     THE CONVENTION IN THE GO LIBRARIES IS THAT EVEN WHEN A PACKAGE
-     USES PANIC INTERNALLY, ITS EXTERNAL API STILL PRESENTS EXPLICIT ERROR
-     RETURN VALUES.
+* REF: <https://golang.org/ref/spec#Errors>
+* predeclared error is defined as:
+  ```
+  | type error interface {  ← interface adopted by convention to
+  |     Error() string        represent contemplated error condition
+  | }                         (nil value representing no error).
+  |
+  | n, err := os.Read(f,...)
+  | if err != nil {             ← Check for errors.
+  |    // Fix contemplated error
+  |    // (otherwise panic...)
+  | }
+  ```
+* THE CONVENTION IN THE GO LIBRARIES IS THAT EVEN WHEN A PACKAGE
+  USES PANIC INTERNALLY, ITS EXTERNAL API STILL PRESENTS EXPLICIT ERROR
+  RETURN VALUES.
 [[}]]
 
 ## error wrapping [[{qa.error_control.101,qa.101]]
-@[httpr://pkg.go.dev/errors]
+
+* <httpr://pkg.go.dev/errors>
 * package implementing functions to manipulate errors.
-  * func New   (text string)           error
-  * func Join  (errs ...error)         error
+  * `func New   (text string)           error`
+  * `func Join  (errs ...error)         error`
     returns new error wrapping errs (ignore nils) or nil if errs are all nil.
     text or error = newline-concatenated text by calling .Error on each element of errs
-  * func Unwrap(err error)             error
+  * `func Unwrap(err error)             error`
     * If e.Unwrap() returns non-nil error w or a slice containing w,
       then we say that e wraps w, otherwise we say that e does NOT
       wrap any error.
     * Successive unwrapping of an error creates a tree.
-  * func Is    (err, target error)     bool
+  * `func Is    (err, target error)     bool`
     * returns true if `target` match  some element in err-tree.
     * `Is` It should be used for simple equality checks: [[{qa.best_patterns]]
-      if errors.Is(err, fs.ErrExist) // wright
-      if err == fs.ErrExist          // wrong                    [[qa.best_patterns}]]
-      (former will succeed if err wraps fs.ErrExist)
+      ```
+      | if errors.Is(err, fs.ErrExist) // wright
+      | if err == fs.ErrExist          // wrong                    [[qa.best_patterns}]]
+      | (former will succeed if err wraps fs.ErrExist)
+      ```
     * `Is` should ONLY shallowly compare err and target
       (vs calling Unwrap on either).
-  * func As    (err error, targetPtr any) bool (v1.13+)
+  * `func As    (err error, targetPtr any) bool` (v1.13+)
     run over err-tree searching for an error that can
     be assigned to targetPtr. If found, it performs the
     assignment and returns true. false otherwise.
 
-### fmt.Errorf: quick way to create wrapper errors:
-  wrapsErr := fmt.Errorf("... %w ...", ..., err, ...)
-                              └┴─ == error argument
-   var perr *fs.PathError
+### fmt.Errorf: quick way to create wrapper errors  <!-- { --> 
 
-   if errors.As(err, &perr) {                // Alt 1: Right
-   	fmt.Println(perr.Path)
-   }
-
-   if perr, ok := err.(*fs.PathError); ok {  // Alt 2: Wrong
-   	fmt.Println(perr.Path)
-   }
-   Alt 2 will succeed if err wraps an *fs.PathError
+  ```
+  | wrapsErr := fmt.Errorf("... %w ...", ..., err, ...)
+  |                             └┴─ == error argument
+  | var perr *fs.PathError
+  |
+  | if errors.As(err, &perr) {                //< Alt 1: Right
+  | 	fmt.Println(perr.Path)
+  | }
+  |
+  | if perr, ok := err.(*fs.PathError); ok {  //< Alt 2: Wrong
+  | 	fmt.Println(perr.Path)
+  | }
+  | Alt 2 will succeed if err wraps an *fs.PathError
+  ```
+<!-- } -->
 
 NOTE: `As`/`Is` can also be used by an error type to allow being treated a
    different/equivalent error type.
@@ -732,463 +488,355 @@ NOTE: `As`/`Is` can also be used by an error type to allow being treated a
    Is(MyError{}, fs.ErrExist) // == true.
 [[qa.error_control.101}]]
 
-### panic (abort) errors [[{]]
-@[https://blog.golang.org/defer-panic-and-recover]
+### defer/panic/recover (abort) on error [[{]]
+* <https://blog.golang.org/defer-panic-and-recover>
 * panic  : (java throw  )
 * defer  : (java finally) cleanup after function exit
            to return to stable state.
 * recover: (java catch  ) (only useful inside deferred functions)
 
-  ┌─ errorhandling.go ─────────────────────────────┐
-  │  package main                                  │
-  │                                                │
-  │  import (                                      │
-  │    "fmt"                                       │
-  │  )                                             │
-  │                                                │
-  │  type MyCustomError struct {                   │
-  │       data1, data2 string                      │
-  │       data3        int                         │
-  │  }                                             │
-  │                                                │
-  │  func (e MyCustomError) Error() string {       │
-  │       return fmt.Sprintf("%s %s %d:" ,         │
-  │               e.data1, e.data2, e.data3)       │
-  │  }                                             │
-  │                                                │
-  │  func returnMyCustomError() (int, error) {     │
-  │     return -1, MyCustomError{ "data1", "data2", 3 }
-  │  }                                             │
-  │                                                │
-  │  func throwPanic() {                           │
-  │     panic ("Let's panic now");                 │
-  │  }                                             │
-  │                                                │
-  │  func main() {                                 │
-  │     defer func() /* catch( */ {                │
-  │        if r := recover(); r!=nil {             │   ← recover: Capture panics
-  │           fmt.Printf("recovered\n")            │
-  │        }                                       │
-  │     }()                                        │
-  │                                                │
-  │     defer func()/* finally */ {                │
-  │       fmt.Printf("cleaning all resources\n")   │
-  │     }()                                        │
-  │                                                │
-  │     _, err := returnMyCustomError()            │
-  │     if  err != nil {                           │
-  │        fmt.Printf("%s\n",err.Error())          │
-  │     }                                          │
-  │     throwPanic()                               │
-  │  }                                             │
-  └────────────────────────────────────────────────┘
+  ```
+  | $ cat errorhandling.go 
+  | package main                                  
+  |                                               
+  | import (                                      
+  |   "fmt"                                       
+  | )                                             
+  |                                               
+  | type MyCustomError struct {                   
+  |      data1, data2 string                      
+  |      data3        int                         
+  | }                                             
+  |                                               
+  | func (e MyCustomError) Error() string {       
+  |      return fmt.Sprintf("%s %s %d:" ,         
+  |              e.data1, e.data2, e.data3)       
+  | }                                             
+  |                                               
+  | func returnMyCustomError() (int, error) {     
+  |    return -1, MyCustomError{ "data1", "data2", 3 }
+  | }                                             
+  |                                               
+  | func throwPanic() {                           
+  |    panic ("Let's panic now");                 
+  | }                                             
+  |                                               
+  | func main() {                                 
+  |    defer func() /* catch( */ {                
+  |       if r := recover(); r!=nil {   // <·· recover: Capture panics
+  |          fmt.Printf("recovered\n")            
+  |       }                                       
+  |    }()                                        
+  |                                               
+  |    defer func()/* finally */ {                
+  |      fmt.Printf("cleaning all resources\n")   
+  |    }()                                        
+  |                                               
+  |    _, err := returnMyCustomError()            
+  |    if  err != nil {                           
+  |       fmt.Printf("%s\n",err.Error())          
+  |    }                                          
+  |    throwPanic()                               
+  | }                                             
+  ```
 [[}]]
 [[qa.error_control.101}]]
 
 ## Context (Core lib 1.7+) [[{101,arch.distributed,async/reactive.101,qa.error_control]]
-@[https://pkg.go.dev/context]
-@[https://blog.golang.org/context]
+* <https://pkg.go.dev/context>
+* <https://blog.golang.org/context>
 - Moved to Core lib in 1.7 (from golang.org/x/net/context).
 - It allows the use of contexts for cancelation, timeouts, and passing request-scoped
   data (AAA/JWT Tokens, ...) in other standard library packages, including net,
   net/http, and os/exec and across API boundaries.
 - safe to use by simultaneous concurrent goroutines. [[{concurrency.101}]]
 
-  type Context interface {
-      Done() <-chan struct{}  // returns channel that is closed when this Context is canceled/times out.
+  ```
+  | type Context interface {
+  |     Done() <- chan struct{}  // returns channel that is closed when 
+  |                              // this Context is canceled/times out.
+  |     Err() error              // indicates why context was canceled, 
+  |                              // after Done channel is closed.
+  |     Deadline() (deadline time.Time, ok bool) //
+  |
+  |     Value(key interface{}) interface{} // returns value or nil
+  | }
+  ```
 
-      Err() error             // indicates why context was canceled, after Done channel is closed.
-
-      Deadline() (deadline time.Time, ok bool) //
-
-      Value(key interface{}) interface{} // returns value or nil
-  }
-
-- Example ussage: https://github.com/go-chi/chi                 [[{IO.http]]
+* Example ussage: <https://github.com/go-chi/chi><br/>          [[{IO.http]]
   lightweight, composable router for building Go HTTP services.
   built on the new context package introduced in Go 1.7 to handle signaling,
-  cancelation and request-scoped values across a handler chain. [[}]]
-[[}]]
-
-## Viper (App Config) [[{architecture.distributed.12factor.devops.configuration.viper,01_PM.low_code]]
-* Low code application configuration library.
-* Features support:
-  · Find/load/unmarshal JSON/TOML/YAML/HCL/INI/envfile/Java-properties
-  · default values.
-  · override through command line flags.
-  · alias system (rename parameters without breaking code).
-  · Make it easy to tell the difference between when a user has provided
-    a command line or config file which is the same as the default.
-
-* PRECEDENCE ORDER:
-  1) explicit call to Set  4) config
-  2) command line flag     5) key/value store
-  3) env                   6) default
-
-* Working with "injected" OS ENViroment VARiables:
-  · Viper treats ENV VARs variables as case sensitive.
-  · Ex.1:
-    SetEnvPrefix("SPF") ←  use "SPF_..."  prefix for ENV.VARs.
-    AutomaticEnv()      ←  Alt 1: any viper.Get("SPF_...") will
-                                  automatically query ENV.VARs
-    BindEnv("id")       ←  Alt 2: viper.Get("SPF_ID") will query ENV.VARs
-    BindEnv("id",       ←  Alt 3: Alias/Backward compatibility
-       "deprecated",...)          It will query also for SPF_DEPRECATED,...
-
-   NOTE: ENV.VAR value will be read each time it is accessed
-         (vs constant value after first query)
-
-  · SetEnvKeyReplacer(string...) *strings.Replacer :
-    allows to use strings.Replacer object to rewrite Env keys (to an extent).
-    Use-case: Replace conflictive characters  in Get() with "_" delimiters
-              in (OS) ENV.VARs.
-    ( replacers can also be established in NewWithOptions function
-      using EnvKeyReplacer that also accepts a StringReplacer interface
-      for custom replace-logic ).
-
-  - By default empty ENV.VARs are considered unset, falling back to
-    next conf source). AllowEmptyEnv() will consider them set as "".
+  cancelation and request-scoped values across a handler chain. [[IO.http}]]
 [[}]]
 
 ## Time Management [[{101.date_time]]
-@[https://golang.org/pkg/time/]
-  start   := time.Now()
-  elapsed := time.Now().Sub (start) // time diff
+* <https://golang.org/pkg/time/>
+  ```
+  | start   := time.Now()
+  | elapsed := time.Now().Sub (start) // time diff
 
-  func After(d Duration) <-chan Time
-  func Sleep(d Duration)
-  func Tick (d Duration)  <-chan Time
+  | func After(d Duration) <-chan Time
+  | func Sleep(d Duration)
+  | func Tick (d Duration)  <-chan Time
 
-  • type Duration:
-    func ParseDuration(s string) (Duration, error)
-    func Since(t Time) Duration
-    func Until(t Time) Duration
-    func (d Duration) Hours      () float64
-    func (d Duration) Minutes    () float64
-    func (d Duration) Nanoseconds() int64
-    func (d Duration) Round(m Duration) Duration
-    func (d Duration) Seconds() float64
-    func (d Duration) String() string
-    func (d Duration) Truncate(m Duration) Duration
+  | • type Duration:
+  |   func ParseDuration(s string) (Duration, error)
+  |   func Since(t Time) Duration
+  |   func Until(t Time) Duration
+  |   func (d Duration) Hours      () float64
+  |   func (d Duration) Minutes    () float64
+  |   func (d Duration) Nanoseconds() int64
+  |   func (d Duration) Round(m Duration) Duration
+  |   func (d Duration) Seconds() float64
+  |   func (d Duration) String() string
+  |   func (d Duration) Truncate(m Duration) Duration
 
-  • type Location:
-    func FixedZone(name string, offset int) *Location
-    func LoadLocation(name string) (*Location, error)
-    func LoadLocationFromTZData(name string, data []byte) (*Location, error)
-    func (l *Location) String() string
-  • type Month
-    func (m Month) String() string
-  • type ParseError
-    func (e *ParseError) Error() string
-  • type Ticker
-    func NewTicker(d Duration) *Ticker
-    func (t *Ticker) Stop()
-  • type type Time
-    func Date(year int, month Month, day, hour, min, sec, nsec int, loc *Location) Time
-    func Now() Time
-    func Parse(layout, value string) (Time, error)
-    func ParseInLocation(layout, value string, loc *Location) (Time, error)
-    func Unix(sec int64, nsec int64) Time
-    func (t Time) Add(d Duration) Time
-    func (t Time) AddDate(years int, months int, days int) Time
-    func (t Time) After(u Time) bool
-    func (t Time) AppendFormat(b []byte, layout string) []byte
-    func (t Time) Before(u Time) bool
-    func (t Time) Clock() (hour, min, sec int)
-    func (t Time) Date() (year int, month Month, day int)
-    func (t Time) Day() int
-    func (t Time) Equal(u Time) bool
-    func (t Time) Format(layout string) string
-    func (t *Time) GobDecode(data []byte) error
-    func (t Time) GobEncode() ([]byte, error)
-    func (t Time) Hour() int
-    func (t Time) ISOWeek() (year, week int)
-    func (t Time) In(loc *Location) Time
-    func (t Time) IsZero() bool
-    func (t Time) Local() Time
-    func (t Time) Location() *Location
-    func (t Time) MarshalBinary() ([]byte, error)
-    func (t Time) MarshalJSON() ([]byte, error)
-    func (t Time) MarshalText() ([]byte, error)
-    func (t Time) Minute() int
-    func (t Time) Month() Month
-    func (t Time) Nanosecond() int
-    func (t Time) Round(d Duration) Time
-    func (t Time) Second() int
-    func (t Time) String() string
-    func (t Time) Sub(u Time) Duration
-    func (t Time) Truncate(d Duration) Time
-    func (t Time) UTC() Time
-    func (t Time) Unix() int64
-    func (t Time) UnixNano() int64
-    func (t *Time) UnmarshalBinary(data []byte) error
-    func (t *Time) UnmarshalJSON(data []byte) error
-    func (t *Time) UnmarshalText(data []byte) error
-    func (t Time) Weekday() Weekday
-    func (t Time) Year() int
-    func (t Time) YearDay() int
-    func (t Time) Zone() (name string, offset int)
-    type Timer
-    func AfterFunc(d Duration, f func()) *Timer
-    func NewTimer(d Duration) *Timer
-    func (t *Timer) Reset(d Duration) bool
-    func (t *Timer) Stop() bool
-    type Weekday
-    func (d Weekday) String() string
+  | • type Location:
+  |   func FixedZone(name string, offset int) *Location
+  |   func LoadLocation(name string) (*Location, error)
+  |   func LoadLocationFromTZData(name string, data []byte) (*Location, error)
+  |   func (l *Location) String() string
+  | • type Month
+  |   func (m Month) String() string
+  | • type ParseError
+  |   func (e *ParseError) Error() string
+  | • type Ticker
+  |   func NewTicker(d Duration) *Ticker
+  |   func (t *Ticker) Stop()
+  | • type type Time
+  |   func Date(year int, month Month, day, hour, min, sec, nsec int, loc *Location) Time
+  |   func Now() Time
+  |   func Parse(layout, value string) (Time, error)
+  |   func ParseInLocation(layout, value string, loc *Location) (Time, error)
+  |   func Unix(sec int64, nsec int64) Time
+  |   func (t Time) Add(d Duration) Time
+  |   func (t Time) AddDate(years int, months int, days int) Time
+  |   func (t Time) After(u Time) bool
+  |   func (t Time) AppendFormat(b []byte, layout string) []byte
+  |   func (t Time) Before(u Time) bool
+  |   func (t Time) Clock() (hour, min, sec int)
+  |   func (t Time) Date() (year int, month Month, day int)
+  |   func (t Time) Day() int
+  |   func (t Time) Equal(u Time) bool
+  |   func (t Time) Format(layout string) string
+  |   func (t *Time) GobDecode(data []byte) error
+  |   func (t Time) GobEncode() ([]byte, error)
+  |   func (t Time) Hour() int
+  |   func (t Time) ISOWeek() (year, week int)
+  |   func (t Time) In(loc *Location) Time
+  |   func (t Time) IsZero() bool
+  |   func (t Time) Local() Time
+  |   func (t Time) Location() *Location
+  |   func (t Time) MarshalBinary() ([]byte, error)
+  |   func (t Time) MarshalJSON() ([]byte, error)
+  |   func (t Time) MarshalText() ([]byte, error)
+  |   func (t Time) Minute() int
+  |   func (t Time) Month() Month
+  |   func (t Time) Nanosecond() int
+  |   func (t Time) Round(d Duration) Time
+  |   func (t Time) Second() int
+  |   func (t Time) String() string
+  |   func (t Time) Sub(u Time) Duration
+  |   func (t Time) Truncate(d Duration) Time
+  |   func (t Time) UTC() Time
+  |   func (t Time) Unix() int64
+  |   func (t Time) UnixNano() int64
+  |   func (t *Time) UnmarshalBinary(data []byte) error
+  |   func (t *Time) UnmarshalJSON(data []byte) error
+  |   func (t *Time) UnmarshalText(data []byte) error
+  |   func (t Time) Weekday() Weekday
+  |   func (t Time) Year() int
+  |   func (t Time) YearDay() int
+  |   func (t Time) Zone() (name string, offset int)
+  |   type Timer
+  |   func AfterFunc(d Duration, f func()) *Timer
+  |   func NewTimer(d Duration) *Timer
+  |   func (t *Timer) Reset(d Duration) bool
+  |   func (t *Timer) Stop() bool
+  |   type Weekday
+  |   func (d Weekday) String() string
+  ```
 [[}]]
 
 ## Go Text Templates [[{strings.templates,devops,]]
-@[https://pkg.go.dev/text/template?utm_source=oficina24x7.com]
-  - Used, among others, by helm charts.
-  - Example:
+* <https://pkg.go.dev/text/template?utm_source=oficina24x7.com>
+- Used, among others, by helm charts.
+- Example:
+  ```
+  | type Inventory struct {
+  |     Material string
+  |     Count    uint
+  | }
 
-    type Inventory struct {
-        Material string
-        Count    uint
-    }
+  | tmpl, err := template.New("test")                   // ← Each template must be named
+  |       .Parse(                                       // ← parse("compile") template
+  |       "{{.Count}} items are made of {{.Material}}"  // ← UTF-8 Template
+  | )
+  | // A tpl s associated with 0+ tpls by using a tpl invocation to instantiate them
+  | if err != nil { panic(err) }
+  | err = tmpl.Execute(                                 // ← Execute template
+  |        os.Stdout,
+  |        Inventory{"wool", 17}                        // ←
+  | )
+  | if err != nil { panic(err) }
 
-    tmpl, err := template.New("test")                   // ← Each template must be named
-          .Parse(                                       // ← parse("compile") template
-          "{{.Count}} items are made of {{.Material}}"  // ← UTF-8 Template
-    )
-    // A tpl s associated with 0+ tpls by using a tpl invocation to instantiate them
-    if err != nil { panic(err) }
-    err = tmpl.Execute(                                 // ← Execute template
-           os.Stdout,
-           Inventory{"wool", 17}                        // ←
-    )
-    if err != nil { panic(err) }
+  | - TIPs:
+  | {{- ...  : ← trim trailing white spaces.
+  | ... -}}  : ← trim leading white-spaced.
 
-  - TIPs:
-    {{- ...  : ← trim trailing white spaces.
-    ... -}}  : ← trim leading white-spaced.
-
-    Note: "{{- 3 }}"             → trim white spaces
-          "{{-3  }}"             → -3 number
-          "{{23 -}} < {{- 45}}"  → "23<45"
-    {{`"output"`}} ← raw string constant
-
-
-    Actions :
-    {{/* a comment */}}
-    {{- /* a comment with white space trimmed from preceding and following text */ -}}
-    - Comments:
-      - dropped from output.
-      - May contain newlines,
-      - do not nest, must start and end at the delimiters.
-
-    {{if pipeline}} T1 {{end}}
-      If pipeline value is empty, no output is generated; otherwise, T1 executed.
-    {{if pipeline}} T1 {{else}} T0 {{end}}
-      If pipeline value is empty, T0 executed, otherwise, T1 executed.
-    {{if pipeline}} T1 {{else if pipeline}} T0 {{end}}
-
-    {{range pipeline}} T1 {{end}}
-            ^
-            array/slice/map/channel.
-            cursor in T1 ("." dot) set to the successive elements
-    {{range pipeline}} T1 {{else}} T0 {{end}}
-
-    {{template "name"}}  (sort of "include")
-    template "name" executed with nil data.
-    {{template "name" pipeline}}
-    template "name" executed with dot set to the value of the pipeline.
-
-    {{block "name" pipeline}} T1 {{end}}
-    shorthand for defining and executing a template in place
-
-    {{with pipeline}} T1 {{end}}
-    If pipeline empty, no output , otherwisedot set to the value and T1 executed.
-    {{with pipeline}} T1 {{else}} T0 {{end}}
-
-    Arguments
-    (See official doc for other args)
-    - $piOver2 → expands to value of variable.
-      $        → expands to data passed as argument to execute (start value of ".")
-    - .Field   → expands to value of (struct) field.
-    - $x.Field1→ expands to value of (struct) field of variable.
-    - .Key     → expands to value of (map   ) field of variable.
-    - $x.Field1.Key1.Field2.Key2
-    - .Method  → expands to (one/two) return value/s (with cursor as receiver)
-        (If optional second args is non-nil, execution terminates
-         and error returned to caller as value)
-    - function  → same as .Method but for functions (vs methods).
-      The name of a niladic function, such as
-    - parenthesized instance of one the above, for grouping.
-      - result may be accessed by a field or map key. Ex:
-        - print (.F1 arg1) (.F2 arg2)
-        - (.StructValuedMethod "arg").Field
-
-    Pipelines
-    A pipeline may be "chained" with '|'.
-
-    Variables
-    $variable := pipeline  ← Captures pipeline output for later reuse.
-
-    range $index, $element := pipeline  ← when pipeline output is an array/slice index
-                                          or map key/value
-
-    Variable's scope is that of frame control structure ("if"/"with"/"range")  or
-    from declaration to end-of-template otherwise.
-
-    {{printf "%q" "output"}}   ← fun call.
-    {{"output" | printf "%q"}} ← fun call whose final arg comes from previous command.
-    {{printf "%q" (print "out" "put")}} ← A parenthesized argument.
-    {{"put" | printf "%s%s" "out" | printf "%q"}}
-    {{"output" | printf "%s" | printf "%q"}}
-    {{with "output"}}{{printf "%q" .}}{{end}}
-    {{with $x := "output" | printf "%q"}}{{$x}}{{end}}
-
-    {{with $x := "output"}}{{printf "%q" $x}}{{end}}    ← alt 1
-    {{with $x := "output"}}{{$x | printf "%q"}}{{end}}  ← alt 2 (pipelined)
+  | Note: "{{- 3 }}"             → trim white spaces
+  |       "{{-3  }}"             → -3 number
+  |       "{{23 -}} < {{- 45}}"  → "23<45"
+  | {{`"output"`}} ← raw string constant
 
 
-    Predefined global functions
-    - and x y : Returns boolean AND of its arguments
-    - call funA x y ..: return result of funA(x, y , ...)
-    - html            : Returns escaped HTML
-    - index x 1 2 3   : x[1][2][3], x is a map/slice/array.
-    - slice x 1 2     : is, in Go syntax, x[1:2],
-    - js              : Returns escaped JavaScript
-    - len x           : integer length of x
-    - not
-    - or
-    - print/f/ln      : alias for fmt.Sprint/f/ln
-    - urlquery x      : Returns escaped value of x
-    - comparision ops:
-      - eq|ne|lt|le|gt|ge arg1 arg2
+  | Actions :
+  | {{/* a comment */}}
+  | {{- /* a comment with white space trimmed from preceding and following text */ -}}
+  | - Comments:
+  |   - dropped from output.
+  |   - May contain newlines,
+  |   - do not nest, must start and end at the delimiters.
 
-    Nested template definitions
-  {{define "T1"}}ONE{{end}}   ← Template definitions must appear at the top of tpl
-  {{define "T2"}}TWO{{end}}
-  {{define "T3"}}
-     {{template "T1"}}        ← Using template, Output: ONE
-     {{template "T2"}}                                  TWO
-  {{end}}
-  {{template "T3"}}`
+  | {{if pipeline}} T1 {{end}}
+  |   If pipeline value is empty, no output is generated; otherwise, T1 executed.
+  | {{if pipeline}} T1 {{else}} T0 {{end}}
+  |   If pipeline value is empty, T0 executed, otherwise, T1 executed.
+  | {{if pipeline}} T1 {{else if pipeline}} T0 {{end}}
 
-## Sprig: Utility lib for Go templates [[{$sprig]]
-  @[https://masterminds.github.io/sprig/]
-    - String : trim, wrap, randAlpha, plural, etc.
-    - String List : splitList, sortAlpha, etc.
-    - Integer Math : add, max, mul, etc.
-    - Integer Slice : until, untilStep
-    - Float Math : addf, maxf, mulf, etc.
-    - Date : now, date, etc.
-    - Defaults : default, empty, coalesce, fromJson, toJson,
-      toPrettyJson, toRawJson, ternary
-    - Encoding : b64enc, b64dec, etc.
-    - Lists and List : list, first, uniq, etc.
-    - Dictionaries and Dict : get, set, dict, hasKey, pluck,
-      dig, deepCopy, etc.
-    - Type Conversion : atoi, int64, toString, etc.
-    - Path and Filepath : base, dir, ext, clean, isAbs,
-      osBase, osDir, osExt, osClean, osIsAbs
-    - Flow Control : fail
-    - Advanced
-      - UUID: uuidv4
-      - OS : env, expandenv
-      - Version Comparison : semver, semverCompare
-      - Reflection: typeOf, kindIs, typeIsLike, etc.
-      - Cryptographic and Security: derivePassword, sha256sum,     [cryptography]
-        genPrivateKey, etc. [security]
-      - Network: getHostByName
-[[$sprig}]]
+  | {{range pipeline}} T1 {{end}}
+  |         ^
+  |         array/slice/map/channel.
+  |         cursor in T1 ("." dot) set to the successive elements
+  | {{range pipeline}} T1 {{else}} T0 {{end}}
+
+  | {{template "name"}}  (sort of "include")
+  | template "name" executed with nil data.
+  | {{template "name" pipeline}}
+  | template "name" executed with dot set to the value of the pipeline.
+
+  | {{block "name" pipeline}} T1 {{end}}
+  | shorthand for defining and executing a template in place
+
+  | {{with pipeline}} T1 {{end}}
+  | If pipeline empty, no output , otherwisedot set to the value and T1 executed.
+  | {{with pipeline}} T1 {{else}} T0 {{end}}
+
+  | Arguments
+  | (See official doc for other args)
+  | - $piOver2 → expands to value of variable.
+  |   $        → expands to data passed as argument to execute (start value of ".")
+  | - .Field   → expands to value of (struct) field.
+  | - $x.Field1→ expands to value of (struct) field of variable.
+  | - .Key     → expands to value of (map   ) field of variable.
+  | - $x.Field1.Key1.Field2.Key2
+  | - .Method  → expands to (one/two) return value/s (with cursor as receiver)
+  |     (If optional second args is non-nil, execution terminates
+  |      and error returned to caller as value)
+  | - function  → same as .Method but for functions (vs methods).
+  |   The name of a niladic function, such as
+  | - parenthesized instance of one the above, for grouping.
+  |   - result may be accessed by a field or map key. Ex:
+  |     - print (.F1 arg1) (.F2 arg2)
+  |     - (.StructValuedMethod "arg").Field
+
+  | Pipelines
+  | A pipeline may be "chained" with '|'.
+
+  | Variables
+  | $variable := pipeline  ← Captures pipeline output for later reuse.
+
+  | range $index, $element := pipeline  ← when pipeline output is an array/slice index
+  |                                       or map key/value
+
+  | Variable's scope is that of frame control structure ("if"/"with"/"range")  or
+  | from declaration to end-of-template otherwise.
+
+  | {{printf "%q" "output"}}   ← fun call.
+  | {{"output" | printf "%q"}} ← fun call whose final arg comes from previous command.
+  | {{printf "%q" (print "out" "put")}} ← A parenthesized argument.
+  | {{"put" | printf "%s%s" "out" | printf "%q"}}
+  | {{"output" | printf "%s" | printf "%q"}}
+  | {{with "output"}}{{printf "%q" .}}{{end}}
+  | {{with $x := "output" | printf "%q"}}{{$x}}{{end}}
+
+  | {{with $x := "output"}}{{printf "%q" $x}}{{end}}    ← alt 1
+  | {{with $x := "output"}}{{$x | printf "%q"}}{{end}}  ← alt 2 (pipelined)
+
+
+  | Predefined global functions
+  | - and x y : Returns boolean AND of its arguments
+  | - call funA x y ..: return result of funA(x, y , ...)
+  | - html            : Returns escaped HTML
+  | - index x 1 2 3   : x[1][2][3], x is a map/slice/array.
+  | - slice x 1 2     : is, in Go syntax, x[1:2],
+  | - js              : Returns escaped JavaScript
+  | - len x           : integer length of x
+  | - not
+  | - or
+  | - print/f/ln      : alias for fmt.Sprint/f/ln
+  | - urlquery x      : Returns escaped value of x
+  | - comparision ops:
+  |   - eq|ne|lt|le|gt|ge arg1 arg2
+
+  | ------ Nested template definitions ------
+  | {{define "T1"}}ONE{{end}}   ← Template definitions must appear at the top of tpl
+  | {{define "T2"}}TWO{{end}}
+  | {{define "T3"}}
+  |    {{template "T1"}}        ← Using template, Output: ONE
+  |    {{template "T2"}}                                  TWO
+  | {{end}}
+  | {{template "T3"}}`
+  ```
+
+## Sprig: Utility lib for Go templates [[{string.templates.sprig]]
+
+* <https://masterminds.github.io/sprig/>
+
+```
+  - String : trim, wrap, randAlpha, plural, etc.
+  - String List : splitList, sortAlpha, etc.
+  - Integer Math : add, max, mul, etc.
+  - Integer Slice : until, untilStep
+  - Float Math : addf, maxf, mulf, etc.
+  - Date : now, date, etc.
+  - Defaults : default, empty, coalesce, fromJson, toJson,
+    toPrettyJson, toRawJson, ternary
+  - Encoding : b64enc, b64dec, etc.
+  - Lists and List : list, first, uniq, etc.
+  - Dictionaries and Dict : get, set, dict, hasKey, pluck,
+    dig, deepCopy, etc.
+  - Type Conversion : atoi, int64, toString, etc.
+  - Path and Filepath : base, dir, ext, clean, isAbs,
+    osBase, osDir, osExt, osClean, osIsAbs
+  - Flow Control : fail
+  - Advanced
+    - UUID: uuidv4
+    - OS : env, expandenv
+    - Version Comparison : semver, semverCompare
+    - Reflection: typeOf, kindIs, typeIsLike, etc.
+    - Cryptographic and Security: derivePassword, sha256sum,
+      genPrivateKey, etc. [[[{security.cryptography}]]
+    - Network: getHostByName
+```
+[[string.templates.sprig}]]
+
 [[strings.templates}]]
 
-## Simple HTTP client/server [[{io.http]]
-  • HTTP Simple client @[https://gobyexample.com/http-clients]
-
-    package main                              ← Exec like   $ go run http-clients.go
-
-    import ( "bufio" "fmt" "net/http" )
-
-    func main() {
-      resp, err :=
-         http.Get("http://....")              ←  convenient shortcut around
-      if err != nil {                            creating http.Client instance
-          panic(err)                             , then calling its Get method
-      }                                           using http.DefaultClient with
-                                                  sensible default settings
-
-      defer resp.Body.Close()                 ←  Close I/O resource on defer.
-
-      fmt.Println("Res.Status:", resp.Status)
-
-      scanner := bufio.NewScanner(resp.Body)
-      for i:= 0; scanner.Scan() && i<5; i++ { ← Print first 5-lines of the
-        fmt.Println(scanner.Text())             res.body.
-      }
-
-      if err := scanner.Err(); err != nil {
-          panic(err)
-      }
-    }
-
-  • HTTP Simple server @[https://gobyexample.com/http-servers]
-    import ( "fmt" "net/http" )
-
-    func hello( w    http.ResponseWriter,    ← handler 1
-          req *http.Request) {
-      fmt.Fprintf( w , "hello\n")
-    }
-
-    func headers(                             ← handler 2. echo Req.headers
-        w    http.ResponseWriter,                          to Res.body
-        req *http.Request) {
-      for key, value_l
-          := range req.Header {      ←  key: Header name, value: 1+ values
-        for _, h := range value_l {
-          fmt.Fprintf( w ,
-            "%v: %v\n", key, h)
-        }
-      }
-    }
-
-    func main() {
-        http.HandleFunc("/hello"  , hello  )
-        http.HandleFunc("/headers", headers)
-        http.ListenAndServe(":8090", nil) // nil: use def.router just defined
-    }
-
-  • See also: https://github.com/valyala/fasthttp
-    - HTTP tuned for high performance.
-    - Zero memory allocations in hot paths.
-    - Up to 10x faster than net/http .
-
-* Simple HTTP server using gin-gonic:
-  https://github.com/gin-gonic/
-
-  PRE-SETUP:
-  go 1.16+
-  $ go get -u github.com/gin-gonic/gin
-
-  import "github.com/gin-gonic/gin"
-  import "net/http" // Optional, needed if reusing constants like http.StatusOK
-
-  func main() {
-    router := gin.Default()
-    router.Static("/assets", "./assets")
-    router.StaticFS("/more_static", http.Dir("my_file_system"))
-    router.StaticFile("/favicon.ico", "./resources/favicon.ico")
-    router.StaticFileFS("/more_favicon.ico", "more_favicon.ico", http.Dir("my_file_system"))
-
-    // Listen and serve on 0.0.0.0:8080
-    router.Run(":8080")
-  }
-
-[[io.http}]]
 
 ## Flesh [[{IO.http.server,qa.UX.flesh]]
-@[https://github.com/gravityblast/fresh]
+
+* <https://github.com/gravityblast/fresh>
   Fresh is a command line tool that builds and (re)starts your web
   application everytime you save a Go or template file.
    If the web framework you are using supports the Fresh runner,
   it will show build errors on your browser.
    It currently works with Traffic, Martini and gocraft/web.
-  $ go get github.com/pilu/fresh # Installation
-  $ cd /path/to/myapp            # Ussage
-  $ Start fresh
+  ```
+  | $ go get github.com/pilu/fresh # Installation
+  | $ cd /path/to/myapp            # Ussage
+  | $ Start fresh
+  ```
 
      It will watch for file events, and every time you
   create/modify/delete a file it will build and restart the
@@ -1196,74 +844,63 @@ NOTE: `As`/`Is` can also be used by an error type to allow being treated a
   folder.                                         [[01_PM.UX.flesh}]]
 
 
-## Sling HTTP client [[{IO.http.client]]
-* HTTP client library.
-* Sling stores HTTP Request properties to simplify sending requests and decoding responses.
-[[IO.http}]]
-
-
-
-## Mapstructure map<··>structure [[{IO.serialization,persistence,qa.error_control]]
-@[https://github.com/mitchellh/mapstructure]
-* library for decoding generic map values to structures and vice versa,
-  while providing helpful error handling.
-
-   This library is most useful when decoding values from some data
-  stream (JSON, Gob, etc.) where you don't quite know the structure of
-  the underlying data until you read a part of it. You can therefore
-  read a map[string]interface{} and use this library to decode it into
-  the proper underlying native Go structure.
-[[}]]
-
 # DATA STRUCTURES [[{101.data_structure]]
+
 ## Structs
-  type Circle struct {
-    x, y, r float64
-    color   string
-  }
-  circle1 := Circle{0,0,4,"blue"}
-
-  func (c Circle) area() float64 {      <- friend-function for struct
-    return math.Pi * c * c * r             See also related @[#golang_interfaces]
-  }
-  circle1.area()                        <- Invoking friend function
-
-  type Wheel struct {
-     Circle                             <- embedded (composed) type
-     material string
-  }
-  wheel1 := Wheel1{circle1, "iron"}
-  wheel1.area                           <- calls wheel1.circle1.area
-
+  ```
+  | type Circle struct {
+  |   x, y, r float64
+  |   color   string
+  | }
+  | circle1 := Circle{0,0,4,"blue"}
+  |
+  | func (c Circle) area() float64 {      <- friend-function for struct
+  |   return math.Pi * c * c * r             See also related <#golang_interfaces>
+  | }
+  | circle1.area()                        <- Invoking friend function
+  |
+  | type Wheel struct {
+  |    Circle                             <- embedded (composed) type
+  |    material string
+  | }
+  | wheel1 := Wheel1{circle1, "iron"}
+  | wheel1.area                           <- calls wheel1.circle1.area
+  ```
 
 ## Arrays
-  var x [5]int        ← 0-initialized   <- ARRAY DEFINITION.             [[{qa.inmu_code}]]
-      x[4] = 100      ← [ 0 0 0 0 100]     FIXED LENGTH AT COMPILE TIME.
-      len(x)
-  var y := [3]float64 { 1.0, 2.0, 3.0}  <- value-initialized
 
-  y_copy := y                           <- VALUE SEMANTIC, y_copy is a COPY-OF-ARRAY
-  y_cpy[0] = 25                            <- y[0] not modified.
-  byteArrayFromStr := []byte("a slice")
-
-  array01 := []struct {                 <- array of anonymous struct type
-    field1 string,                         used just in scope 'array01'
-    field2 string
-  } {
-    {"value_1_1", "value_1_2"},
-    {"value_2_1", "value_2_2"},
-    ...
-  }
-  cases_l[0].field1
-  cases_l[0].field2
-
-  for idx, element :=  range array1 {  <- WALKING OVER ARRAYS
-    // do something                       ===================
-  }
+  ```
+  | var x [5]int        ← 0-initialized   <- ARRAY DEFINITION.             [[{qa.inmu_code}]]
+  |     x[4] = 100      ← [ 0 0 0 0 100]     FIXED LENGTH AT COMPILE TIME.
+  |     len(x)
+  | var y := [3]float64 { 1.0, 2.0, 3.0}  <- value-initialized
+  |
+  | y_copy := y                           <- VALUE SEMANTIC, y_copy is a COPY-OF-ARRAY
+  | y_cpy[0] = 25                            <- y[0] not modified.
+  | byteArrayFromStr := []byte("a slice")
+  |
+  | array01 := []struct {                 <- array of anonymous struct type
+  |   field1 string,                         used just in scope 'array01'
+  |   field2 string
+  | } {
+  |   {"value_1_1", "value_1_2"},
+  |   {"value_2_1", "value_2_2"},
+  |   ...
+  | }
+  | cases_l[0].field1
+  | cases_l[0].field2
+  |
+  | for idx, element :=  range array1 {  <- WALKING OVER ARRAYS
+  |   // do something                       ===================
+  | }
+  ```
 
 ## Slices (array segments, Dyn.Size)
+
 - Internally, slice they look to be a link of arrays.
 - More widely used in code than arrays.
+
+  ```
   slice1 :=  make ([]float64 /*type*/, // <·· zero-initialized
                            5 /*len*/   ,
                           10 /*capacity*/)
@@ -1273,10 +910,14 @@ NOTE: `As`/`Is` can also be used by an error type to allow being treated a
   s3_copy := slice3                    <- reference semantics (both slices modify same values)
   s3_copy[0] = 1                       <- slice3[0] will change too.
   copy(slice3,slice2)                  <- copy of slice2 up to len [[{01_PM.TODO}]]
+  ```
 
 ## Maps (Dyn.size) [[{]]
-  https://golang.org/ref/spec#Map_types]
+
+* https://golang.org/ref/spec#Map_types]
   (Dictiona./Associat.arrays/hashtables)
+
+  ```
   map1 :=  make (  map [string]int) // <···Alt 1:Declare map
   map1["key"] = 10                  //       <·· Init keys
   map2 := map[string]int            // <·· Alt 2:Declare with initial key/values
@@ -1298,9 +939,12 @@ NOTE: `As`/`Is` can also be used by an error type to allow being treated a
     fmt.Println(                           Alt: for _, value := .. if key is not needed
       "Key:", key, "Value:", value)
   }
+  ```
 [[}]]
 
 ## Lists [[{data_structure.list]]
+
+  ```
   import ("container/list")
   var x list.List
   x.PushBack(1)
@@ -1326,1200 +970,8 @@ NOTE: `As`/`Is` can also be used by an error type to allow being treated a
        e != nil; e = e.Next() {     └···· NOTE: l is a *List
       // do something with e.Value
   }
+  ```
+
 [[}]]
 [[101.data_structure}]]
 [[101}]]
-
-# Functional Programming With Samber Lo [[{lo]]
-## SPEC [https://godoc.org/github.com/samber/lo](https://godoc.org/github.com/samber/lo)
-https://github.com/samber/lo
-
-## **SLICES!!!**: Times Uniq UniqBy GroupBy Chunk PartitionBy Flatten Interleave Shuffle Reverse Fill Repeat RepeatBy KeyBy Associate / SliceToMap Drop DropRight DropWhile DropRightWhile Reject Count CountBy CountValues CountValuesBy Subset Slice Replace ReplaceAll Compact IsSorted IsSortedByKey
-
-lo.Times( // Iterate N times, return array of intermediate results
-          // use lop.Times parallel goroutine processing
-  3 /*Number of iterations*/,
-  func(index int) string {
-    return strconv.FormatInt(int64(i), 10)
-}) // result []string{"0", "1", "2"}
-
-list0_5 :=  []int{0, 1, 2, 3, 4, 5}
-uniqValues := lo.UniqBy( list0_5,
-   func /*criteria of-uniqueness*/ (i int) int { return i%3 }
-) // []int{0, 1, 2}
-
-groups := lo.GroupBy( // lop.GroupBy for parallel processing.
-  list0_5,
-  func /*GroupBy critery*/(i int) int { return i%3 })
-//     ┌──────────────────────────┘
-// map[int][]int{0: []int{0, 3}, 1: []int{1, 4}, 2: []int{2, 5}}
-
-Parallel processing: like `lo.GroupBy()`, but callback is called in goroutine.
-
-lo.Chunk(list0_5, 2 /*size*/) split into groups of length `size`.
-// [][]int{{0, 1}, {2, 3}, {4, 5}} // Final chunk with up to size elements
-
-partitions := lo.PartitionBy( // Split by criteria
-//            lop.PartitionBy(
-  []int{-2, -1, 0, 1, 2, 3, 4, 5},
-  func /*partition criteria*/(x int) string {
-    if x < 0 {
-        return "negative"
-    } else if x%2 == 0 {
-        return "even"
-    }
-    return "odd"
-})
-// [][]int{{-2, -1}, {0, 2, 4}, {1, 3, 5}}
-
-
-flat := lo.Flatten([][]int{{0, 1}, {2, 3}}) // []int{0, 1, 2, 3}
-
-interleaved := lo.Interleave( // Round-robin input, seq append
-  []int{1, 4, 6, 8},
-  []int{2, 5, 7},
-  []int{3, } )
-// []int{1, 2, 3, 4, 5, 6, 7, 8}
-
-randomOrder := lo.Shuffle(list0_5) // Fisher-Yates shuffle algorithm
-// []int{1, 4, 0, 3, 5, 2}
-
-reverseOrder := lo.Reverse(list0_5) // []int{5, 4, 3, 2, 1, 0}
-helper is **mutable**. behavior might change in `v2.0.0`
-
-initializedSlice := lo.Fill([5]int, 3 /*init value*/) // [3 3 3 3 3]
-
-
-Builds a slice with N copies of initial value.
-slice := lo.Repeat(2, foo{"a"}) // []foo{foo{"a"}, foo{"a"}}
-slice := lo.RepeatBy(5, // [0 1 4 9 16]
-   func(i int) int { return math.Pow(i, 2) }
-)
-
-
-m := lo.KeyBy( // slice||array ··> map, based on pivot func
-  []string{"a", "aa", "aaa"},
-  func /*pivot */(str string) int { return len(str) }
-) // map[int]string{1: "a", 2: "aa", 3: "aaa"}
-
-(if two pairs have the same key last one gets added)
-in := []*foo{
-    {baz: "apple" , bar: 1, biz: 23.0},
-    {baz: "banana", bar: 2, biz: 23.0},
-}
-aMap := lo.Associate( // slice ··> |transform func| ··> key-value map
-    in,
-    func /*transform*/ (f *foo) (string, int) {
-    return f.baz, f.bar // <·· transform by "projecting") struct in map
-}) // map[string][int]{ "apple":1, "banana":2 }
-
-l := lo.Drop     (list0_5, 2/* drop N from start*/) // []int{2, 3, 4, 5}
-l := lo.DropRight(list0_5, 2/* drop N from end  */) // []int{0, 1, 2, 3}
-l := lo.DropWhile(list0_5, func(i int) bool { i < 3 }) // []int{3, 4, 5}
-//     .DropRightWhile ...                     i > 3    // []int{0, 1, 2}
-
-count := lo.Count(list0_5, 1 /* ref */ ) // 1 (#Elements matching ref value)
-count := lo.CountBy(list0_5,
-    func /* match criteria */(i int) bool { // 5: #Elem. matching criteria
-      return i < 4
-    })
-
-lo.CountValues([]string{"foo", "bar", "bar"}) // map[string]int{"foo": 1, "bar": 2}
-
-isEven := func(v int) bool {
-    return v%2==0
-}
-
-lo.CountValuesBy(list0_5, isEvenFunc) // map[bool]int{false: 3, true: 3}
-   └───────────┴─ equal to chaining lo.Map ··> lo.CountValues
-
-sub := lo.Subset(list0_5, 2 /*offset*/, 3/*length*/) // Like `slice[start:start+length]`,
-// returns new fresh "copy" []int{2, 3, 4}           // but does not panic on overflow.
-// negative offset start from right.
-
-slice := lo.Slice(list0_5, 0/*start*/, 5/*end, no-incl.*/) // []int{0, 1, 2, 3, 4}
-
-slice := lo.Replace(in, 0, 42, 1) []int{42, 1, 2, 3, 4, 5}
-                        ·   ·  └ replace first n ocurrences
-                        ·   └··· new value
-                        └······· matching element to replace
-           .ReplaceAll (Replaces all occurrences)
-
-slice := lo.Compact[string]( // return slice of all non-"zero" elements
-        []string{"", "foo", "", "bar", ""})
-
-slice := lo.IsSorted(list0_5)          // true
-slice := lo.IsSortedByKey(list0_5,
-           func(i int) { return -i } ) // false
-
-map01= map[string]int{"foo": 1, "bar": 2, "baz": 3}
-
-## **MAPS!!!**: Keys|Values ValueOr PickBy(Keys/Values) OmitBy(Keys/Values) (From|To)Entries/(From|To)Pairs Invert Assign Map(Keys|Values|Entries) MapToSlice
-keys := lo.Keys  [string, int](map01) // []string{"foo", "bar", "baz"}
-vals := lo.Values[string, int](map01) // []int{1, 2, 3}
-
-val  := lo.ValueOr[string, int](map01, "foo", 42) // 1
-val  := lo.ValueOr[string, int](map01, "buf", 42) // 42
-
-Returns same map type filtered by given predicate.
-
-m := lo.PickBy(map01,  // map[string]int{"foo": 1, "baz": 3}
-       .OmitBy to omit (vs pick)
-   func /*filter predicate*/(key string, value int) bool {
-    return value%2 == 1
-})
-
-m := lo.PickByKeys  (map01, []string{"foo"}) // ...{"foo": 1}
-       .OmitByKeys
-m := lo.PickByValues(map01, []int{1, 3}) // ..{"foo": 1, "baz": 3}
-       .OmitByValues
-
-
-
-entries := lo.Entries(map01) // transform map to list of key/value pairs
-// []lo.Entry[string, int]{  // (alias: ToPairs)
-//     { Key: "foo", Value: 1 },
-//     { Key: "bar", Value: 2 },
-// }
-
-m := lo.FromEntries(...) // transform key/value list to map
-
-m1 := lo.Invert(map01) // map[int]string{1: "foo", 2: "bar", 3: "baz"}
-         └ "switch" key <··> value. For colling values, last one is
-                                    taken as key
-
-mergedMaps := lo.Assign[string, int]( // "merge" arrays
-    map[string]int{"a": 1, "b": 2},
-    map[string]int{"b": 3, "c": 4},
-)
- // map[string]int{"a": 1, "b": 3, "c": 4}
-
-m2 := lo.MapKeys( // transform keys
-   // lo.MapValues to transform values
-  map01, func /*key transformer*/(idx int, v string) string {
-    return fmt.Sprintf("%d %s, idx, strings.ToUpper(v))
-}) // map[string]int{"0 FOO": 1, "1 BAR": 2, "2 BAZ": 3}
-
-out := lo.MapEntries( map01,
-   func(k string, v int) (int, string) {
-    return v,k
-}) // map01= map[int]string{1: "foo", 2: "bar", 3: "baz"}
-
-s := lo.MapToSlice(map01,
-    func(k int, v string) string {
-    return fmt.Sprintf("%d_%s", k, v)
-}) // []string{"foo_1", "bar_2", "baz_3"}
-
-
-## **MATH!!!**: Range(From|WithSteps), RangeWithSteps, Clamp, Sum(By)
-
-result := lo.Range(4) // [0, 1, 2, 3]
-result := lo.RangeFrom(1, 5) // [1, 2, 3, 4, 5]
-result := lo.RangeFrom[float64](1.0, 4) // [1.0, 2.0, 3.0, 4.0 ]
-result := lo.RangeWithSteps(0, 20, 5) // [0, 5, 10, 15]
-result := lo.RangeWithSteps[float32](-1.0, -4.0, -1.0) // [-1.0, -2.0, -3.0]
-
-r1 := lo.Clamp(0, -10, 10)   // 0
-r2 := lo.Clamp(-42, -10, 10) // -10
-r3 := lo.Clamp(42, -10, 10)  // 10
-
-sum := lo.Sum(list0_5) // 15
-sum := lo.SumBy(list0_5, func(e int) int { return e*2 }) // 30
-
-## **STRINGS!!!**: Random|Sub|Chunk|String, RuneLength [[{strings.lo]]
-str := lo.RandomString(5, lo.LettersCharset) // example: "eIGbt"
-sub := lo.Substring("hello", 2, 3) // "llo"
-sub := lo.Substring("hello", -2, math.MaxUint) // "lo"
-lo.ChunkString("123456", 2) // []string{"12", "34", "56"}
-[[}]]
-
-sub := lo.RuneLength("hellô") // 5
-sub := len("hellô") // 6
-
-## **TUPLES!!!**: TN (Un)packN, (Un)ZipN
-tuple2 := lo.T2("x", 1) // Tuple2[string, int]{A: "x", B: 1}
-              └ 2...9
-r1, r2 := lo.Unpack2(tuple2) // "x", 1
-                   └ 2...9
-                ┌····┘
-tuples := lo.Zip2(       // []Tuple2[string, int]{
-        // UnZip2
-  []string{"a", "b"},    //   {A: "a", B: 1},
-  []int   {1  , 2  } )   //   {A: "b", B: 2}     }
-
-## **CHANNELS!!!**: ChannelDispatcher SliceToChannel Generator Buffer(WithTimeout) Fan(In|Out)
-input_ch := make(chan int, 42);
-consumerFunc := func(c <-chan int) { ... }
-children := lo.ChannelDispatcher(  // Distributes messages into N child channels.
-  input_ch,
-  5 /*child number*/,
-  10 /*buffer capacity, 0=> unbuffered*/,
-  lo.DispatchingStrategyRoundRobin[int])
-  // └──────────────┬────────────┘
-//   DispatchingStrategyRoundRobin
-//   DispatchingStrategyRandom
-//   DispatchingStrategyWeightedRandom
-//   DispatchingStrategyFirst /* to first non full channel */
-//   DispatchingStrategyLeast /* Distribute to emptiest channel */
-//   DispatchingStrategyMost /* Distribute to the fullest channel. */
-
-for i := range children { go consumerFunc(children[i]) }
-for i := 0; i <= 10; i++ { input_ch <- i }
-
-NOTE: Some strategies bring fallback, in order to favor non-blocking behaviors.  See implementations.
-      Custom strategies can be defined with `lo.DispatchingStrategy` prototype.
-
-
-for v := range lo.SliceToChannel(2, list0_5) { println(v) } // prints 0, then 1, ...
-                  ^^^^^
-Returns a read-only channels of collection elements.
-Channel is closed after last element. Channel capacity can be customized.
-
-ch_list := lo.SliceToChannel(2, list0_5)
-items :=   lo.ChannelToSlice(ch_list) // []int{0, 1, 2, 3, 4, 5}
-
-generator := func(yield func(int)) {
-    yield(1)
-    yield(2)
-    yield(3)
-}
-for v := range lo.Generator(2, generator) { println(v) } // prints 1, then 2, then 3
-
-
-ch_list := lo.SliceToChannel(2, list0_5)
-items1, length1, duration1, ok1 := lo.Buffer(ch_list, 3) // []int{0, 1, 2}, 3, 2s, true
-items2, length2, duration2, ok2 := lo.Buffer(ch_list, 3) // []int{3, 4, 5}, 3, 0s, false
-Creates slice of n el. from channel  ─┴────┘
-Returns the slice, slice length,
-read time and channel status (opened/closed).
-A lo.BufferWithTimeout(ch_list, N, 100*time.Milliseconds) version exists.
-
-Example: RabbitMQ consumer !!!!
-ch := readFromQueue()
-for {
-    items, length, _, ok := lo.Buffer(ch, 1000 /* read 1k items */)       // Alt 1.
-    //                   := lo.BufferWithTimeout(ch, 1000, 1*time.Second) // Alt 2. With timeouts
-    // ... batch stuff
-    if !ok { break }
-}
-
-Example: Multithreaded RabbitMQ consumer
-INPUT_CH := readFromQueue()
-
-children := lo.ChannelDispatcher(
-     INPUT_CH, 5, 1000 /* 1k per worker */, lo.DispatchingStrategyFirst[int])
-
-consumer := func(c <-chan int) {
-    for {
-        items, length, _, ok := lo.BufferWithTimeout(ch, 1000, 1*time.Second) // read 1k items
-        // ... batch stuff
-        if !ok { break }
-    }
-}
-for i := range children { go consumer(children[i]) }
-
-
-all := lo.FanIn (100, ch1, ch2, ch3) Merge N input channels into 1 buffered channel
-all := lo.FanOut(5, 100, input_channel) // [5]<-chan int
-
-## **INTERSECT!!!**: Contains(By) Every(By) Some(By) None(By) Intersect, Diff. Union Without(Empty)
-
-present := lo.Contains(list0_5, 5) // true
-present := lo.ContainsBy(list0_5, func(x int) bool { return x == 3 })
-
-ok := lo.Every  (list0_5, list0_2) // true (every element of subset are contained in collection
-ok := lo.Every  (list0_5, list0_7) // false
-        .EveryBy(collection, predicateFun)
-ok := lo.Some   (list0_5, list0_7) // true (at least 1 element is contained in collection)
-        .SomeBy (collection, predicateFun)
-ok := lo.None   (list0_5, list0_2) // false (true if none element is contained)
-        .NoneBy (collection, predicateFun)
-
-lo.Intersect (list0_5, list0_2) // []int{0, 2}
-lo.Difference(list0_5, list0_2) // []int{3, 4, 5}
-lo.Union     (list0_5, list0_7) // []int{0, 1, 2, 3, 4, 5, 6, 7}
-lo.Without   (list0_5, 0, 1, 2) // []int{3, 4, 5}
-  .WithoutEmpty(list0_5)        // []int{1, 2, 3, 4, 5}
-
-
-## **SEARCH!!!**: (Last)IndexOf Find(|(Last)IndexOfOrElse|Key|KeyBy|Uniques|UniquesBy|Duplicates(By))
-Min MinBy Max MaxBy Last Nth Sample Samples
-lo.IndexOf  (list0_5, 2)        // 2 (-1 if not found)
-  .LastIndexOf ...
-lo.Find(list0_5,     // 0, true (return first element found)
-        func(i int) bool { return i%2 == 0 })
-lo.FindIndexOf(...) // return element, index and true|fals
-lo.FindLastIndexOf
-lo.FindOrElse       // Like Find, if not found, returns default value
-lo.FindKey
-lo.FindKeyBy
-lo.FindUniques   ([]int{1, 2, 2, 1, 2, 3}) // []int{3}
-  .FindUniquesBy
-lo.FindDuplicates([]int{1, 2, 2, 1, 2, 3}) // []int{1, 2}
-  .FindDuplicatesBy
-
-min := lo.Min([]int{1, 2, 3}) // 1
-         .MinBy(collection, comparison function)
-         .Max
-         .MaxBy(collection, comparison function)
-last, err := lo.Last(list0_5) // 5, false (error if empty)
-nth, err := lo.Nth(list0_5, 2) // 1, false return at index N
-lo.Sample(list0_5)    // 3,    fetch random element
-lo.Samples(list0_5,3) // 1,5,0 fetch random elements
-
-## **CONDITIONAL!!!**: Ternary(F) If/ElseIf/Else Switch/Case/Default
-result := lo.Ternary(true, "a", "b") // "a"
-result := lo.TernaryF(true,          // "a"
-                      func() string { return "a" },
-                      func() string { return "b" })
- Very useful to avoid nil-pointer dereferencing in intializations, [[{QA]]
-  or avoid running unnecessary code                                [[}]]
-
-
-lo.If(true, 1).ElseIf(false, 2).Else(3) // 1
-lo.IfF(true, func1).ElseIfF(false, func2).ElseF(func3)
-lo.IfF(true, func1).ElseIfF(false, func2).Else(42)  // If/IfF can mixed
-
-result := lo.Switch(1).Case (1, "1"). Case (2, "2"). Default ("3")
-result := lo.Switch(1).CaseF(1,  f1). CaseF(2, f2 ). DefaultF(f3)
-
-## **TYPE MNG!!!**: (Emptyable)ToPtr FromPtr(Or) To|From(SlicePtr|AnySlice) (Is)(Not)Empty Coalesce
-ptr := lo.ToPtr("hello world") // *string{"hello world"}
-         .EmptyableToPtr       // nil pointer if element is zero
-value := lo.FromPtr(&strPtr) // "hello world"
-           .FromPtrOr        // value or default value if prt is nill.
-Returns a slice of pointer copy of value.
-ptr := lo.ToSlicePtr([]string{...}) // []*string{"hello", "world"}
-elements := lo.ToAnySlice([]int{1, 5, 1}) // []any{1, 5, 1}. All elements mapped to `any` type
-elements, ok := lo.FromAnySlice([]any{"foobar", 42})
-elements, ok := lo.FromAnySlice([]any{"foobar", "42"}) // []string{"foobar", "42"}, true
-                   └ maps all `any` elements to a type or fails
-lo.Empty[int](), lo.Empty[string](), lo.Empty[bool]() // 0, "", false
-lo.IsEmpty(0), lo.IsEmpty(""), lo.IsEmpty(test{foobar: ""}) // true, true, true
-  .IsNotEmpty
-
-result, ok := lo.Coalesce(0, 1, 2, 3) // 1 true. Returns the 1st non-empty argument
-
-## **FUNCTION!!!**: Partial
-add := func(x, y int) int { return x + y }
-f := lo.Partial(add, 5)     // Returns new func. that, when called, has its 1st arg set to provided value.
-        Partial2 -> Partial5// Returns new func. that, when called, has its 1st arg set to provided value.
-
-## **CONCURRENCY!!!**: Attempt(While)(WithDelay) Debounce(By) Synchronize Async Transaction
-iter, err := lo.Attempt( // Invokes func. N times until it returns valid output.
-            // .AttemptWithDelay
-            // .AttemptWhile
-            // .AttemptWhileWithDelay
-    42, // number of trials, 0 or negative to attempt forever
-    func(i int) error {
-       if i == 5 { return nil }
-       return fmt.Errorf("failed") // Fail after N attemps
-    }) // 6 nil
-
-NOTE: For more advanced retry strategies (delay, exponential backoff...),
-      please take a look on [cenkalti/backoff](https://github.com/cenkalti/backoff).
-
-debounceWrap, cancel := lo.NewDebounce(    // creates wrapper around func. that delays invoking
-    100 * time.Millisecond, f1)        // the func. until after wait milliseconds,
-for j := 0; j < 10; j++ { debounce() } // or until `cancel` is called.
-time.Sleep(1 * time.Second)
-cancel()
-
-debounceWrap, cancel := lo.NewDebounceBy(  // create new debounce by key
-     100 * time.Millisecond, f1)
-for j := 0; j < 10; j++ {
-    debounceWrap("first key")
-    debounceWrap("second key")
-}
-time.Sleep(1 * time.Second)
-cancel("first key")
-cancel("second key")
-
-
-s := lo.Synchronize() // Wraps underlying callback in a mutex. (It receives an optional mutex)
-for i := 0; i < 10; i++ {
-    go s.Do(func () { println("will be called sequentially") })
-}
-Equivalent to:
-mu := sync.Mutex{}
-func foobar() {
-    mu.Lock()
-    defer mu.Unlock()
-    // ...
-}
-
-ch := lo.Async2(func() (int, string) { // chan lo.Tuple2[int, string] ({42, "Hello"})
-  time.Sleep(10 * time.Second);
-  return 42, "Hello"
-})
-
-Implements a Saga pattern
-transaction := NewTransaction[int]().
-      Then( func(state int) (int, error) { fmt.Println("step 1"); return state + 10, nil },
-            func(state int)          int { fmt.Println("rollback 1"); return state - 10 },
-    ).Then( func(state int) (int, error) { fmt.Println("step 2"); return state + 15, nil },
-            func(state int)          int { fmt.Println("rollback 2") ; return state - 15 },
-    ).Then( func(state int) (int, error) { return state, fmt.Errorf("error") } // return error
-            func(state int)          int { fmt.Println("rollback 3") ; return state - 42 } )
-_, _ = transaction.Process(-5) // step 1 > step 2 > rollback 2 > rollback 1
-
-## **ERROR MNG!!!**: Try(Or){0..6} Try(WithErrorValue)(Catch(WithErrorValue)))))))))) ErrorsAs
-val := lo.Validate( // Error helper func.
-      len(someSlice) == 0,
-       "Slice should be empty but contains %v", slice)
-// error("Slice should be empty but contains [a]")
-
-lo.Must // Must{0-6}
-if 2nd argument is `error`||`false` panic, Otherwise returns value
-
-lo.Must( time.Parse("2006-01-02", "2022-01-15")) // == 2022-01-15
-lo.Must( time.Parse("2006-01-02", "bad-value" )) // panics
-lo.Must0(...,"panic hint %s", someStringParam)
-lo.Must0(ok, "'%s' must always contain '%s'", myString, requiredChar)
-val1 := lo.Must1(example1())    // alias to Must
-val1, val2 := lo.Must2(example2())
-val1, val2, val3 := lo.Must3(example3())
-val1, val2, val3, val4 := lo.Must4(example4())
-val1, val2, val3, val4, val5 := lo.Must5(example5())
-val1, val2, val3, val4, val5, val6 := lo.Must6(example6())
-
-lo.Try(func() error { return nil })                 // true
-lo.Try(func() error { return fmt.Errorf("error") }) // false
-
-Like `Try`, but callback returns 0,1,2,...6 variables.
-
-Like Try but returns default value in case of error||panic.
-str, ok := lo.TryOr(
-   func() (string, error) { panic("error") ; return nil },
-   "defVal") // world, false
-str, ok := lo.TryOr(
-   func() error { return "hello", nil },
-   "world") hello true
-
-Like `Try`, but also returns value passed to panic
-err, ok := lo.TryWithErrorValue(
-  func() error { panic("error") ; return nil }) // "error", false
-
-Like `Try`, but calls catch function in case of error.
-caught := false
-ok := lo.TryCatch(
-   func() error { panic("error") ; return nil },
-   func() { caught = true }) // false
-
-The same behavior than `TryWithErrorValue`, but calls the catch function in case of error.
-
-caught := false
-ok := lo.TryCatchWithErrorValue(func() error {
-    panic("error")
-    return nil
-}, func(val any) { caught = val == "error" }) // false; (caught == true)
-
-A shortcut for:
-err := doSomething()
-
-var rateLimitErr *RateLimitError
-if ok := errors.As(err, &rateLimitErr); ok {
-    // retry later
-}
-
-err := doSomething()
-if rateLimitErr, ok := lo.ErrorsAs[*RateLimitError](err); ok {
-    // retry later
-}
-[[lo}]]
-
-# DevOps 101 [[{devops.101]]
-## Packages:
-* Basic unit of code-reuse, code-compilation (go build) and code-documentation (godoc)
-  RESIDING IN A GIVEN FOLDER.
-  ```
-
-              ┌····················· RULE OF THUMB: a different folder is a different package
-          ┌───┴───┐
-  cat .../packageN/packageN.go  <··· packageN.go name is recomended(NOT MANDATORY).
-                                     Use "packageN.go" for "main" file inside packageN/
-  package "packageN"
-  cat  .../packageN/utils.go    <··· To go compiler packageN.go and utils.go are part of the
-  package "packageN"                 same source code package. Spliting into files makes no
-          └────┬───┘                 different to putting it all in a same "big" *go file.
-               ·                     UpperCase types and functions are "exported" (visible
-               ·                     outside the package), anything else is internal.
-               ·
-    the name "packageN" is arbitrary, and must NOT
-    necesarely match the parent directory (but it's recommended)
-    EXCEPT for go files containing entry functions to build
-    RUNNABLE PROGRAMS. In that case we must declare them as
-    package "main"
-    By default "go build" will also create an executable with
-    name "package" (the name of the containing directory
-    Any NON-MAIN package is considered a "library" in conventional
-    languages (They are NOT called 'libraries' since they are
-    statically linked to the final executable and there is not
-    concept of C/C++ library loader (ldd).
-    Reminder: All Go source code is linked at compile-time.
-              Only when linking against C/C++ libraries dyn.link is used.
-             `$ ldd main` will output "not a dynamic executable"
-  ```
-* Packages form a unit of reusable code to external packages.
-
-* KEY-POINT: build small and reusable packages  [[{QA.best_patterns}]]
-
-## Modules (v1.13+) [[{devops.101.modules]]
-  @[https://golangbyexample.com/package-vs-module-golang/]
-  @[https://golang.org/ref/mod]
-* A collection of packages can now be called as module when
-  there is a requirement to version them separately or
-  a common piece of code to be shred across multiple projects.
-
-    BEFORE MODULES (packages only)        │    AFTER MODULES
-  ────────────────────────────────────────┼───────────────────────────────────────
-                                          │
-    |package|     <·······················│·> |module|1 <···> N|package|
-     ^^^^^^^                              │    ^^^^^^^
-     collection src files IN THE SAME     │    set of packages released+versioned
-     DIRECTORY compiled together.         │    +distributed together
-     package path == module path + subdir.│
-                                          │
-    - No native dependency management <·····> go.mod, go.sum
-      or method to specify project        │   (precise dependencies version
-      dependencies                        │    Updates without breaking anything).
-      "Patchy"(non-native) solution used  │
-      ("dep","glide")                     │
-                                          │
-    $GOPATH/bin/  <·························> $GOPATH/bin/
-                                          │
-    $GOPATH/src/  <·························> Not required anymore
-           └─┬─┘                          │
-     All src code must be placed here     │
-                                          │
-                                          │
-    External pkgs downloaded to: <··········> External modules downloaded to:
-      $GOPATH/pkg/                            $GOPATH/pkg/mod/ (with versioning)
-             └─┬─┘                        │   $GOPATH/pkg/mod/cache
-               │                          │                   └─┬─┘
-    Download route with NO versioning!!   │               download-cache
-    $ go get github.com/pborman/uuid      │             + zipped-code
-    will download package to              │
-    $GOPATH/src/github.com/pborman/uuid   │
-    latest version always used!!!         │
-    - No version in downloaded path !!!   │
-    - Updates overwrite current vers!!!   │
-  ────────────────────────────────────────┴───────────────────────────────────────
-
-  $ export GOPATH=$(go env GOPATH)
-  $ export DIR="$GOPATH/github.com/user/project
-  $ mkdir $DIR ; cd $DIR        # <··· Make sure project is inside $GOPATH
-  $ go mod init                 # <··· Initialize new ./go.mod
-                                       (file designed to to be human readable
-                                        and machine writable).
-
-
-
-  $ cat ./go.mod
-    │ module github.com/user/project <·· module path indentifies de module
-    │                                    It should describe what the module does & where to find it.
-    │
-    │ go 1.14 <························· go version used to create the module
-
-   In general
-
-   golang.org/x/net/v2/go.mod <·· module path with version
-                   └──┴··········· major version suffix (only v2 or higher).
-                                   the v2/ path is only needed in MONOREPOS
-                                   with a relation MONOREPO 1<···>N modules
-                                   In monorepos we can just "tag" commits with
-                                   sem.ver tags
-
-   └──────────────┴─   (ussually matching root-dir or subdir of git repo)
-
-### Module versioning
-  version identifies an IMMUTABLE SNAPSHOT of a module, which may be
-  either a RELEASE or A PRE-RELEASE.
-  major.minor.patch-${pre_release}+${build_metadata_string}
-  ^   ^ ^   ^ ^   ^^             ^└──────────┬────────────┘
-  ·   · ·   · ·   ··             · - optional (eg: +meta, ...)
-  ·   · ·   · ·   ··             · - ignored by VCS, preserved in go.mod.
-  ·   · ·   · ·   ·└─────────────┴─··optional (eg:-pre-release,-alpha.1,-beta.2)
-  ·   · ·   · ·   ·                  If not set, go tools default to release.
-  ·   · ·   · ·   ·                  As with v0, no backwards compatibility guarantee exists
-  ·   · ·   · └───┴─··· increase after bug-fix.
-  ·   · └───┴─··· increase after compatible (feature) update (reset patch)
-  └───┴─··· increase after incompatible update (reset minor/patch)
-            Use v0 for unstable version (not subject to compatibility requirements)
-
-  $ go mod edit \              # <··· Fix problem when working with local code.
-    replace=mycomp.com/mymoduleA@v0.0.0-unpublished=../mymoduleA
-    └────────────────────────────┬─────────────────────────────┘
-    A line similar to next one will be added to go.mod:
-   + replace mycomp.com/mymoduleA v0.0.0-unpublished => ../mymoduleA
-
-  go.mod
-  ...
-  exclude (
-      golang.org/x/crypto v1.4.5  <···· exclude dependency traking
-      golang.org/x/text v1.6.7
-  )
-  ...
-  replace (
-      golang.org/x/net v1.2.3 => example.com/fork/net v1.4.5
-      golang.org/x/net => example.com/fork/net v1.4.5
-      golang.org/x/net v1.2.3 => ./fork/net
-      golang.org/x/net => ./fork/net
-  )
-
-
-  $ editor ./uuid.go
-    ┌──────────────────
-    │ package main
-    │
-    │ import (
-    │   "fmt"
-    │   ...
-    │   "github.com/pborman/uuid"  ←··· transitive external dependency
-    │ )
-    │
-    │ func main() { ...  }
-    │ ...
-
-  $ go mod tidy  # <··· 1. Download all required dependencies
-                           by inspecting imports in *.go source files.
-                        2. Update ./go.mod
-  $ cat ./go.mod
-  │ module github.com/user/project           <·· path used to import this module
-  │                                              (code in modules nows supports
-  │ go 1.14                                       dependency tracking)
-  │ require (
-  │   github.com/xxx/modA v1.2.1             <·· tagged in repo release.     Fully tested and ready to use.
-  │   github.com/xxx/modB v1.2.1-beta.1      <·· tagged in repo pre-release. "Future in test release.
-  │
-  │   github.com/xxx/modC v0.0.0-2018-af0... <·· commit pseudo-version. No stability or well-defined API
-  │                                              must be assumed by consumers.
-  │                                              Remember. go tooling default behaviour:
-  │                                              module ...                     def. dependency resolution
-  │                                              -----------------------------  ------------------------------
-  │                                              ...does not have any release  => latest commit  picked
-  │                                              ...does     have     releases => latest release picked
-  │                                                                               └──┬─┘
-  │                                                                      latest == greatest semantic actually
-  │   github.com/xxx/yyy v1.2.3 // indirect  <·· transitive dependency
-  │   ...
-  │ )
-### Module release ("publish") KEY-POINTS:
-* Once we start tagging behaviour changes and we need to we need to keep tagging.
-   Untagged commits will be ignored by go tools unless the explicit pseudo-version is used.
-* Do not delete version tags, release new versions with new tags.
-  Otherwise builds depending on such version will fail.
-* Do not change or overwrite a version. Checksums will fail.
-
-## Module release checks:
-$ go mod tidy            # remove any dependencies no longer necessary.
-$ go test ./...          # make sure "everything" (or at least tests) is working.
-$ git add A.go A_test.go
-$ git add go.mod go.sum  # Add go.mod, go.sum to release commit
-$ git commit -m "..."
-$ git tag v0.1.0         # tag release commit following semantic versioning
-$ git push origin v0.1.0 # "publish" to git.
-$ go list \              # Double-check that version is available in repo.
-  -m github.com/XX@v0.1.0
-
-AT THIS POINT OTHER PROJECTS CAN DEPEND ON OUR MODULE AT VERSION V0.1.0.
-
-### GOPROXY (Default in Go 1.13+)
-(REF: https://go.dev/doc/modules/managing-dependencies)
-* GOPROXY can modify the download behaviour of go get/install/list ...
-* By default packages are donwloaded from the default GOPROXY route:
-  GOPROXY="https://proxy.golang.org,direct"   # <·· default config. Download from Google.
-                                                    fallback to (github/others) repository.
-  The proxy (by default Google-run proxy.golang.org) also         [[{qa]]
-  checks against mutability of packages (the author changes the
-  original code keeping the same version).                        [[}]]
-
-* To customize using first myCustomProxy.com:
-  export GOPROXY="https://myCustomProxy.com,https://proxy.golang.org,direct"
-* To skip checksums for private modules (local development):
-  * Alt 1, GOPRIVATE: bypass GOPROXY and GOSUMDB. (preferred)
-    $ export GOPROXY=https://proxy.golang.org,direct    ← for public  repos
-    $ export GOPRIVATE=*.internal.mycompany.com         ← for private repos
-                                                          bypass GOPROXY and GOSUMDB
-
-    WARN : It also ensures that private module repositories are not "leaked" [[{security.101]]
-    through requests to a public GOPROXY server.                             [[}]]
-  * Alt 2, GONOSUMDB:  including refs to private modules.
-    It allows Go client to resolve both public and private mod. dependencies,
-    it doesn’t enforce immutability or availability requirements for
-    private modules.
-  * Alt 3, private GOPROXY: Used to store both public and private modules
-    in on your own infrastructure:
-    · Public  modules cached by proxying a public GOPROXY.
-    · Private modules cached by proxying from their VCS repos.
-    e.g. using Artifactory (Enterprise Universal -go modules, npm packages,
-         helm charts,...- Repository Manager)
-    $ export GOPROXY="https://:@my.artifactory.server/artifactory/api/go/go
-    $ export GONOSUMDB="github.com/mycompany/*,github.com/mypersonal/*"
-  * Alt 4 GONOPROXY
-[[devops.101.modules}]]
-
-@[https://github.com/tldr-pages/tldr/blob/master/pages/common/go*.md]
-
-
-  $ go get \                    <·· Add/update/adjust dependencies in go.mod
-    github.com/user/uuid@v1.2 #       for dependency-tracking.
-                        └─┬─┘       - NEW BEHAVIOUR (modules go v1.13+)
-                          ·           1. Download to $GOPATH/pkg/mod/
-                          ·              directly from potentially mutable sources
-                          ·              or through saferGOPROXY
-                          ·              use '$ go install' to install
-                          ·         - OLD BEHAVIOUR (export GO111MODULE=off):
-                          ·           1. download src to $GOPATH/src/github.com/user/uuid
-                          ·           2. build
-                          ·           3. install  bin to $GOPATH/bin
-                          └········ Version is optional. Defaults to latest
-                                    Can be used to upgrade and downgrade.
-                                    - A commit-hash or a branch can also be used to
-                                      fetch a given commit.
-                                    - @none can be used to stop tracking the dependency.
-                                      (any other dependency dependent of this dependency
-                                       will be downgraded to a version not dependent on it)
-
-  $ go list -m -u all         # <·· discover update: list of already tracked   [[{qa.101,qa.troubleshooting]]
-                                    dependencies dumping local  current version
-                                    and any newer version available remotely.
-                                    -m : list modules (vs packages)
-                                    -u : (v 1.17+) add information about available upgrades.
-                                    all: check for all dependencies in go.mod
-                                         (or just github.com/... for a particular one)
-                                    (opt) -json: render output as json
-                                    NOTE: It can takes about 1 minute while querying
-                                    remote services.
-  $ go mod tidy               # <·· Add missing and remove unused dependencies
-                                    to go.mod (update dependency tracking)      [[}]]
-
-  $ go vet                    # <·· examines src code, reporting suspicious constructs [[{qa.101]]
-                                    such as Printf calls whose arguments do not align
-                                    with the format string.                            [[}]]
-
-  $ go list std               # <·· List standard packages
-
-
-  $ go run file.go            # <·· Compile+run file.go
-           └─────┴··················> + package main  # 'main' package is mandatory
-                                        ...
-                                      + func main() {..} # fun. main is mandatory
-
-  $ go install                # <··     compile+install current package
-  $ go install github.com/... # <·· get+compile+install
-
-  $ go bug                     ← Open web page to start bug-report           [QA]
-                                 https://golang.org/cmd/go/#hdr-Start_a_bug_report.
- · Compiling:
-   https://golang.org/cmd/go/#hdr-Compile_packages_and_dependencies.
-
-   $ go build path_to_main.go  ← Compile file
-      -o path/bin_exec           ← Optional
-   $ go build        \        <·· Compile full package
-        -race flag   \            <· (opt) Add data race detection [qa]
-        -race        \            <· (opt) enable data race detection.
-        -msan        \            <· (opt) enable interoperation with memory sanitizer.
-        -asan        \            <· (opt) enable interoperation with address sanitizer.
-        -v           \            <· (opt) print the names of packages as they are compiled.
-        -work        \            <· (opt) print  temporary work dir and do NOT rm it on exit.
-        path_to_package
-
-   $ go clean -n               ← Remove object files and cached files.
-                               @[https://golang.org/cmd/go/#hdr-Remove_object_files_and_cached_files]
-                                 -n : Print remove commands, do NOT remove anything.
-   $ go clean -cache           ← Delete build cache
-   $ go clean -testcache       ← Delete all cached test results
-   $ go clean -modcache        ← Delete the module cache:
-                                 WARN!!!: This deletes everything inside ${GOPATH}/go/pkg/mod/cache
-                                 shared by any module (not just the cache for modules realted to the
-                                 one we are working on, requiring potentially expensive downloads )
-
-   $ go doc ...                ← Show documentation for a package | symbol.
-                                @[https://golang.org/cmd/go/#hdr-Show_documentation_for_package_or_symbol]
-
-   $ go doc                    ← Show documentation for current package
-   $ go doc {{encoding/json}}  ← Show package doc. and exported symbols
-                                 -all flag: Show also doc. for symbols
-                                 -src flag: Show also sources
-   $ go doc -all -src \        ← Show a specific symbol.
-            {{encoding/json.Number}}
-
-   $ godoc -http=:6060         ← Serv. doc for go packages on port 6060.
-   $ godoc fmt                 ← Display help for package "fmt"
-   $ godoc fmt Printf          ← Display help for the func. "Printf" of "fmt" package
-   $ godoc -write_index \      ← Create index file
-       -index_files=.../file
-   $  godoc -http=:6060 \      ← Use the given index file to search the docs
-       -index \
-       -index_files=.../file
-
-   $ go env ...                ← Manage env.vars used by the Go toolchain.
-                               @[https://golang.org/cmd/go/#hdr-Print_Go_environment_information]
-
-   $ go env                    ← Show all environment variables
-   $ go env {{GOPATH}}         ← Show a specific environment variable
-   $ go env -w{{GOBIN}}=dir    ← Set an environment variable
-   $ go env -u{{GOBIN}}        ← Reset an environment variable's value
-
-
-   $ go fix {{packages}}       ← Update packages to use new APIs.          [qa]
-                               @[https://golang.org/cmd/go/#hdr-Update_packages_to_use_new_APIs]
-
-
-   $ go generate               ← Generate Go files by running commands     [low_code]
-                                 within source files.
-                               @[https://golang.org/cmd/go/#hdr-Generate_Go_files_by_processing_source]
-   $ go mod ...                ← Module maintenance
-                               @[https://golang.org/cmd/go/#hdr-Module_maintenance]
-   $ go mod init $modName      ← Initialize new module in current directory
-   $ go mod download           ← Download modules to local cache
-   $ go mod verify             ← Verify dependencies have expected content
-   $ go mod vendor             ← Copy sources of all dependencies into the vendor directory
-
-                               @[https://blog.gopheracademy.com/advent-2015/vendor-folder/]
-
-   $ go test ...               ← Tests Go packages ending with _test.go.
-                               @[https://golang.org/cmd/go/#hdr-Testing_flags]
-   $ go test -v -bench         ← Test package found in current directory
-                                 - v     flag (Optional): Verbosely
-                                 - bench flag (Optional): Run all benchmarks
-                                   Use flag similar to -benchtime 50s to restrict
-                                   benchmark run to 50 secs.
-   $ go test -v ./...          ← Test packages in current dir +  all subdirs ("...")
-
-
-   $ gofmt                     ← Tool for formatting Go source code.
-                               @[https://golang.org/cmd/gofmt/]
-   $ gofmt source.go           ← Format file to STDOUT (-w to overwrite)
-   $ gofmt -s source.go        ← Format file, then simplify the code, write result to
-                                 STDOU (-w to overwrite)
-   $ gofmt -e source.go        ← Print all (including spurious) errors
-
-
-   $ goimports ...             Updates Go import lines, add missing, removing unreferenced
-                             @[https://godoc.org/golang.org/x/tools/cmd/goimports]
-   $ goimports file.go         ← Display results to STDOUT (-w to overwrite)
-   $ goimports --d file.go     ← Display diffs to STDOUT (-w to overwrite input)
-   $ goimports -local \        ← Set the import prefix string after 3rd-party packages
-     package_path file.go        (comma-separated list)
-
-   $ gops ...                  CLI tool which lists and diagnoses Go processes currently
-                               running on your system.
-                             @[https://github.com/google/gops]
-   $ gops                      ← Print all go processes running locally
-   $ gops $PID                 ← Print more information about a process
-   $ gops tree                 ← Display process tree
-   $ gops stack $pid|$addr     ← Print current stack trace from a target program
-   $ gops memstats $pid|addr   ← Print current runtime memory statistics
-
-   $ goreload                  Live reload utility
-                             @[https://github.com/acoshift/goreload]
-   $ goreload -b bin_path \    ← Set the name of binary file to watch (defaults to .goreload)
-     file.go
-   $ goreload --logPrefix \    ← Set custom log prefix (defaults to goreload)
-     $prefix file.go
-   $ goreload --all            ← Reload whenever any file changes
-[[devops.101}]]
-
-# go-gin [[{01_PM.low_code,IO.http,arch.distributed,arch.mobile,01_PM.TODO]]
-* HTTP web framework featuring Martini-like API but up to 40x faster.
-* key features:
-  * Zero allocation router
-  * Fast
-  * Middleware support
-  * Crash-free
-  * JSON validation
-  * Routes grouping
-  * Error management
-  * Rendering built-in
-  * Extendable: @[https://github.com/orgs/gin-contrib/repositories]
-    sessions : Gin middleware for session management
-    pprof    : Gin pprof middleware
-    location : Gin expose server's hostname and scheme
-    cache    : Gin middleware/handler to enable Cache
-    sse      : Forked, Server-Sent Events implementation in Go
-               HTML5 standard way to send automatic updates to a browser from a server
-               via HTTP connection.
-    secure   :
-    i18n     : Gin i18n middleware
-    logger   : Gin middleware to logger url path using rs/zerolog
-    static   : Static middleware
-    authz    : authorization middleware
-    timeout  :
-    cors     :
-    opengintracing: trace requests using opentracing specification
-    gzip     : enable GZIP support
-    multitemplate: custom HTML render
-    zap      : Alternative logging through zap
-    requestid: Request ID middleware for Gin Framework
-    httpsign : (RSA/HMAC) HTTP Messages signature support.
-    size     : Limit size of POST requests for Gin framework
-    expvar   : expvar handler provides a standardized interface to public variables.
-    rollbar  : integrate with rollbar error monitoring.
-    sentry   : integrate with sentry crash reporting.
-    graceful : allows to restart and/or switch gin engine WITHOUT DROPPING EXISTING CONNS
-
-[[}]]
-
-
-
-# go-zero [[{01_PM.low_code,IO.http,arch.distributed,arch.mobile,01_PM.TODO]]
-@[https://github.com/tal-tech/go-zero]
-* web+rpc framework that integrates lots of engineering practices.
-* go-zero contains simple API description syntax and code generation
- 'goctl' to generate Go, iOS, Android, Kotlin, Dart, TypeScript,
-  JavaScript from .api files with goctl.
-[[}]]
-
-# GraphQL Server [[{01_PM.low_code,arch.integration,IO.graphql,persistence.sql,01_PM.TODO]]
-  - Related: low_code/automatic DDBB to GraphQL tools:
-    - https://graphjin.com "Build APIs in 5 minutes not weeks"
-    - https://www.graphile.org/postgraphile/
-      Extensible high-performance automatic GraphQL API for PostgreSQL
-
-@[https://betterprogramming.pub/implement-a-graphql-server-with-ent-and-gqlgen-in-go-8840f086b8a8]
-"...This post will walk you through how to implement GraphQL server
-  using ent, and gqlgen....
- ...In terms of statically typed APIs, sqlboiler has similar
-  functionality, but the difference is that the ent is a scheme-first
-  tool that creates a database and typed API from a schema file. The
-  sqlboilder is a database-first ORM that creates a typed API from a
-  database "
-[[}]]
-
-# Goxygen ("JHipster" like) [[{01_PM.low_code,io.http]]
-  https://github.com/Shpota/goxygen
-
-  Goxygen generates a Web-project-skeleton with:
-  - BACKEND : Go server
-  - FRONTEND: Angular|React*|Vue
-  - Configuration: Dockerfile+docker-compose files (development|production environments).
-  - DDBB:  MongoDB*|MySQL|PostgreSQL
-
-  - USSAGE: # go 1.17+
-    $ go run github.com/shpota/goxygen@latest \
-      init \
-      --frontend react \                               angular|react*|vue
-      --db postgres \                                  mongo* |mysql | postgres
-      my-app
-
-    $ cd my-app
-    $ docker-compose up # http://localhost:8080.
-
-
-    Layout of skeleton project: (React/MongoDB example)
-
-    my-app
-    ├─ server               # Go project files
-    │  ├ db                 # MongoDB communications
-    │  ├ model              # domain objects
-    │  ├ web                # REST APIs, web server
-    │  ├ server.go          # the starting point of the server
-    │  └ go.mod             # server dependencies
-    ├─ webapp
-    │  ├ public             # icons, static files, and index.html
-    │  ├ src
-    │  │ ├ App.js           # the main React component
-    │  │ ├ App.css          # App component-specific styles
-    │  │ ├ index.js         # the entry point of the application
-    │  │ └ index.css        # global styles
-    │  ├ package.json       # front end dependencies
-    │  ├ .env.development   # holds API endpoint for dev environment
-    │  └ .env.production    # API endpoint for prod environment
-    │
-    ├─ Dockerfile           # builds back end and front end together
-    ├─ docker-compose.yml   # prod environment deployment descriptor
-    ├─ docker-compose-dev.yml # runs local MongoDB for development needs
-    ├─ init-db.js           # creates a MongoDB collection with test data
-    ├─ .dockerignore        # specifies files ignored in Docker builds
-    ├─ .gitignore
-    └─ README.md            # guide on how to use the generated repo
-  [[}]]
-
-# health-go (SLA) [[{qa.SLA]]
-@[https://github.com/hellofresh/health-go]
-- Expose HTTP handler retrieving health-status of the application
-- Implements some generic checkers for the following services:
-  [RabbitMQ,PostgreSQL,Redis,HTTP,MongoDB,MySQL,gRPC,Memcached,InfluxDB]
-[[}]]
-
-# What's new [[{01_PM.WHATS_NEW]]
-@[https://golang.org/doc/devel/release]
-  • go1.19 (released 2021-08-16) @[https://go.dev/doc/go0.19]
-  • go1.18 (released 2021-08-16) @[https://go.dev/doc/go0.18]
-    - Introduction of Generics.
-  • go1.17 (released 2021-08-16) @[https://go.dev/doc/go1.17]
-   · []T (slice) may now be converted to *[N]T (array pointer type).
-     WARN: first case in which a type conversion can panic at run time.
-     · unsafe.Add(ptr, len) returns updated pointer unsafe:
-       Pointer(uintptr(ptr) + uintptr(len)).
-     · unsafe.Slice(ptr/* type *T */, len) returns a slice of type []T
-       whose underlying array starts at ptr and whose length and capacity are len.
-
-   · go Tool:
-     · removed transitive deps graphs in modules. A module specifying
-       go 1.17+ will contains an explicit 'require' directive.
-       $ go mod tidy -go=1.17      <- new '-go' flag to help porting to new version
-       $ go mod tidy -compat=1.17  <- allows support for older (or only newer) ver.
-
-     · // Deprecated: Module deprecation comments in go.mod.
-       $ go get ← now prints a warning if a module needed to build packages
-                  named on the command line is deprecated.
-       $ go list -m -u prints deprecations for all dependencies
-                    use -f | -json to show the full message
-       NOTE: 'go' command considers different major versions to be distinct
-             → This mechanism may be used, to provide users with migration
-               instructions for a new major version.
-
-   · go get
-     · go get -insecure flag removed.
-     · go get prints a deprecation warning when installing commands outside the
-       main module (without the -d flag).
-       go install cmd@version should be used instead to install a command at a
-                              specific version (@latest, @v1.2.3,...)
-
-   · vendor contents
-     · go mod vendor now annotates vendor/modules.txt with the go version indicated
-                     by each vendored module in its own go.mod file.
-                     If main module specifies go 1.17+ it omits go.mod and go.sum
-                     files for vendored dependencies, which can otherwise interfere
-                     with the ability of the go command to identify the correct
-                     module root when invoked within the vendor tree.
-
-   · go mod download invoked without arguments will no longer save sums for
-                     downloaded module content to go.sum.
-                     use '$ go mod download all ' to save sums for all modules.
-
-   · prefers //go:build lines over // +build
-
-   · go run example.com/cmd@v1.0.0 // new support for version suffix
-
-   · 'vet' tool now warns about calls to signal.Notify with incoming signals [[{qa]]
-     being sent to an unbuffered channel. Using an unbuffered channel risks
-     missing signals sent on them as signal.
-     Notify does NOT block when sending to a channel. For example:
-     c := make(chan os.Signal)
-     // signals sent on c before channel is read from.
-     // This signal may be dropped as c is unbuffered.
-     signal.Notify(c, os.Interrupt)                                         [[}]]
-
-   · 'vet' tool now warns about methods named As, Is or Unwrap on types
-     implementing the error interface that have a different signature than
-     the one expected by the errors package.
-   · improved format of stack traces
-   · Functions containing closures can now be inlined.
-
-  • go1.16 (released 2021-02-16) @[https://golang.org/doc/go1.16]
-    · moudles-aware mode enabled regardless of go.mod being present.
-    · go command supports including static files|file trees as part
-      of the final executable.
-    · new runtime/metrics package introduces stable interface for        [[{SLC.profiling]]
-      reading implementation-defined metrics from the Go runtime.
-       It supersedes functions like runtime.ReadMemStats, debug.GCStats
-      and is significantly more general and efficient.                   [[}]]
-  • go1.15 (released 2020-08-11) @[https://golang.org/doc/go1.15]
-    · Core lib: new  time/tzdata package allowing to embed timezone
-      database into a program touse even when timezone ddbb is not
-      available in local system. It increases program size by ~800KB.
-  • go1.14 (released 2020-02-25) @[https://golang.org/doc/go1.14]       [[{101,qa.error_control]]
-    · performance improvement of most uses of "defer" to incur
-      almost zero overhead compared to calling the deferred
-      function directly. As a result, "defer" can now be used in
-      performance-critical code without overhead concerns.              [[}]]
-    · -d=checkptr compile-time option for adding instrumentation
-      to check that Go code is following unsafe.Pointer safety
-      rules dynamically. This option is enabled by default
-      (except on Windows) with the -race or -msan flags.  It checks:
-    · crypto/x509: Certificate.CreateCRL now supports Ed25519 issuers. [cryptography]
-
-  • go1.13 (released 2019-09-03) @[https://golang.org/doc/go1.13]
-    - 1st stable version with Module support.
-
-  • go1.12 (released 2019-02-25) @[https://golang.org/doc/go1.12]
-
-  • go1.11 (released 2018-08-24) @[https://golang.org/doc/go1.11]
-
-  • go1.10 (released 2018-02-16) @[https://golang.org/doc/go1.10]
-
-  • go1.9  (released 2017-08-24) @[https://golang.org/doc/go1.9]
-
-  • go1.8  (released 2017-02-16) @[https://golang.org/doc/go1.8]
-
-  • go1.7  (released 2016-08-15) @[https://golang.org/doc/go1.7]
-
-  • go1.6  (released 2016-02-17) @[https://golang.org/doc/go1.6]
-
-  • go1.5  (released 2015-08-19) @[https://golang.org/doc/go1.5]
-
-  • go1.4  (released 2014-12-10) @[https://golang.org/doc/go1.4]
-
-  • go1.3  (released 2014-06-18) @[https://golang.org/doc/go1.3]
-
-  • go1.2  (released 2013-12-01) @[https://golang.org/doc/go1.2]
-
-  • go1.1  (released 2013-05-13) @[https://golang.org/doc/go1.1]
-
-  • go1    (released 2012-03-28) @[https://golang.org/doc/go1]
-[[}]]
-
-## SQLBoiler [[{persistence.sql]]
-* https://github.com/volatiletech/sqlboiler
-
-
-* C&P from https://www.reddit.com/r/golang/comments/umkgk3/gorm_is_a_bad_idea/
-  Biggest issue with GORM is the lack of type safety and use of
-  reflection. Means there are some issues that can be caught during
-  compile time that are instead moved to runtime.
-
-  Instead, check out `SQLBoiler`, `ent` and `sqlc`
-
-[[}]]
-
-## sqlc  [[{persistence.sql]]
-https://sqlc.dev/
-sqlc generates type-safe code from SQL. Here's how it works:
-
-* I used to use https://github.com/volatiletech/sqlboiler,
-but now I use https://github.com/ent/ent which has in my opinion
-surpassed it in a very short time by adding a ton of useful features
-and having a great documentation.
-
- You write queries in SQL.
- You run sqlc to generate code with type-safe interfaces to those queries.
- You write application code that calls the generated code.
-[[}]]
-
-## ent [[{persistence.sql]]
-https://entgo.io/
-Simple, yet powerful ORM for modeling and querying data.
-[[}]]
-
-## gorm [[{persistence.sql]]
-Problems with Gorm:
-https://www.reddit.com/r/golang/comments/umkgk3/gorm_is_a_bad_idea/
-
-* Exiting the Vietnam (of Gorm):
-  https://alanilling.com/exiting-the-vietnam-of-programming-our-journey-in-dropping-the-orm-in-golang-3ce7dff24a0f
-
-  ...  Alternatives:
-  We bucketed projects in the Go community along two lines:
-      Code-generating SQL at runtime (example: squirrel)
-      Generating application code at compile time(examples: jet, sqlc)
-
-   We looked closely at two code generators: jet and sqlc, ultimately
-  selecting sqlc. With jet you write SQL within your application as a
-  DSL. But because it generates code it goes a step beyond what a
-  runtime SQL generator like squirrel offers. Models and fields and are
-  first-class referenceable types, rather than requiring string
-  interpolation, which avoids the need to grep through code in an audit
-  process when you want to make changes.
-[[}]]
-
-## Squirrel [[{persistence.sql]]
-https://github.com/Masterminds/squirrel
-[[}]]
-
-## go-jet [[{persistence.sql]]
-https://github.com/go-jet/jet
-[[}]]

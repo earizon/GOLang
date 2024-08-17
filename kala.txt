@@ -1,6 +1,6 @@
-Kala
-* low ocde job scheduler
-* written in Go.
+# Kala Job Scheduler
+* low code job scheduler
+* written in Go, but multiplatform.
 * Features:
   * Single binary
   * JSON over HTTP API
@@ -16,10 +16,13 @@ Kala
 * Inspired by (Airbnb) Chronos. Chronos adds fault tolerance,
   distributed features, massive scale.
 
-## Instaling:
-   $ go get github.com/ajvb/kala
+* Instaling:
+  ```
+  | $ go get github.com/ajvb/kala
+  ```
 
-## Running:
+* Running:
+  ```
    $ kala serve \        <··· Start kala listening on port 2222 (def. 8000)
        -p 2222                - To use jobdb DDBB (default)
                                 --jobdb=boltdb --boltpath=/path/to/dir
@@ -39,37 +42,41 @@ Kala
        "CreatedAt": "2015-06-03T19:58:21.433668791-07:00"
      }
    }
+  ```
 
 ## Kala official go client [[{]]
-@[https://pkg.go.dev/github.com/ajvb/kala/client]
 
-kala := New("http://127.0.0.1:8000")
-body := &job.Job{ // https://pkg.go.dev/github.com/ajvb/kala/job#Job
-    Schedule: "R2/2015-06-04T19:25:16.828696-07:00/PT10S",
-    Name:      "test_job",
-    Command:  "bash -c 'date'",
-}
-id, err     := kala.CreateJob(body)
-ok, err     := kala.DeleteAllJobs()
-ok, err     := kala.DeleteJob(id)
-ok, err     := kala.DisableJob(id)
-ok, err     := kala.EnableJob(id)
-jobs, err   := kala.GetAllJobs()
-job, err    := kala.GetJob(id)
-stats, err  := kala.GetJobStats(id)
-stats, err  := kala.GetKalaStats()
-ok, err     := kala.StartJob(id)
+* <https://pkg.go.dev/github.com/ajvb/kala/client>
+  ```
+  | kala := New("http://127.0.0.1:8000")
+  | body := &job.Job{ // https://pkg.go.dev/github.com/ajvb/kala/job#Job
+  |     Schedule: "R2/2015-06-04T19:25:16.828696-07:00/PT10S",
+  |     Name:      "test_job",
+  |     Command:  "bash -c 'date'",
+  | }
+  | id, err     := kala.CreateJob(body)
+  | ok, err     := kala.DeleteAllJobs()
+  | ok, err     := kala.DeleteJob(id)
+  | ok, err     := kala.DisableJob(id)
+  | ok, err     := kala.EnableJob(id)
+  | jobs, err   := kala.GetAllJobs()
+  | job, err    := kala.GetJob(id)
+  | stats, err  := kala.GetJobStats(id)
+  | stats, err  := kala.GetKalaStats()
+  | ok, err     := kala.StartJob(id)
+  ```
 [[}]]
 
 
-### Things to Note:
+* Things to Note
+  * If schedule is omitted, the job will run immediately.
 
-* If schedule is omitted, the job will run immediately.
+## Job JSON Example
 
-### Job JSON Example:
 * Dates and time use ISO 8601 Notation
 * Only "name" and "command" fields are required.
   Omitting the Schedule field will run the job immediately.
+```
   {
     "name":"test_job",
     "id":"93b65499-b211-49ce-57e0-19e735cc5abd",
@@ -114,9 +121,11 @@ ok, err     := kala.StartJob(id)
                                  15S - Fifteen seconds
                                  "advanced" example:
                                  P1Y2M10DT2H30M15S
+```
 
-## KALA REST API:
+## KALA REST API
 
+  ```
   TASK             METHOD  ROUTE
   ---------------  ------  -------------------------
   Creating a Job   POST    /api/v1/job/
@@ -130,9 +139,11 @@ ok, err     := kala.StartJob(id)
   Enable  Job      POST    /api/v1/job/enable/{id}/
   Get app-level    GET     /api/v1/stats/
      metrics
+```
 
 ### Examples:
 
+  ```
   $ curl ${KALA_URL}/api/v1/job/
   {"jobs":{}}
 
@@ -199,16 +210,20 @@ ok, err     := kala.StartJob(id)
       "CreatedAt": "2017-06-03T19:58:21.433668791-07:00"
     }
   }
+  ```
 
 ### Debugging Jobs
 
-$ kala run "bash /var/lib/script.sh"
-FATA[0000] Command Failed with err: exit status 1
+  ```
+  | $ kala run "bash /var/lib/script.sh"
+  | FATA[0000] Command Failed with err: exit status 1
+  ```
 
 * `kala run` run jobs "live", and shows the response on whether it was
   successful or not
 
 ### Dependent Jobs
+
 * Dependent jobs follow a First-In-First-Out rule
 * child will wait until parent job finishes.
 * child will not run if its parent job does not.

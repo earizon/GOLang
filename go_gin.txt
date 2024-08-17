@@ -1,0 +1,38 @@
+# go-gin [[{01_PM.low_code,IO.http,arch.distributed,arch.mobile,01_PM.TODO]]
+* HTTP web framework featuring Martini-like API but up to 40x faster.
+* key features:
+  * Zero allocation router
+  * Fast
+  * Middleware support
+  * Crash-free
+  * JSON validation
+  * Routes grouping
+  * Error management
+  * Rendering built-in
+  * Extendable: <https://github.com/orgs/gin-contrib/repositories>
+    sessions : Gin middleware for session management
+    pprof    : Gin pprof middleware
+    location : Gin expose server's hostname and scheme
+    cache    : Gin middleware/handler to enable Cache
+    sse      : Forked, Server-Sent Events implementation in Go
+               HTML5 standard way to send automatic updates to a browser from a server
+               via HTTP connection.
+    secure   :
+    i18n     : Gin i18n middleware
+    logger   : Gin middleware to logger url path using rs/zerolog
+    static   : Static middleware
+    authz    : authorization middleware
+    timeout  :
+    cors     :
+    opengintracing: trace requests using opentracing specification
+    gzip     : enable GZIP support
+    multitemplate: custom HTML render
+    zap      : Alternative logging through zap
+    requestid: Request ID middleware for Gin Framework
+    httpsign : (RSA/HMAC) HTTP Messages signature support.
+    size     : Limit size of POST requests for Gin framework
+    expvar   : expvar handler provides a standardized interface to public variables.
+    rollbar  : integrate with rollbar error monitoring.
+    sentry   : integrate with sentry crash reporting.
+    graceful : allows to restart and/or switch gin engine WITHOUT DROPPING EXISTING CONNS
+[[}]]

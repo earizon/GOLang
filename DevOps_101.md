@@ -1,0 +1,421 @@
+# DevOps 101 [[{devops.101]]
+
+## Packages
+
+* Basic unit of code-reuse, code-compilation (go build) and code-documentation (godoc)
+  RESIDING IN A GIVEN FOLDER.
+  ```
+  |            ┌····················· RULE OF THUMB: a different folder is a different package
+  |        ┌───┴───┐
+  |cat .../packageN/packageN.go  <··· packageN.go name is recomended(NOT MANDATORY).
+  |                                   Use "packageN.go" for "main" file inside packageN/
+  |package "packageN"
+  |cat  .../packageN/utils.go    <··· To go compiler packageN.go and utils.go are part of the
+  |package "packageN"                 same source code package. Spliting into files makes no
+  |        └────┬───┘                 different to putting it all in a same "big" *go file.
+  |             ·                     UpperCase types and functions are "exported" (visible
+  |             ·                     outside the package), anything else is internal.
+  |             ·
+  |  the name "packageN" is arbitrary, and must NOT
+  |  necesarely match the parent directory (but it's recommended)
+  |  EXCEPT for go files containing entry functions to build
+  |  RUNNABLE PROGRAMS. In that case we must declare them as
+  |  package "main"
+  |  By default "go build" will also create an executable with
+  |  name "package" (the name of the containing directory
+  |  Any NON-MAIN package is considered a "library" in conventional
+  |  languages (They are NOT called 'libraries' since they are
+  |  statically linked to the final executable and there is not
+  |  concept of C/C++ library loader (ldd).
+  |  Reminder: All Go source code is linked at compile-time.
+  |            Only when linking against C/C++ libraries dyn.link is used.
+  |           `$ ldd main` will output "not a dynamic executable"
+  ```
+* Packages form a unit of reusable code to external packages.
+
+* KEY-POINT: build small and reusable packages  [[{QA.best_patterns}]]
+
+## Modules (v1.13+) [[{devops.101.modules]]
+
+* <https://golangbyexample.com/package-vs-module-golang/>
+* <https://golang.org/ref/mod>
+* A collection of packages can now be called as module when
+  there is a requirement to version them separately or
+  a common piece of code to be shred across multiple projects.
+  ```
+  |  BEFORE MODULES (packages only)        │    AFTER MODULES
+  |────────────────────────────────────────┼───────────────────────────────────────
+  |                                        │
+  |  |package|     <·······················│·> |module|1 <···> N|package|
+  |   ^^^^^^^                              │    ^^^^^^^
+  |   collection src files IN THE SAME     │    set of packages released+versioned
+  |   DIRECTORY compiled together.         │    +distributed together
+  |   package path == module path + subdir.│
+  |                                        │
+  |  - No native dependency management <·····> go.mod, go.sum
+  |    or method to specify project        │   (precise dependencies version
+  |    dependencies                        │    Updates without breaking anything).
+  |    "Patchy"(non-native) solution used  │
+  |    ("dep","glide")                     │
+  |                                        │
+  |  $GOPATH/bin/  <·························> $GOPATH/bin/
+  |                                        │
+  |  $GOPATH/src/  <·························> Not required anymore
+  |         └─┬─┘                          │
+  |   All src code must be placed here     │
+  |                                        │
+  |                                        │
+  |  External pkgs downloaded to: <··········> External modules downloaded to:
+  |    $GOPATH/pkg/                            $GOPATH/pkg/mod/ (with versioning)
+  |           └─┬─┘                        │   $GOPATH/pkg/mod/cache
+  |             │                          │                   └─┬─┘
+  |  Download route with NO versioning!!   │               download-cache
+  |  $ go get github.com/pborman/uuid      │             + zipped-code
+  |  will download package to              │
+  |  $GOPATH/src/github.com/pborman/uuid   │
+  |  latest version always used!!!         │
+  |  - No version in downloaded path !!!   │
+  |  - Updates overwrite current vers!!!   │
+  |────────────────────────────────────────┴───────────────────────────────────────
+
+  |$ export GOPATH=$(go env GOPATH)
+  |$ export DIR="$GOPATH/github.com/user/project
+  |$ mkdir $DIR ; cd $DIR        # <··· Make sure project is inside $GOPATH
+  |$ go mod init                 # <··· Initialize new ./go.mod
+  |                                     (file designed to to be human readable
+  |                                      and machine writable).
+  |$ cat ./go.mod
+  |  │ module github.com/user/project <·· module path indentifies de module
+  |  │                                    It should describe what the module does & where to find it.
+  |  │
+  |  │ go 1.14 <························· go version used to create the module
+  |
+  | In general
+  |
+  | golang.org/x/net/v2/go.mod <·· module path with version
+  |                 └──┴··········· major version suffix (only v2 or higher).
+  |                                 the v2/ path is only needed in MONOREPOS
+  |                                 with a relation MONOREPO 1<···>N modules
+  |                                 In monorepos we can just "tag" commits with
+  |                                 sem.ver tags
+  | └──────────────┴─   (ussually matching root-dir or subdir of git repo)
+  ```
+
+## Module versioning
+
+* version identifies an IMMUTABLE SNAPSHOT of a module, which may be
+  either a RELEASE or A PRE-RELEASE.
+  ```
+  major.minor.patch-${pre_release}+${build_metadata_string}
+  ^   ^ ^   ^ ^   ^^             ^└──────────┬────────────┘
+  ·   · ·   · ·   ··             · - optional (eg: +meta, ...)
+  ·   · ·   · ·   ··             · - ignored by VCS, preserved in go.mod.
+  ·   · ·   · ·   ·└─────────────┴─··optional (eg:-pre-release,-alpha.1,-beta.2)
+  ·   · ·   · ·   ·                  If not set, go tools default to release.
+  ·   · ·   · ·   ·                  As with v0, no backwards compatibility guarantee exists
+  ·   · ·   · └───┴─··· increase after bug-fix.
+  ·   · └───┴─··· increase after compatible (feature) update (reset patch)
+  └───┴─··· increase after incompatible update (reset minor/patch)
+            Use v0 for unstable version (not subject to compatibility requirements)
+  ```
+
+  ```
+  $ go mod edit \              # <··· Fix problem when working with local code.
+    replace=mycomp.com/mymoduleA@v0.0.0-unpublished=../mymoduleA
+    └────────────────────────────┬─────────────────────────────┘
+    A line similar to next one will be added to go.mod:
+   + replace mycomp.com/mymoduleA v0.0.0-unpublished => ../mymoduleA
+
+  go.mod
+  ...
+  exclude (
+      golang.org/x/crypto v1.4.5  <···· exclude dependency traking
+      golang.org/x/text v1.6.7
+  )
+  ...
+  replace (
+      golang.org/x/net v1.2.3 => example.com/fork/net v1.4.5
+      golang.org/x/net => example.com/fork/net v1.4.5
+      golang.org/x/net v1.2.3 => ./fork/net
+      golang.org/x/net => ./fork/net
+  )
+  ```
+
+  ```
+  $ editor ./uuid.go
+  | package main
+  |
+  | import (
+  |   "fmt"
+  |   ...
+  |   "github.com/pborman/uuid"  ←··· transitive external dependency
+  | )
+  |
+  | func main() { ...  }
+  | ...
+  ```
+
+  ```
+  |$ go mod tidy  # <··· 1. Download all required dependencies
+  |                         by inspecting imports in *.go source files.
+  |                      2. Update ./go.mod
+  |$ cat ./go.mod
+  |  module github.com/user/project           <·· path used to import this module
+  |                                               (code in modules nows supports
+  |  go 1.14                                       dependency tracking)
+  |  require (
+  |    github.com/xxx/modA v1.2.1             <·· tagged in repo release.     Fully tested and ready to use.
+  |    github.com/xxx/modB v1.2.1-beta.1      <·· tagged in repo pre-release. "Future in test release.
+  | 
+  |    github.com/xxx/modC v0.0.0-2018-af0... <·· commit pseudo-version. No stability or well-defined API
+  |                                               must be assumed by consumers.
+  |                                               Remember. go tooling default behaviour:
+  |                                               module ...                     def. dependency resolution
+  |                                               -----------------------------  ------------------------------
+  |                                               ...does not have any release  => latest commit  picked
+  |                                               ...does     have     releases => latest release picked
+  |                                                                                └──┬─┘
+  |                                                                       latest == greatest semantic actually
+  |    github.com/xxx/yyy v1.2.3 // indirect  <·· transitive dependency
+  |    ...
+  |  )
+  ```
+
+## Module release ("publish") KEY-POINTS:
+
+* Once we start tagging behaviour changes and we need to we need to keep tagging.
+   Untagged commits will be ignored by go tools unless the explicit pseudo-version is used.
+* Do not delete version tags, release new versions with new tags.
+  Otherwise builds depending on such version will fail.
+* Do not change or overwrite a version. Checksums will fail.
+
+## Module release checks:
+
+  ```
+  |$ go mod tidy            # remove any dependencies no longer necessary.
+  |$ go test ./...          # make sure "everything" (or at least tests) is working.
+  |$ git add A.go A_test.go
+  |$ git add go.mod go.sum  # Add go.mod, go.sum to release commit
+  |$ git commit -m "..."
+  |$ git tag v0.1.0         # tag release commit following semantic versioning
+  |$ git push origin v0.1.0 # "publish" to git.
+  |$ go list \              # Double-check that version is available in repo.
+  |  -m github.com/XX@v0.1.0
+  ```
+
+AT THIS POINT OTHER PROJECTS CAN DEPEND ON OUR MODULE AT VERSION V0.1.0.
+
+## GOPROXY (Default in Go 1.13+)
+
+* REF <https://go.dev/doc/modules/managing-dependencies>
+* GOPROXY can modify the download behaviour of go get/install/list ...
+* By default packages are donwloaded from the default GOPROXY route:
+  GOPROXY="https://proxy.golang.org,direct"   # <·· default config. Download from Google.
+                                                    fallback to (github/others) repository.
+  The proxy (by default Google-run proxy.golang.org) also         [[{qa]]
+  checks against mutability of packages (the author changes the
+  original code keeping the same version).                        [[}]]
+
+* To customize using first myCustomProxy.com:
+  export GOPROXY="https://myCustomProxy.com,https://proxy.golang.org,direct"
+* To skip checksums for private modules (local development):
+  * Alt 1, GOPRIVATE: bypass GOPROXY and GOSUMDB. (preferred)
+    $ export GOPROXY=https://proxy.golang.org,direct    ← for public  repos
+    $ export GOPRIVATE=*.internal.mycompany.com         ← for private repos
+                                                          bypass GOPROXY and GOSUMDB
+
+    WARN : It also ensures that private module repositories are not "leaked" [[{security.101]]
+    through requests to a public GOPROXY server.                             [[}]]
+  * Alt 2, GONOSUMDB:  including refs to private modules.
+    It allows Go client to resolve both public and private mod. dependencies,
+    it doesn’t enforce immutability or availability requirements for
+    private modules.
+  * Alt 3, private GOPROXY: Used to store both public and private modules
+    in on your own infrastructure:
+    · Public  modules cached by proxying a public GOPROXY.
+    · Private modules cached by proxying from their VCS repos.
+    e.g. using Artifactory (Enterprise Universal -go modules, npm packages,
+         helm charts,...- Repository Manager)
+    $ export GOPROXY="https://:@my.artifactory.server/artifactory/api/go/go
+    $ export GONOSUMDB="github.com/mycompany/*,github.com/mypersonal/*"
+  * Alt 4 GONOPROXY
+[[devops.101.modules}]]
+
+* <https://github.com/tldr-pages/tldr/blob/master/pages/common/go*.md>
+
+  ```
+  |$ go get \                    <·· Add/update/adjust dependencies in go.mod
+  |  github.com/user/uuid@v1.2 #       for dependency-tracking.
+  |                      └─┬─┘       - NEW BEHAVIOUR (modules go v1.13+)
+  |                        ·           1. Download to $GOPATH/pkg/mod/
+  |                        ·              directly from potentially mutable sources
+  |                        ·              or through saferGOPROXY
+  |                        ·              use '$ go install' to install
+  |                        ·         - OLD BEHAVIOUR (export GO111MODULE=off):
+  |                        ·           1. download src to $GOPATH/src/github.com/user/uuid
+  |                        ·           2. build
+  |                        ·           3. install  bin to $GOPATH/bin
+  |                        └········ Version is optional. Defaults to latest
+  |                                  Can be used to upgrade and downgrade.
+  |                                  - A commit-hash or a branch can also be used to
+  |                                    fetch a given commit.
+  |                                  - @none can be used to stop tracking the dependency.
+  |                                    (any other dependency dependent of this dependency
+  |                                     will be downgraded to a version not dependent on it)
+  |
+  |$ go list -m -u all         # <·· discover update: list of already tracked   [[{qa.101,qa.troubleshooting]]
+  |                                  dependencies dumping local  current version
+  |                                  and any newer version available remotely.
+  |                                  -m : list modules (vs packages)
+  |                                  -u : (v 1.17+) add information about available upgrades.
+  |                                  all: check for all dependencies in go.mod
+  |                                       (or just github.com/... for a particular one)
+  |                                  (opt) -json: render output as json
+  |                                  NOTE: It can takes about 1 minute while querying
+  |                                  remote services.
+  |$ go mod tidy               # <·· Add missing and remove unused dependencies
+  |                                  to go.mod (update dependency tracking)      [[}]]
+  |
+  |$ go vet                    # <·· examines src code, reporting suspicious constructs [[{qa.101]]
+  |                                  such as Printf calls whose arguments do not align
+  |                                  with the format string.                            [[}]]
+  |
+  |$ go list std               # <·· List standard packages
+  |
+  |$ go run file.go            # <·· Compile+run file.go
+  |         └─────┴··················> + package main  # 'main' package is mandatory
+  |                                      ...
+  |                                    + func main() {..} # fun. main is mandatory
+  |
+  |$ go install                # <··     compile+install current package
+  |$ go install github.com/... # <·· get+compile+install
+  |
+  |$ go bug                     ← Open web page to start bug-report           [QA]
+  |                               https://golang.org/cmd/go/#hdr-Start_a_bug_report.
+  ```
+
+## go env 
+  ```
+  |$ go env ...                ← Manage env.vars used by the Go toolchain.
+  |                            <https://golang.org/cmd/go/#hdr-Print_Go_environment_information>
+  |
+  |$ go env                    ← Show all environment variables
+  |$ go env {{GOPATH}}         ← Show a specific environment variable
+  |$ go env -w{{GOBIN}}=dir    ← Set an environment variable
+  |$ go env -u{{GOBIN}}        ← Reset an environment variable's value
+  ```
+
+## Compiling, building, doc gen, 
+
+* REF: <https://golang.org/cmd/go/#hdr-Compile_packages_and_dependencies>
+
+  ```
+  |$ go build path_to_main.go  ← Compile file
+  |   -o path/bin_exec           ← Optional
+  |$ go build        \        <·· Compile full package
+  |     -race flag   \            <· (opt) Add data race detection [qa]
+  |     -race        \            <· (opt) enable data race detection.
+  |     -msan        \            <· (opt) enable interoperation with memory sanitizer.
+  |     -asan        \            <· (opt) enable interoperation with address sanitizer.
+  |     -v           \            <· (opt) print the names of packages as they are compiled.
+  |     -work        \            <· (opt) print  temporary work dir and do NOT rm it on exit.
+  |     path_to_package
+  |
+  |$ go clean -n               ← Remove object files and cached files.
+  |                            <https://golang.org/cmd/go/#hdr-Remove_object_files_and_cached_files>
+  |                              -n : Print remove commands, do NOT remove anything.
+  |$ go clean -cache           ← Delete build cache
+  |$ go clean -testcache       ← Delete all cached test results
+  |$ go clean -modcache        ← Delete the module cache:
+  |                              WARN!!!: This deletes everything inside ${GOPATH}/go/pkg/mod/cache
+  |                              shared by any module (not just the cache for modules realted to the
+  |                              one we are working on, requiring potentially expensive downloads )
+  |
+  |$ go doc ...                ← Show documentation for a package | symbol.
+  |                             <https://golang.org/cmd/go/#hdr-Show_documentation_for_package_or_symbol>
+  |
+  |$ go doc                    ← Show documentation for current package
+  |$ go doc {{encoding/json}}  ← Show package doc. and exported symbols
+  |                              -all flag: Show also doc. for symbols
+  |                              -src flag: Show also sources
+  |$ go doc -all -src \        ← Show a specific symbol.
+  |         {{encoding/json.Number}}
+  |
+  |$ godoc -http=:6060         ← Serv. doc for go packages on port 6060.
+  |$ godoc fmt                 ← Display help for package "fmt"
+  |$ godoc fmt Printf          ← Display help for the func. "Printf" of "fmt" package
+  |$ godoc -write_index \      ← Create index file
+  |    -index_files=.../file
+  |$  godoc -http=:6060 \      ← Use the given index file to search the docs
+  |    -index \
+  |    -index_files=.../file
+  |
+  |$ go fix {{packages}}       ← Update packages to use new APIs.          [qa]
+  |                            <https://golang.org/cmd/go/#hdr-Update_packages_to_use_new_APIs>
+  |
+  |$ go generate               ← Generate Go files by running commands     [low_code]
+  |                              within source files.
+  |                            <https://golang.org/cmd/go/#hdr-Generate_Go_files_by_processing_source>
+  |$ go mod ...                ← Module maintenance
+  |                            <https://golang.org/cmd/go/#hdr-Module_maintenance>
+  |$ go mod init $modName      ← Initialize new module in current directory
+  |$ go mod download           ← Download modules to local cache
+  |$ go mod verify             ← Verify dependencies have expected content
+  |$ go mod vendor             ← Copy sources of all dependencies into the vendor directory
+  |
+  |                            <https://blog.gopheracademy.com/advent-2015/vendor-folder/>
+  |
+  |$ go test ...               ← Tests Go packages ending with _test.go.
+  |                            <https://golang.org/cmd/go/#hdr-Testing_flags>
+  |$ go test -v -bench         ← Test package found in current directory
+  |                              - v     flag (Optional): Verbosely
+  |                              - bench flag (Optional): Run all benchmarks
+  |                                Use flag similar to -benchtime 50s to restrict
+  |                                benchmark run to 50 secs.
+  |$ go test -v ./...          ← Test packages in current dir +  all subdirs ("...")
+  |
+  |$ gofmt                     ← Tool for formatting Go source code.
+  |                            <https://golang.org/cmd/gofmt/>
+  |$ gofmt source.go           ← Format file to STDOUT (-w to overwrite)
+  |$ gofmt -s source.go        ← Format file, then simplify the code, write result to
+  |                              STDOU (-w to overwrite)
+  |$ gofmt -e source.go        ← Print all (including spurious) errors
+  |
+  |$ goimports ...             Updates Go import lines, add missing, removing unreferenced
+  |                          <https://godoc.org/golang.org/x/tools/cmd/goimports>
+  |$ goimports file.go         ← Display results to STDOUT (-w to overwrite)
+  |$ goimports --d file.go     ← Display diffs to STDOUT (-w to overwrite input)
+  |$ goimports -local \        ← Set the import prefix string after 3rd-party packages
+  |  package_path file.go        (comma-separated list)
+  ```
+
+## gops (list and diagnoes go processes)
+  ```
+  |$ gops ...                  CLI tool which lists and diagnoses Go processes currently
+  |                            running on your system.
+  |                          <https://github.com/google/gops>
+  |$ gops                      ← Print all go processes running locally
+  |$ gops $PID                 ← Print more information about a process
+  |$ gops tree                 ← Display process tree
+  |$ gops stack $pid|$addr     ← Print current stack trace from a target program
+  |$ gops memstats $pid|addr   ← Print current runtime memory statistics
+  ```
+ 
+## goreaload (live reload) 
+  ```
+  |$ goreload                  Live reload utility
+  |                          <https://github.com/acoshift/goreload>
+  |$ goreload -b bin_path \    ← Set the name of binary file to watch (defaults to .goreload)
+  |  file.go
+  |$ goreload --logPrefix \    ← Set custom log prefix (defaults to goreload)
+  |  $prefix file.go
+  |$ goreload --all            ← Reload whenever any file changes
+  ```
+[[devops.101}]]
+
+# health-go (SLA) [[{qa.SLA,devops]]
+<https://github.com/hellofresh/health-go>
+- Expose HTTP handler retrieving health-status of the application
+- Implements some generic checkers for the following services
+  [RabbitMQ,PostgreSQL,Redis,HTTP,MongoDB,MySQL,gRPC,Memcached,InfluxDB]
+[[}]]

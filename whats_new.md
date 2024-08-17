@@ -1,0 +1,121 @@
+# What's new [[{01_PM.WHATS_NEW]]
+* <https://golang.org/doc/devel/release>
+## go1.19 (released 2021-08-16) <https://go.dev/doc/go0.19>
+## go1.18 (released 2021-08-16) <https://go.dev/doc/go0.18>
+* Introduction of Generics.
+## go1.17 (released 2021-08-16) <https://go.dev/doc/go1.17>
+* []T (slice) may now be converted to *[N]T (array pointer type).
+  WARN: first case in which a type conversion can panic at run time.
+  * unsafe.Add(ptr, len) returns updated pointer unsafe:
+    Pointer(uintptr(ptr) + uintptr(len)).
+  * unsafe.Slice(ptr/* type *T */, len) returns a slice of type []T
+    whose underlying array starts at ptr and whose length and capacity are len.
+
+* go Tool:
+  · removed transitive deps graphs in modules. A module specifying
+    go 1.17+ will contains an explicit 'require' directive.
+    $ go mod tidy -go=1.17      <- new '-go' flag to help porting to new version
+    $ go mod tidy -compat=1.17  <- allows support for older (or only newer) ver.
+
+  · // Deprecated: Module deprecation comments in go.mod.
+    $ go get ← now prints a warning if a module needed to build packages
+               named on the command line is deprecated.
+    $ go list -m -u prints deprecations for all dependencies
+                 use -f | -json to show the full message
+    NOTE: 'go' command considers different major versions to be distinct
+          → This mechanism may be used, to provide users with migration
+            instructions for a new major version.
+
+* go get
+  · go get -insecure flag removed.
+  · go get prints a deprecation warning when installing commands outside the
+    main module (without the -d flag).
+    go install cmd@version should be used instead to install a command at a
+                           specific version (@latest, @v1.2.3,...)
+
+* vendor contents
+  · go mod vendor now annotates vendor/modules.txt with the go version indicated
+                  by each vendored module in its own go.mod file.
+                  If main module specifies go 1.17+ it omits go.mod and go.sum
+                  files for vendored dependencies, which can otherwise interfere
+                  with the ability of the go command to identify the correct
+                  module root when invoked within the vendor tree.
+
+* go mod download invoked without arguments will no longer save sums for
+                  downloaded module content to go.sum.
+                  use '$ go mod download all ' to save sums for all modules.
+
+* prefers //go:build lines over // +build
+
+* go run example.com/cmd@v1.0.0 // new support for version suffix
+
+* 'vet' tool now warns about calls to signal.Notify with incoming signals [[{qa]]
+  being sent to an unbuffered channel. Using an unbuffered channel risks
+  missing signals sent on them as signal.
+  Notify does NOT block when sending to a channel. For example:
+  c := make(chan os.Signal)
+  // signals sent on c before channel is read from.
+  // This signal may be dropped as c is unbuffered.
+  signal.Notify(c, os.Interrupt)                                         [[}]]
+
+* 'vet' tool now warns about methods named As, Is or Unwrap on types
+  implementing the error interface that have a different signature than
+  the one expected by the errors package.
+* improved format of stack traces
+* Functions containing closures can now be inlined.
+
+## go1.16 (released 2021-02-16) <https://golang.org/doc/go1.16>
+
+* moudles-aware mode enabled regardless of go.mod being present.
+* go command supports including static files|file trees as part
+  of the final executable.
+* new runtime/metrics package introduces stable interface for        [[{troubleshooting.profiling]]
+  reading implementation-defined metrics from the Go runtime.
+   It supersedes functions like runtime.ReadMemStats, debug.GCStats
+  and is significantly more general and efficient.                   [[}]]
+
+## go1.15 (released 2020-08-11) <https://golang.org/doc/go1.15>
+
+* Core lib: new  time/tzdata package allowing to embed timezone
+  database into a program touse even when timezone ddbb is not
+  available in local system. It increases program size by ~800KB.
+• go1.14 (released 2020-02-25) <https://golang.org/doc/go1.14>       [[{101,qa.error_control]]
+* performance improvement of most uses of "defer" to incur
+  almost zero overhead compared to calling the deferred
+  function directly. As a result, "defer" can now be used in
+  performance-critical code without overhead concerns.              [[}]]
+* `-d=checkptr` compile-time option for adding instrumentation
+  to check that Go code is following unsafe.Pointer safety
+  rules dynamically. This option is enabled by default
+  (except on Windows) with the -race or -msan flags.  It checks:
+* crypto/x509: Certificate.CreateCRL now supports Ed25519 issuers. [cryptography]
+
+## go1.13 (released 2019-09-03) <https://golang.org/doc/go1.13>
+
+* 1st stable version with Module support.
+## go1.12 (released 2019-02-25) <https://golang.org/doc/go1.12>
+
+## go1.11 (released 2018-08-24) <https://golang.org/doc/go1.11>
+
+## go1.10 (released 2018-02-16) <https://golang.org/doc/go1.10>
+
+## go1.9  (released 2017-08-24) <https://golang.org/doc/go1.9>
+
+## go1.8  (released 2017-02-16) <https://golang.org/doc/go1.8>
+
+## go1.7  (released 2016-08-15) <https://golang.org/doc/go1.7>
+
+## go1.6  (released 2016-02-17) <https://golang.org/doc/go1.6>
+
+## go1.5  (released 2015-08-19) <https://golang.org/doc/go1.5>
+
+## go1.4  (released 2014-12-10) <https://golang.org/doc/go1.4>
+
+## go1.3  (released 2014-06-18) <https://golang.org/doc/go1.3>
+
+## go1.2  (released 2013-12-01) <https://golang.org/doc/go1.2>
+
+## go1.1  (released 2013-05-13) <https://golang.org/doc/go1.1>
+
+## go1    (released 2012-03-28) <https://golang.org/doc/go1>
+[[}]]
