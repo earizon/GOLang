@@ -217,32 +217,34 @@
 
 ## Simple HTTP client/server [[{io.http]]
   • HTTP Simple client <https://gobyexample.com/http-clients>
-
-    package main                              ← Exec like   $ go run http-clients.go
-
-    import ( "bufio" "fmt" "net/http" )
-
-    func main() {
-      resp, err :=
-         http.Get("http://....")              ←  convenient shortcut around
-      if err != nil {                            creating http.Client instance
-          panic(err)                             , then calling its Get method
-      }                                           using http.DefaultClient with
-                                                  sensible default settings
-
-      defer resp.Body.Close()                 ←  Close I/O resource on defer.
-
-      fmt.Println("Res.Status:", resp.Status)
-
-      scanner := bufio.NewScanner(resp.Body)
-      for i:= 0; scanner.Scan() && i<5; i++ { ← Print first 5-lines of the
-        fmt.Println(scanner.Text())             res.body.
-      }
-
-      if err := scanner.Err(); err != nil {
-          panic(err)
-      }
-    }
+  ```
+  | package main               // Exec like $ go run http-clients.go
+  |
+  | import ( "bufio" "fmt" "net/http" )
+  |
+  | func main() {
+  |   resp, err :=
+  |      http.Get("http://....") //< convenient shortcut around
+  |   if err != nil {            //  creating http.Client instance
+  |       panic(err)             //  , then calling its Get method
+  |   }                          //   using http.DefaultClient with
+  |                              //   sensible default settings
+  |
+  |   defer resp.Body.Close()    //< Close I/O resource on defer.
+  |
+  |   fmt.Println("Res.Status:", resp.Status)
+  |
+  |   scanner := bufio.NewScanner(resp.Body)
+  |   for i:= 0; scanner.Scan() && i<5; i++  // ← Print lines 1-5
+  |   {                                      //   of res.body
+  |     fmt.Println(scanner.Text())
+  |   }
+  |
+  |   if err := scanner.Err(); err != nil {
+  |       panic(err)
+  |   }
+  | }
+  ```
 
   • HTTP Simple server <https://gobyexample.com/http-servers>
     import ( "fmt" "net/http" )

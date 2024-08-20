@@ -1,13 +1,24 @@
 # OK
 notes.txt
-functional_Samber_lo.md
+IO.txt
+functional_Samber_lo.txt
 cheat_sheet.txt # TODO: clean
+qa_testing.txt
+DevOps_101.txt
+devops_viper.txt
+persistence_sqlboiler.txt
+persistence_ent_ORM.txt
+persistence_gojet.txt
+persistence_sqlc.txt
+persistence_sql_gorm.txt
+persistence_squirrel.txt
 vim_plugin.txt
 kala.txt
+go_gin.txt
+goxygen.txt
+go_zero.txt
 go_ref_mod.txt # TODO: summarize
+graphql_server.txt
 TODO.txt
-
-
-# tags.txt
-# tmp_chi_godoc.txt
+whats_new.txt
 
