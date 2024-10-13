@@ -1,4 +1,4 @@
-# Viper (App Config) [[{devops.configuration.viper,architecture.distributed.12factor,01_PM.low_code]]
+# Viper (App Config) [[{devops.configuration.viper,arch.distributed.12factor,PM.low_code]]
 
 * Low code application configuration library.
 * Features support:

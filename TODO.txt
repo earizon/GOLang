@@ -1,108 +1,123 @@
+[[{PM.TODO]]
 # Non Classified / TODO
 [[{101]]
 
-## make Go scripts shell friendly [[{devops,qa,01_PM.low_code]]
-<https://www.infoq.com/news/2020/03/go-protobuf-apiv2/>
+[[{devops.sh,qa,01_PM.low_code]]
+## make Go scripts shell friendly 
+
+* <https://www.infoq.com/news/2020/03/go-protobuf-apiv2/>
 * To make Go scripts well-behaved citizens among shell scripts,
   Codenation engineers use a number of useful Go packages, including:
-
   * <https://github.com/fatih/color"> colorize Go output
   * <https://github.com/schollz/progressbar>
-  * <https://github.com/jimlawless/whereami>:                       [qa]
-       capture info like filename, line number, function, etc.
-       where it is used, Useful to improve error messages.
-  * <https://github.com/spf13/cobra>                                [qa][low_code]
+  * <https://github.com/jimlawless/whereami>
+    capture info like filename, line number, function,
+    where it is used, ... Useful to improve error messages.  [[qa.error_control]]
+  * <https://github.com/spf13/cobra>
     make it easier to create complex scripts with input
-    processing, options, and related documentation.
-[[}]]
+    processing, options, and related documentation. [[qa.UX,PM.low_code]]
+[[devops.sh}]]
 
-## Shared GO Packages in MONOREPO: [[{01_PM.TODO}]]
-  <https://passage.id/post/shared-go-packages-in-a-monorepo>
+## Shared GO Packages in MONOREPO [[{01_PM.TODO}]]
+  
+* <https://passage.id/post/shared-go-packages-in-a-monorepo>
 
-## Writing a SQL database from scratch in Go: [[{01_PM.TODO}]]
-  <https://notes.eatonphil.com/database-basics-indexes.html>
+[[{01_PM.TODO]]
+## Writing a SQL database from scratch in Go
 
-## Readers and writers [[{io.101,01_PM.TODO]]
-   from  https://www.golang-book.com/public/pdf/gobook.0.pdf pag 138
-   many fuctions in go take readers and writers as arguments
-    (io:copy, ...)
-  func copy(dst writer, src reader)
-      (written int64, err error)
-  [[}]]
+* <https://notes.eatonphil.com/database-basics-indexes.html>
+[[01_PM.TODO}]]
+
+[[{io.101,01_PM.TODO]]
+## Readers and writers
+
+* from <https://www.golang-book.com/public/pdf/gobook.0.pdf> pag 138,
+
+  many fuctions in go take readers and writers as arguments
+  (io:copy, ...)
+  ```
+  | func copy(dst writer, src reader) (written int64, err error)
+  ```
+[[io.101}]]
 
 
-
-## Golang Builders and Visitors decorators: [[{101]]
+[[{101]]
+## Golang Builders and Visitors decorators
 - Check Golang Builders and Visitors decorators pattern
 - visitor construct: used to iterate across all the resources.
-[[}]]
+[[101}]]
 
-## Writing an cli API Wrapper in Golang  101 [[{]]
-  https://dzone.com/articles/writing-an-api-wrapper-in-golang
+[[{101]]
+## Writing an cli API Wrapper in Golang 
+
+* <https://dzone.com/articles/writing-an-api-wrapper-in-golang>
+
   by Nicolas Modrzyk
-1)Create a tests.
-  - helper_test.go: skeleton test for a PrepareLogin function saving id/pass in an edn file
-                    compatible with the jquants-api-jvm format.
-  - retrieve the refresh token
-  - use ID token to retrieve daily values
-2)code:
-3)Publish wrapper to GitHub
+1. Create a tests.
+   - helper_test.go: skeleton test for a PrepareLogin function 
+     saving id/pass in an edn file
+     compatible with the jquants-api-jvm format.
+   - retrieve the refresh token
+   - use ID token to retrieve daily values
+2. code
+3. Publish wrapper to GitHub
 [[}]]
 
-## vendor folder: [[{devops]]
-<https://blog.gopheracademy.com/advent-2015/vendor-folder/>
+[[{devops.vendor_folder,doc_has.comparative]]
+## vendor folder 
 
-* Introduced in go 1.5,   deprecated with go modules (go 1.14)
-  See warning at https://github.com/kardianos/govendor:
-  """
-    Use Go modules
-    Go modules Work well now. ...
-    Please don't use this tool anymore.
-    Please use Go modules.
-  """
+* <https://blog.gopheracademy.com/advent-2015/vendor-folder/>
+
+* Introduced in go 1.5, deprecated with go modules (go 1.14)
+  See warning at <https://github.com/kardianos/govendor>
+  ```
+  | Use Go modules
+  | Go modules Work well now. ...
+  | Please don't use this tool anymore.
+  | Please use Go modules.
+  ```
+
 * go 1.14+: automatic vendoring may be enabled.
   If vendor/modules.txt is present and consistent with go.mod,
   there is no need to explicitly use the -mod=vendor flag.
 
-
-
-## PROBLEM: Go program depending on many different sources:
+* PROBLEM: Go program depending on many different sources:
   - Only source's project is subject to their own source control.
   - To avoid breaking when dependent packages change / went away had to:
     there were many custom non-standard alternative like
     Copying dependent packages into project source tree, then
     rewriting imports!!!, custom-build GOPATH setups, ....
-
 * SOLUTION (before module support):
-  • vendor folder: (go 1.5+ - go 1.14)
-  • Packages must still reside in GOPATH but ...
+  - vendor folder: (go 1.5+ - go 1.14)
+  - Packages must still reside in GOPATH but ...
     if a package(or parent folder of a package) contains
     a folder named vendo  , then it will be searched for
     dependencies using the vendor folder as an import path root.
-  • Any package in the vendor folder will be found before the
+  - Any package in the vendor folder will be found before the
     standard library.
-  • Ex:
-   $GOPATH/src/github.com/kardianos/spider/main.go
-   package main                            ├ css_test.go
-                                           ├ main.go
-   import (                                └ vendor/      ← flat vendor layout.
-       ...                                   ├ github.com/
-       "github.com/andybalholm/cascadia" ···→│ ├ andybalholm/cascadia/
-       "github.com/tdewolff/parse/css" ···┐  │ │ └ parser.go, ...
-       "golang.org/x/net/html" ···┐       └···→└ tdewolff/parse/css
-   )                              ·          │   └ parse.go, ...
-   ...                            └········→ ├ golang.org/x/net/html/atom/...
-                                             └ vendor.json
-
-
+  - Ex:
+    ```
+    | $GOPATH/src/github.com/kardianos/spider/main.go
+    | package main                            ├ css_test.go
+    |                                         ├ main.go
+    | import (                                └ vendor/      ← flat vendor layout.
+    |     ...                                   ├ github.com/
+    |     "github.com/andybalholm/cascadia" ···→│ ├ andybalholm/cascadia/
+    |     "github.com/tdewolff/parse/css" ···┐  │ │ └ parser.go, ...
+    |     "golang.org/x/net/html" ···┐       └···→└ tdewolff/parse/css
+    | )                              ·          │   └ parse.go, ...
+    | ...                            └········→ ├ golang.org/x/net/html/atom/...
+    |                                           └ vendor.json
+    ```
 * SOLUTION (with modules support go 1.14+):
-<https://medium.com/@bnprashanth256/dependency-management-and-vendoring-in-go-golang-5ec6d6b7590e>
-
+* <https://medium.com/@bnprashanth256/dependency-management-and-vendoring-in-go-golang-5ec6d6b7590e>
+    ```
     $ go mod vendor       ← initialize vendoring module.
     $ touch go.sum
     $ mkdir vendor/       ← add vendor to .gitignore (generally not commited)
                             And vendor folder can be compared to a node_modules
                             folder and hence is not pushed to git.
+    ```
 
 ## TODO: Very well explained article about GOPATH, vendor/ and modules:!!!!!  @ma
 <https://medium.com/@adiach3nko/package-management-with-go-modules-the-pragmatic-guide-c831b4eaaf31>
@@ -153,7 +168,7 @@ maintenance, no background threads for compaction work.
 
                 [[}]]
 
-[[}]]
+[[devops.vendor}]]
 
 
 [[101}]]
@@ -333,15 +348,17 @@ https://github.com/tldr-pages/tldr/blob/master/pages/common/gox.md
 ## https://awesome-go.com/#database
 
 ## Google Makes it Easier to Create Go Applications on Google Cloud [[{cloud.GCP]]
-https://cloud.google.com/blog/products/application-development/simplifying-creation-of-go-applications-on-google-cloud
-https://www.infoq.com/news/2023/08/google-cloud-gonew-templates/
+
+* <https://cloud.google.com/blog/products/application-development/simplifying-creation-of-go-applications-on-google-cloud>
+* <https://www.infoq.com/news/2023/08/google-cloud-gonew-templates/>
 [[}]]
 
-## Rust-Written Borgo Language Brings Algebraic Data Types and More to Go - InfoQ
-https://www.infoq.com/news/2024/05/borgo-adds-types-to-go/
+## Rust-Written Borgo Language Brings Algebraic Data Types and More to Go
 
-GOLang Refactoring tools
-https://github.com/davidrjenni/reftools
+* <https://www.infoq.com/news/2024/05/borgo-adds-types-to-go/>
+
+## GOLang Refactoring tools
+* <https://github.com/davidrjenni/reftools>
 
 
 ## golang-standards/project-layout: Standard Go Project Layout
@@ -351,28 +368,60 @@ https://github.com/golang-standards/project-layout
 ## Golang go-gorm/gorm: The fantastic ORM library for Golang, aims to be developer friendly
 https://github.com/go-gorm/gorm
 
-[[{PM.low_code]]
+[[{PM.low_code.sponge,doc_has.comparative]]
+
 ## From Spring Boot to Sponge
+
 * <https://dev.to/zhufuyi/from-spring-boot-to-sponge-how-to-easily-develop-high-performance-web-services-with-golang-30g5>
 
+
 ... Unlike Spring Boot, Golang lacks a mature framework....
-sponge that can help you transition smoothly  to Golang. Sponge is a 
-powerful Golang productivity tool that integrates features such as 
-automatic code generation, web and microservices frameworks, and 
-foundational development frameworks.
+sponge that can help you transition smoothly ... it integrates
+features such as automatic code generation, web and microservices
+frameworks, and foundational development frameworks.
 
 ### Why Choose Sponge?
 
-* Ease of Use: Sponge employs a modular design with a user-friendly 
-UI for code generation, making operations simple and enabling the 
+* Ease of Use: modular design with a user-friendly UI for code
+generation, making operations simple and enabling the 
 construction of complex web applications with ease.
 
-Powerful Features: Sponge offers a rich set of out-of-the-box 
-features, including logging, ORM, authentication, validation, 
-caching, messaging, tracing, monitoring, configuration management, 
-CI/CD, automatic API documentation, distributed transactions, and 
-more.
+* out-of-the-box features include:
+  * logging.          [[monitoring.logs]]
+  * ORM               [[persistence.ORM]]
+  * authentication    [[security.AAA]]
+  * validation        [[qa.error_control.validation]]
+  * caching           [[arch.cache]]
+  * messaging         [[arch.distributed,arch.integration]]
+  * distributed TXs   [[arch.distributed]]
+  * tracing           [[monitoring.tracing]]
+  * config.management [[devops.configuration.sponge]]
+  * CI/CD             [[devops.ci/cd.sponge]]
+  * automatic API documentation [[qa.documentation.API]]
 
-Excellent Performance: Sponge is built on the gin framework, 
-providing outstanding performance for web service development.
-[[PM.low_code}]]
+* built on top of the gin framework for outstanding performance
+
+## Sponge Critics
+
+* <https://www.reddit.com/r/golang/comments/17uyr5o/a_powerful_golang_productivity_tool_development/>
+  """
+  | ... stop writing "service templates",
+  | ... stop writing "all-in-one 'frameworks'" 
+  | ... stop bringing every pice of infrastructure/observability tool 
+  |     into single package.
+  | ... Less dependencies - more lean and feature-able codebase you have.
+  | ... If you are working for a company - said company already has it
+  |     own "service template" or working towards it.
+  | ... We already have spring and java, please, pleeeease, don't bring this to go. 
+  """
+
+## TODO: Sponge vs Gokit
+
+[[PM.low_code.sponge}]]
+
+##  AbstractJSON
+
+* <https://github.com/tldr-pages/tldr/blob/master/pages/common/ajson.md>
+
+
+[[PM.TODO}]]

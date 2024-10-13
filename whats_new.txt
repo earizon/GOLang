@@ -1,4 +1,4 @@
-# What's new [[{01_PM.WHATS_NEW]]
+# What's new [[{PM.WHATS_NEW]]
 * <https://golang.org/doc/devel/release>
 ## go1.19 (released 2021-08-16) <https://go.dev/doc/go0.19>
 ## go1.18 (released 2021-08-16) <https://go.dev/doc/go0.18>

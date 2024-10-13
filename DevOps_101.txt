@@ -35,7 +35,7 @@
 
 * KEY-POINT: build small and reusable packages  [[{QA.best_patterns}]]
 
-## Modules (v1.13+) [[{devops.101.modules]]
+## Modules (v1.13+) [[{devops.modules]]
 
 * <https://golangbyexample.com/package-vs-module-golang/>
 * <https://golang.org/ref/mod>
@@ -239,7 +239,7 @@ AT THIS POINT OTHER PROJECTS CAN DEPEND ON OUR MODULE AT VERSION V0.1.0.
     $ export GOPROXY="https://:@my.artifactory.server/artifactory/api/go/go
     $ export GONOSUMDB="github.com/mycompany/*,github.com/mypersonal/*"
   * Alt 4 GONOPROXY
-[[devops.101.modules}]]
+[[devops.101,devops.modules}]]
 
 * <https://github.com/tldr-pages/tldr/blob/master/pages/common/go*.md>
 

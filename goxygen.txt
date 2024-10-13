@@ -1,4 +1,6 @@
-# Goxygen ("JHipster" like) [[{01_PM.low_code,io.http]]
+# Goxygen ("JHipster" like) [[{PM.low_code.goxygen,io.http]]
+
+* NOTE: Sponge looks to be a "more mature alternative"
 
 * https://github.com/Shpota/goxygen
 
@@ -49,4 +51,4 @@
   | ├─ .gitignore
   | └─ README.md            # guide on how to use the generated repo
   ```
-  [[}]]
+[[}]]

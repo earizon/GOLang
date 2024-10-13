@@ -1,4 +1,4 @@
-# GraphQL Server [[{01_PM.low_code,arch.integration,IO.graphql,persistence.sql,01_PM.TODO]]
+# GraphQL Server [[{PM.low_code,arch.integration,IO.graphql,persistence.sql,PM.TODO]]
   - Related: low_code/automatic DDBB to GraphQL tools:
     - https://graphjin.com "Build APIs in 5 minutes not weeks"
     - https://www.graphile.org/postgraphile/
