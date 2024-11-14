@@ -1,4 +1,4 @@
-# go-zero [[{PM.low_code,IO.http,arch.distributed,arch.mobile,PM.TODO]]
+# go-zero [[{PM.low_code.go-zero,IO.http,arch.distributed,arch.mobile,PM.TODO]]
 <https://github.com/tal-tech/go-zero>
 * web+rpc framework that integrates lots of engineering practices.
 * go-zero contains simple API description syntax and code generation

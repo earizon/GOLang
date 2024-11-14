@@ -1,9 +1,21 @@
-# SQLBoiler [[{persistence.sql]]
+[[{doc_has.comparative,persistence.sql.SQLBoiler,persistence.sql.GORM,]]
+[[persistence.sql.ent,persistence.sql.sqlc]]
+# SQLBoiler 
 * <https://github.com/volatiletech/sqlboiler>
+
+* WARN: No new development since 2024-06-27.
+  Stall project? Check for "ent" alternative. 
+  (<https://github.com/ent/ent>)
 
 * C&P from https://www.reddit.com/r/golang/comments/umkgk3/gorm_is_a_bad_idea/
   Biggest issue with GORM is the lack of type safety and use of
   reflection. Means there are some issues that can be caught during
   compile time that are instead moved to runtime....
   Instead, check out `SQLBoiler`, `ent` and `sqlc`
+
+* TODO: Go ORM comparative (2024)
+  <https://encore.dev/resources/go-orms><br/>
+  * GORM vs sqlc  (type-safe,sql-centric) vs ent (newest one, 
+  type-safe, complex models )  vs SQLBoiler (database-first approach,
+  type-safe,)
 [[}]]
