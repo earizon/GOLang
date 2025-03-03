@@ -1,0 +1,111 @@
+[[{101.goroutines]]
+# Create a pool of workers 
+
+* <https://golangdocs.com/worker-pool-in-go>
+
+## Problem Context:
+
+* Parallelize CPU-core bound to many cores and/or I/O-blocking calls (HTTP clients)
+  using a pool of workers ready to "fetch" new tasks.
+
+* Solution A. Span a new Goroutine.
+* Solution B. Reserve a set of workers goruoutines in a pool
+  to be used later "on demand".
+
+* Solution B can help to control the maximum number of Goroutines.
+* Solution A is preferred when we don't know how big the number of 
+  parallel tasks can grow in size, or when probably a single Goroutine
+  will cover the expected demand and only occasionaly we will need more
+  parallel workers.
+  * If not done with care, the number of Goroutines can grow uncrontrolled.
+
+
+  ```
+  | Go worker pool arch. 
+  | -----------------------------
+  | Pending Tasks Channel   <·· Main goroutines will send new tasks to the cannel
+  |
+  | 
+  | Result Task   Channel   <·· workwhere to sends results to
+  | Main Goroutine                     <··  Setups workers at bootstrap,
+  |                                         writes to pending task queue at runtime
+  |                                         read from Restuls Task Channel
+  |
+  | Pending       Goroutine Worker 1       Results 
+  |    task  ··>  Goroutine Worker 2  ··>     task
+  | Channel       Goroutine Worker 3       Channel 
+  |               ... 
+  |               Goroutine Worker N
+  |               └────────┬───────┘
+  |              - The pool size is setup at bootstrap
+  |              - Workers will read in a balanced way
+  |                new tasks from the pending task channel
+  |                and output to the result task channel
+  ```
+
+  ```
+  |  package main
+  |  
+  |  import ( "fmt" "sync" )
+  |  
+  |  // STEP 1: Define Worker gorutine
+  |                                         
+  |  func worker(
+  |      worker_id int,
+  |      input_tasks    <-chan int, 
+  |      output_results chan<- int ) {
+  |    for task := range input_tasks {
+  |        fmt.Printf("Worker %d assigned task %d\n", worker_id, task)
+  |        // ... some expensive or I/O blocking task 
+  |        output_results <- task * task  // Send result back
+  |    }
+  |  }
+  |
+  |  const (
+  |    NUM_WORKERS := 10 // <·· Available gorutines ready fro new tasks.
+  |    NUM_TASKS := 5    // 
+  |  )
+  |  func main() {
+  |  
+  |      // STEP 2: Initialize the Task and Result Channels
+  |      pending_tasks := make(chan int, NUM_TASKS)
+  |      results       := make(chan int, NUM_TASKS)
+  |   
+  |      // Create worker gorutines instances
+  |      for i := 1; i <= NUM_WORKERS; i++ {
+  |          go worker(i, pending_tasks, results)
+  |      }
+  |   
+  |      for j := 1; j <= NUM_TASKS; j++ {
+  |          tasks <- j  // <·· send task (just an int in example)
+  |      }
+  |  
+  |      close(pending_tasks) // Close task channel when done 
+  |                           // (indicates to worker gorutines that 
+  |                           //  no more taks will be provided)
+  |                           // ^1
+  |  
+  |      // Step 3: Collect and Display Results
+  |  
+  |      // Wait for workers to finish
+  |      go func() {
+  |          wg := sync.WaitGroup{}  // <·· avoid blocking main goroutine, wg ensures that 
+  |                                  //     all tasks are completed before processing results.
+  |          wg.Add(numTasks)
+  |          for range results {
+  |              result := <-results
+  |              fmt.Println("Res:", result) // results printed in main goroutine
+  |              wg.Done()
+  |          }
+  |          wg.Wait()              // <·· main goroutine waits until all workers are done with their tasks
+  |          close(results) // ^1
+  |      }()
+  |  
+  |      /**
+  |       * ^1:
+  |       *  By closing the tasks channel, workers exit gracefully
+  |       *  after processing all tasks. [[doc_has.keypoint]]
+  |       */
+  |  }
+  ```
+[[101.goroutines}]]

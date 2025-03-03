@@ -1,0 +1,22 @@
+[[{IO.http.server,qa.UX.flesh]]
+## Flesh
+
+* <https://github.com/gravityblast/fresh>
+  Fresh is a command line tool that builds and (re)starts your web
+  application everytime you save a Go or template file.
+   If the web framework you are using supports the Fresh runner,
+  it will show build errors on your browser.
+   It currently works with Traffic, Martini and gocraft/web.
+  ```
+  | $ go get github.com/pilu/fresh # Installation
+  | $ cd /path/to/myapp            # Ussage
+  | $ Start fresh
+  ```
+
+* It will watch for file events, and every time you
+  create/modify/delete a file it will build and restart the
+  application. If go build returns an error, it will log it in the tmp
+  folder.
+[[qa.UX.flesh}]]
+
+

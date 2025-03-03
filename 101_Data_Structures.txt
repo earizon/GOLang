@@ -1,0 +1,233 @@
+[[{101.data_structure,data_structure.101]]
+
+# DATA STRUCTURES
+
+[[{data_structure.structs]]
+## Structs
+
+  ```
+  | type Circle struct {               // <·· Define struct
+  |   x, y, r float64
+  |   color   string
+  | }
+  | circle1 := Circle{0,0,4,"blue"}    // <·· Instantiate struct
+  |
+  | func (c Circle) area() float64 {   // <·· friend-function for struct
+  |   return math.Pi * c * c * r              See also related golang interfaces
+  | }
+  | circle1.area()                     // <·· Invoking friend function
+  |
+  | type Wheel struct {                // <·· embedded (composed) type !!!
+  |    Circle                          //     No name is assigned ¹
+  |    material string                 //
+  | }
+  | wheel1 := Wheel1{circle1, "iron"}            
+  | wheel1.area                        // <·· ¹
+  |
+  | ¹ Wheel struct will "add" all fields existing in Circle. 
+  |   No need to use wheel1.circle1.area, just wheel1.area
+  ```
+[[data_structure.structs}]]
+
+[[{data_structure.arrays]]
+
+## Arrays (Fixed size)
+
+  ```
+  | [[{data_structures.101,data_structures.arrays}]]
+  | var x [5]int           // <·· zero-initialized by defaul 
+  | //     └····················· The length is fixed at compile time and
+  |                               forms part of the type.
+  |     x[4] = 100         // [ 0 0 0 0 100]     
+  |     len(x)             // 5
+  | 
+  | var y := [3]float64 \ 
+  |       { 1.0, 2.0, 3.0} // <·· value-initialized
+  |
+  | y_copy := y            // <·· VALUE SEMANTIC, y_copy is a COPY-OF-ARRAY
+  | y_cpy[0] = 25          // <·· y[0] not modified.
+  | 
+  | byteArrayFromStr := []byte("a slice") // <·· string to array
+  |
+  | var z := []struct {    // <·· declares array for anonymous struct type
+  |   field1 string,       //     z[0].field1 == "value_1_1", ...
+  |   field2 string
+  | } {
+  |   {"value_1_1", "value_1_2"},
+  |   {"value_2_1", "value_2_2"},
+  |   ...
+  | }
+  |
+  | for idx, element :=  range z {  // <·· WALKING OVER ARRAYS
+  |   // ... do something  ...
+  | }
+  ```
+[[data_structure.arrays}]]
+
+[[{data_structure.slices]]
+## Slices (array segments "views")
+
+
+* A slice is just a view pointing to some fragment of an underlying array.
+* Changing the elements of a slice just modifies the array pointed to.
+
+Other slices that share the same underlying array will see those changes. 
+- **More widely used in code than arrays**
+
+
+  ```
+  | // ──────────────────────────── SLIZE INITIALIZATION. 
+  | 
+  | ALT 1: Create (backing) array and init slice ──────────────────────
+  |        (dynamic initialization of length/capacity values)
+  | 
+  | slice1 :=  make ( []int32 /*type*/, 3 /* length ¹*/,  5 /*capacity ²*/) 
+  | //         ┌····· initial slice ·······┘
+  | //         │  "view" [0,7)
+  | //      ┌──┴──┐ 
+  | //     [0, 0, 0, 0, 0] <·· STEP 1) Creates a new (backing) array of fixed 
+  | //      └─ array ───┘              length 5 initialized to zeros.
+  | //                         STEP 2) Creates new slice "pointing" to the 3 first
+  | //                                 elements of the array.
+  | // 
+  | // ¹ len(slice1) == 3   # <·· len(): built-in function
+  | //   - If length > capacity in make(...) next **runtime** error is raised.
+  | //      >>> invalid argument: length and capacity swapped <<<
+  | //   - Once initialized, The slice's lenght can be augmented dynamically 
+  | //     up to the capacity of its array. When exceeded next **runtime** error
+  | //     is raised:
+  | //     >>> Index N out of bounds [0,10] <<<
+  | // 
+  | // ² cap(slice1) == 5   # <·· cap(): built in function
+  | //   If this param is ommited the length of the slice is taken as 
+  | //   capacity.
+  | 
+  |
+  | array1 := []int{6,7,8,9,0}
+  | s2 := array1[3:5]  // <·· ALT 2: INIT SLICE FROM EXISTING ARRAY. ─────
+  |       └──┬─┘ ^ └─······· high index bound (NOT included) of pointed-to array
+  |          ·   └─········· low  index bound (    included) of pointed-to array
+  |          └─············· Previously initialized array
+  | //      0  1  2  3  4  5 <·· array index
+  | //     [6, 7, 8, 9, 0] 
+  | //               └s2┘ 
+  | //      └─ array1 ──┘ 
+
+  | 
+  |
+  | s3 := s2          // <·· reference semantics (s2 & s3 point to same array)
+  |                   //     ( For arrays :=  has copy semantics)
+  | s3[0] = 1         // <·· slice3[0] will change too.
+  | copy(s3, s2)      // <·· copy of slice2 up to len
+  | 
+  |        
+  | //    ┌┬─ NOTICE: With a defined length ([6]int) an array is defined,
+  | //    ··          with empty length ([]int) and (backing) array is
+  | //    vv          created, and the slice view returned in place.
+  |	s4 := []int{2, 3, 5, 7, 11, 13} // ALT 3: Create array, return slice view.
+  | fmt.Printf("cap:%02d\n", len(s4), cap(s4), s4) // <·· cap=06 ³ [2 ... 13] 
+  |	s4  = append(s4,15) // <·· built-in. "Append" to slice ³ 
+  | fmt.Printf("cap:%02d\n", len(s4), cap(s4), s4) // <·· cap=12 ³ [2 ... 13 15]
+  │ // ³NOTE: appends() transparently reasigns the slice to ──┴┘
+  | //        a new backing array with when the current one 
+  |	//        is "out of space".  Notice the capacity of the new
+  |	//        array has increased automatically.
+  |	//        TODO: Is there some optimization to avoid memory copy of the
+  |	//              original array?
+  |	for i, v := range s { ... }   // <·· WALK OVER Slices (same syntax as arrays)
+  |	
+  | // DELETING ELEMENTS requires to shift existing elements "to the right".
+  |	s4 = append(slice[:3], slice[3+1:]...)  // <·· Alt 1: order is important, 
+  |                                         //     shift to the "right"
+  |                                         //     WARN: Very slow. ⁴
+  | s4[3] = s4[len(s4)-1]                   // <·· Alt 2: order is NOT important.
+  | return s4[:len(s4)-1]	                //    Move last element to deleted pos.
+  | ⁴: - According to [Jon Egerton](https://stackoverflow.com/questions/37334119/how-to-delete-an-element-from-a-slice-in-golang) 
+  |    "...  emptying an array of 1 000 000 elements take 224s by shifting,
+  |          and only 0.06ns when moving last element ...".
+  |    No bounds-checking is done with either Alt 1 or Alt 2:
+  | 
+  | func processSlice(input []int, ...) {
+  |     work := input.Clone()               // <·· Create a copy [[qa.inmutability]]
+  |     ...
+  | }
+  ```
+
+NOTE: "behind the scenes" the internal mechanism of slices are difficult to understand
+      A detailed explanation is available here: <https://go.dev/blog/slices-intro> 
+[[data_structure.slices}]]
+
+[[{data_structure.maps]]
+## Maps (Dictionaries, associative arrays or hastables in other languages)
+
+* <https://golang.org/ref/spec#Map_types>
+
+  ```
+  │ //                    ┌────┬─···· key   type
+  │ //                           ┌─┬─ value type
+  | map1 :=  make (  map [string]int) // <···ALT 1: DYNAMIC ALLOCATION OF NEW MAP
+  | map1["key"] = 10                  //       <·· Init keys
+  | map2 := map[string]int            // <·· ALT 2:DECLARE WITH INITIAL KEY/VALUES
+  |            {"three": 3,...}
+  | delete(map1, "key")               // <·· Delete by key.
+  | map1["no_key"]                    // <·· WARN: "ZERO TYPE VALUE" returned (no throw, no nil)
+  | if value1, ok := map1["key1"]; ok {// <·· one line key-exists check
+  |    ...
+  | } else { ... }
+  | map2 := map[string]map[string]string{
+  |   "H": map[string]string{
+  |     "name":"Hydrogen",
+  |     "state":"gas",
+  |   },
+  |   ...
+  | }
+  |  
+  | for key, value :=   range  map1 { // WALK OVER MAPS. (Similar sintax to arrays/slices)
+  |   fmt.Println(                    
+  |     "Key:", key, "Value:", value)
+  | }
+  |
+  | func example(m map[string]int) {
+  |     cm := maps.Clone(m)  // <·· Create a copy if we don't want to modify the
+  |                          //     original map [[qa.inmutability]]
+  |     // ... do something with the cloned map.
+  | }
+  ```
+[[data_structure.maps}]]
+
+[[{data_structure.list]]
+## Lists 
+
+  ```
+  | import ("container/list")
+  | var x list.List
+  | x.PushBack(1)
+  | x.PushBack(2)
+  | ...
+  |
+  | import ("sort")              // <·· LIST SORTING
+  | type ByOrder1 []MyType
+  | func (this ByOrder1) Len() int {
+  |   return   len (this)
+  | }
+  |
+  | func (this ByOrder1)
+  |   Less(i, j int) bool {
+  |   return this[i].Name < this[j].Name
+  | }
+  | func (this ByOrder1) Swap(i, j int) {
+  |   this[i], this[j] = this[j], this[i]
+  | }
+  | 
+  | ...
+  | 
+  | sort .Sort (ByOrder1(kids))  // <······ Execute sort
+
+  | for e := l.Front();  <············┐  ● WALK OVER LISTS
+  |      e != nil; e = e.Next() {     └···· NOTE: l is a *List
+  |     // do something with e.Value
+  | }
+  ```
+[[data_structure.list}]]
+
+[[101.data_structure}]]

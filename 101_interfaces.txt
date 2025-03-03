@@ -1,0 +1,166 @@
+[[{101.interfaces]]
+# Go Interfaces
+
+* Go proverb: "The smaller the interface the best"  [[qa.best_patterns,qa.101]]
+  This is also true for any other programming language. Divide always
+  into ortogonal interfaces ("hexagonal architecute").
+* `io.reader`, `io.writer` are the most important interfaces
+  in Go with just 1 method each. [[io.101]]
+  - `io.writer` represents the ability to write a byte slice into a stream of data.
+  - `io.reader` represents the "read-end" of a stream of data.
+* KEYPOINT: THERE ARE NO CLASSES IMPLEMENTING INTERFACES.<br/>
+  The combination of structs + struct-friends functions play the
+  role of classes.
+  * Reminder: Since in GOlang we do not have clases, the unit of internal
+    visibility is the package. (a source folder of *.go files)
+
+## Example. Device interface
+
+1. Step 1: Define a Device interface.
+  ```
+  |$ cat ../devices/IDevice.go
+  |
+  | import io.writer, io.reader
+  |
+  | type Device   interface {  // <· INTERFACE DECLARATION ¹
+  |   Open(string) int, error  //    syntax is "symmetric" to structs
+  |   Close()      error       //    declarations but declaring methods
+  | }                          //    signatures (vs data signatures)
+  |
+  | type RDevice  interface {  // <· COMPOSED INTERFACE
+  |   Device
+  |   io.reader
+  | }
+  |
+  | type WDevice  interface  { // <·  COMPOSED INTERFACE
+  |   Device
+  |   io.writer
+  | }
+  |
+  | type RWDevice interface {  // <· COMPOSED INTERFACE
+  |   Device
+  |   io.reader
+  |   io.writer
+  | }
+  ```
+
+2. Define an struct with matching
+
+  ```
+  | $ cat .../devices/harddisk.go
+  | type HardDisk struct { ... }
+  | func (d HardDisk) Open(string) ... <· Mark Open(string) as "friend" of HardDisk
+  | func (d HardDisk) Read() ...       <· Mark Read()       as "friend" of HardDisk
+  | func (d HardDisk) Write()...       <· Mark Write()      as "friend" of HardDisk
+  | func (d HardDisk) Close()...       <· Mark Close()      as "friend" of HardDisk
+  |                                            v          v
+  |                                            └────┬─────┘
+  |                                       struct friend-functions must implement all
+  |                                       functions defined in interface.
+  | $ cat .../devices/stty.go                  ┌────┴─────┐
+  | type STTY     struct { ... }               v          v
+  | func (d STTY    ) Open(string) ... <· Mark Open(string) as "friend" of sTTY
+  | func (d STTY    ) Read() ...       <· Mark Read()       as "friend" of sTTY
+  | func (d STTY    ) Write()...       <· Mark Write()      as "friend" of HardDisk
+  | func (d STTY    ) Close()...       <· Mark Close()      as "friend" of sTTY
+  ```
+
+3. Use interfaces
+  ```
+  | cat .../devices/some_important_code.go
+  |
+  | const devices := [2]RWDevice { // <·· list contains devices of different
+  |    HardDisk { lun: 3   , ...}, //     nature, all of them implementing
+  |    STTY     { bps: 3500, ...}  //     the RWDevice interface.
+  | }
+  ```
+
+## Checking interface implementation at runtime
+
+  ```
+  | package main
+  | import "fmt"
+  |
+  | func printArea(s interface{}) {
+  |     value, ok := s.(Shape)
+  |     if !ok {
+  |         panic ("instance does not implement Shape interface");
+  |     }
+  | }
+  ```
+
+[[}]]
+
+[[{qa.best_patterns,PM.WiP]]
+## Preemptive Interface Anti-Pattern in Go
+
+* Summary from <https://medium.com/@cep21/preemptive-interface-anti-pattern-in-go-54c18ac0668a>
+  by Jack Lindamood
+
+* Preemptive Interface anti-pattern refers coding to an interface before an actual need arrises.
+
+   ```
+   |      EXPLICIT INTERFACES        │   GO PREEMPTIVE INTERFACE   │     GO "NATIVE"
+   |        (Java, ...)              │      (antipattern)          │
+   | ─────────────────────────────── │ ─────────────────────────── │ ───────────────────────────
+   | ·································· PACKAGE A by developer A ·································
+   | // IAuth.java @ packageA        │ // packageA/auth.go         │ // packageA/auth.go
+   |                                 │                             │
+   | public interface IAuth {        │ type IAuth interface {      │ 
+   |   public boolean canAction()    │   GetUser() (User, error)   │
+   | }                               │ }                           │
+   |                                 │                             │
+   |                                 │ type authImpl struct {...}  │ type Auth struct { ... }
+   |                                 │                             │
+   |                                 │ func NewAuth() Auth {       │
+   |                                 │   return &authImpl          │
+   | // Auth1.java (iface impl.)     │ }                           │
+   | class Auth1 implements IAuth  . │                             │
+   |   ...                           │                             │
+   | ·································· PACKAGE B by developer B ·································
+   |                                 │                             │
+   | // interface consumer ¹         │ // packageB IAuth consumer  │  // packageB struct consumer
+   | public class ... {              │                             │  ·· 1st implementation ² ····
+   |   void takeAction(IAuth a) {    │ func TakeAction(a *IAuth) { │  func TakeAction(a *Auth) {
+   |     // ...                      │   // ...                    │    // ...
+   |   }                             │ }                           │  }
+   | }                               │                             │  
+   |                                 │ type authImpl struct {...}  │  ·· 2nd implementation ³ ····
+   |                                 │                             │  type IAuth interface {     
+   |                                 │ func NewAuth() Auth {       │    getUser() (User, error)
+   |                                 │   return &authImpl          │  }
+   |                                 │ }                           │  
+   |                                 │                             │  
+   |                                 │ func TakeAction(a *IAuth) { │  func TakeAction(a IAuth) {
+   |                                 │   // ...                    │    // ...
+   |                                 │ }                           │  }
+   |                                 │                             │   
+   ```
+
+* ¹ With explicit interfaces (Java, ...) the consumer needs to
+    work against interfaces to make takeAction independent of
+    the implementation. PackageA maintainer must be aware of it
+    and expose the API through interfaces.
+
+* ² If the original `Auth` struct consumer wants to make TakeAction
+    independent of such struct, it does not need to have an external
+    interface previously defined in packageA/auth.go.<br/>
+
+* ³  Even if the initial code accepts structs and returns structs to
+    start with, implicit interfaces allow to later broaden the API
+    without breaking backwards compatibility. [[doc_has.keypoint]]
+
+* The unintended side effect of preemptive interfaces (IAuth above) 
+  by packageA (probably a library designed to be reused) is that 
+  they tend to explode in method count, adding extra and 
+  non-needed work.
+
+## Best usage for interfaces in Go
+
+* Rule of thumb for Go: accept interfaces, return structs:
+  * Accepting interfaces gives the API the greatest flexibility.
+  * returning structs allows the people reading your code to quickly
+    navigate to the correct function.
+  * Interface can be created in final app packages (vs reusable
+    libraries) to avoid preemptive or bloated code.
+[[qa.best_patterns}]]

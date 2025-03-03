@@ -1,0 +1,8 @@
+## External Links                               [[{01_PM.EXT_RESOURCE]]
+* <https://golang.org/doc/>
+* <https://golang.org/ref/spec>
+* <https://golang.org/doc/effective_go.html>
+* <https://golang.org/pkg/>
+* <https://golang.org/doc/cmd>
+* <https://golang.org/doc/diagnostics.html>    [[}]]
+

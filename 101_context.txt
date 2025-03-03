@@ -1,0 +1,32 @@
+[[{PM.WiP,101.Context]]
+# GO Context (Core lib 1.7+)
+
+* REF: 
+  * <https://pkg.go.dev/context>
+  * <https://blog.golang.org/context>
+
+- Moved to Core lib in go 1.7. 
+- It allows the use of contexts for signaling, cancellation, timeouts,
+  as well as passing request-scoped data (AAA/JWT Tokens, ...) in other 
+  standard library packages, including net, net/http, and os/exec and
+  across API boundaries.
+- safe to use by simultaneous concurrent goroutines. [[concurrency.101]]
+
+  ```
+  | type Context interface {
+  |     Done() <- chan struct{}  // returns channel that is closed when 
+  |                              // this Context is canceled/times out.
+  |     Err() error              // indicates why context was canceled, 
+  |                              // after Done channel is closed.
+  |     Deadline() (deadline time.Time, ok bool) //
+  |
+  |     Value(key interface{}) interface{} // returns value or nil
+  | }
+  ```
+
+- It is used for example in go-chi, a lightweight, composable router for
+  building Go HTTP services to handle signaling, cancelation and
+  request-scoped values across the chi handler chain. [[{IO.http}]]
+
+- TODO: Add more examples [[PM.TODO]]
+[[101.Context}]]

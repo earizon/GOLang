@@ -1,0 +1,194 @@
+[[{qa.error_control,qa.101]]
+# Error Management 
+
+## Contemplated Errors [[{]]
+
+* REF: <https://golang.org/ref/spec#Errors>
+
+* predeclared error is defined as:
+  ```
+  | type error interface {  // <·· interface adopted by convention to
+  |     Error() string      //     represent contemplated error condition
+  | }                       //     (nil value representing no error).
+  |
+  | n, err := os.Read(f,...)
+  | if err != nil {         // <·· Check for errors.
+  |    // Fix contemplated error
+  |    // (otherwise panic...)
+  | }
+  ```
+
+* THE CONVENTION IN THE GO LIBRARIES IS THAT EVEN WHEN A PACKAGE
+  USES PANIC INTERNALLY, ITS EXTERNAL API STILL PRESENTS EXPLICIT ERROR
+  RETURN VALUES.
+[[}]]
+
+[[{qa.error_control.101,qa.101]]
+## ERROR WRAPPING
+
+* <httpr://pkg.go.dev/errors>: package implementing functions 
+  to manipulate errors.
+  ```
+  | func New   (text string)       error
+  | func New   (text string)       error
+  | func Join  (errs ...error)     error ¹
+  | func Unwrap(err error)         error ²
+  | func Is    (err error, target error ) bool ³
+  | func As    (err error, targetPtr any) bool ⁴
+  |
+  | ¹ Join wraps errs (ignore nils) or return nil if all 
+  |   errs are nil.  text or error = 
+  |   newline-concatenated text by calling .Error() on 
+  |   each element of errs
+  | ² If e.Unwrap() returns non-nil error w or a slice
+  |   containing w, then we say that e wraps w, otherwise
+  |   we say that e does NOT wrap any error.
+  |   - Successive unwrapping of an error creates a tree.
+  | ³ returns true if `target` match  some element in err-tree.
+  |   - `Is` function should be used for simple equality checks: 
+  |     if errors.Is(err, fs.ErrExist) // wright
+  |     if err == fs.ErrExist          // wrong            
+  |     (former will succeed if err wraps fs.ErrExist)
+  |     [[qa.best_patterns]]
+  |   - `Is` should ONLY shallowly compare err and target
+  |     (vs calling Unwrap on either).
+  |  ⁴ `As` (v1.13+) run over err-tree searching for an error 
+  |    that can be assigned to targetPtr. If found, it performs 
+  |    the assignment and returns true. false otherwise.
+  ```
+
+### fmt.Errorf: quick way to create wrapper errors  <!-- { --> 
+
+  ```
+  | wrapsErr := fmt.Errorf("... %w ...", ..., err, ...)
+  |                             └┴─ == error argument
+  | var perr *fs.PathError
+  |
+  | if errors.As(err, &perr) {                //< Alt 1: Right
+  | 	fmt.Println(perr.Path)
+  | }
+  |
+  | if perr, ok := err.(*fs.PathError); ok {  //< Alt 2: Wrong
+  | 	fmt.Println(perr.Path)
+  | }
+  | Alt 2 will succeed if err wraps an *fs.PathError
+  ```
+<!-- } -->
+
+NOTE: `As`/`Is` can also be used by an error type to allow being treated a
+   different/equivalent error type.
+   Ex:
+   func (m MyError) Is(target error) bool {
+     return target == fs.ErrExist
+   }
+   Is(MyError{}, fs.ErrExist) // == true.
+[[qa.error_control.101}]]
+
+### defer/panic/recover (abort) on error [[{]]
+* <https://blog.golang.org/defer-panic-and-recover>
+* panic  : (java throw  )
+* defer  : (java finally) cleanup after function exit
+           to return to stable state.
+* recover: (java catch  ) (only useful inside deferred functions)
+
+  ```
+  | $ cat errorhandling.go 
+  | package main                                  
+  |                                               
+  | import (                                      
+  |   "fmt"                                       
+  | )                                             
+  |                                               
+  | type MyCustomError struct {                   
+  |      data1, data2 string                      
+  |      data3        int                         
+  | }                                             
+  |                                               
+  | func (e MyCustomError) Error() string {       
+  |      return fmt.Sprintf("%s %s %d:" ,         
+  |              e.data1, e.data2, e.data3)       
+  | }                                             
+  |                                               
+  | func returnMyCustomError() (int, error) {     
+  |    return -1, MyCustomError{ "data1", "data2", 3 }
+  | }                                             
+  |                                               
+  | func throwPanic() {                           
+  |    panic ("Let's panic now");                 
+  | }                                             
+  |                                               
+  | func main() {                                 
+  |    defer func() /* catch( */ {                
+  |       if r := recover(); r!=nil {   // <·· recover: Capture panics
+  |          fmt.Printf("recovered\n")            
+  |       }                                       
+  |    }()                                        
+  |                                               
+  |    defer func()/* finally */ {                
+  |      fmt.Printf("cleaning all resources\n")   
+  |    }()                                        
+  |                                               
+  |    _, err := returnMyCustomError()            
+  |    if  err != nil {                           
+  |       fmt.Printf("%s\n",err.Error())          
+  |    }                                          
+  |    throwPanic()                               
+  | }                                             
+  ```
+[[}]]
+[[qa.error_control.101}]]
+
+[[{troubleshooting.101]]
+## spew: pretty printer for data structures
+ 
+* <https://github.com/davecgh/go-spew>
+
+
+   ```
+   | package main
+   | 
+   | import (
+   |     "fmt"
+   |     "html"
+   |     "net/http"
+   | 
+   |     "github.com/davecgh/go-spew/spew"
+   | )
+   | 
+   | func handler(w http.ResponseWriter, r *http.Request) {
+   |     w.Header().Set("Content-Type", "text/html")
+   |     fmt.Fprintf(
+   |       w, "Hi there, %s!", r.URL.Path[1:])
+   |     fmt.Fprintf(
+   |       w, "<!--\n" + html.EscapeString(
+   |          spew.Sdump(w)) + "\n-->") // ¹
+   | }
+   | 
+   | func main() {
+   |     http.HandleFunc("/", handler)
+   |     http.ListenAndServe(":8080", nil)
+   | }
+   |
+   | ¹ Sample Dump Output for ResponseWriter
+   | 
+   |   (main.Foo) {
+   |    unexportedField: (*main.Bar)(0xf84002e210)({
+   |     flag: (main.Flag) flagTwo,
+   |     data: (uintptr) <nil>
+   |    }),
+   |    ExportedField: (map[interface {}]interface {}) {
+   |     (string) "one": (bool) true
+   |    }
+   |   }
+   |   ([]uint8) {
+   |    00000000  11 12 13 14 15 16 17 18  19 1a 1b 1c 1d 1e 1f 20  |............... |
+   |    00000010  21 22 23 24 25 26 27 28  29 2a 2b 2c 2d 2e 2f 30  |!"#$%&'()*+,-./0|
+   |    00000020  31 32                                             |12|
+   |   }
+   ```
+[[troubleshooting.101}]]
+
+
+[[qa.error_control,qa.101}]]
+
+
