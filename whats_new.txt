@@ -1,8 +1,24 @@
 # What's new [[{PM.WHATS_NEW]]
 * <https://golang.org/doc/devel/release>
+
+## go1.24 (released 20XX-XX-XX) <https://go.dev/doc/go0.24>
+
+* Improved support for webassembly.
+
+## go1.23 (released 20XX-XX-XX) <https://go.dev/doc/go0.23>
+
+## go1.22 (released 20XX-XX-XX) <https://go.dev/doc/go0.22>
+
+## go1.21 (released 20XX-XX-XX) <https://go.dev/doc/go0.21>
+
+## go1.20 (released 20XX-XX-XX) <https://go.dev/doc/go0.20>
+
 ## go1.19 (released 2021-08-16) <https://go.dev/doc/go0.19>
+
 ## go1.18 (released 2021-08-16) <https://go.dev/doc/go0.18>
+
 * Introduction of Generics.
+
 ## go1.17 (released 2021-08-16) <https://go.dev/doc/go1.17>
 * []T (slice) may now be converted to *[N]T (array pointer type).
   WARN: first case in which a type conversion can panic at run time.
@@ -26,24 +42,20 @@
           → This mechanism may be used, to provide users with migration
             instructions for a new major version.
 
-* go get
-  · go get -insecure flag removed.
-  · go get prints a deprecation warning when installing commands outside the
-    main module (without the -d flag).
-    go install cmd@version should be used instead to install a command at a
-                           specific version (@latest, @v1.2.3,...)
+* `go get ...` ussage deprecated outside main module. Replaced with
+  `go install cmd@version`
 
 * vendor contents
-  · go mod vendor now annotates vendor/modules.txt with the go version indicated
-                  by each vendored module in its own go.mod file.
-                  If main module specifies go 1.17+ it omits go.mod and go.sum
-                  files for vendored dependencies, which can otherwise interfere
-                  with the ability of the go command to identify the correct
-                  module root when invoked within the vendor tree.
+  * go mod vendor now annotates vendor/modules.txt with the go version indicated
+    by each vendored module in its own go.mod file.
+  * If main module specifies go 1.17+ it omits go.mod and go.sum
+    files for vendored dependencies, which can otherwise interfere
+    with the ability of the go command to identify the correct
+    module root when invoked within the vendor tree.
 
-* go mod download invoked without arguments will no longer save sums for
-                  downloaded module content to go.sum.
-                  use '$ go mod download all ' to save sums for all modules.
+* `go mod download` invoked without arguments will no longer save sums for
+  downloaded module content to go.sum.<br/>
+  use '$ go mod download all ' to save sums for all modules.
 
 * prefers //go:build lines over // +build
 
@@ -66,7 +78,7 @@
 
 ## go1.16 (released 2021-02-16) <https://golang.org/doc/go1.16>
 
-* moudles-aware mode enabled regardless of go.mod being present.
+* modules-aware mode enabled regardless of go.mod being present.
 * go command supports including static files|file trees as part
   of the final executable.
 * new runtime/metrics package introduces stable interface for        [[{troubleshooting.profiling]]
@@ -93,6 +105,7 @@
 ## go1.13 (released 2019-09-03) <https://golang.org/doc/go1.13>
 
 * 1st stable version with Module support.
+
 ## go1.12 (released 2019-02-25) <https://golang.org/doc/go1.12>
 
 ## go1.11 (released 2018-08-24) <https://golang.org/doc/go1.11>

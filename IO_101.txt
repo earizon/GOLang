@@ -246,55 +246,61 @@
   | }
   ```
 
-  • HTTP Simple server <https://gobyexample.com/http-servers>
-    import ( "fmt" "net/http" )
+## HTTP Simple server
 
-    func hello( w    http.ResponseWriter,    ← handler 1
-          req *http.Request) {
-      fmt.Fprintf( w , "hello\n")
-    }
+REF: <https://gobyexample.com/http-servers>
+  ```
+  | import ( "fmt" "net/http" )
+  |
+  | func hello( w    http.ResponseWriter,    ← handler 1
+  |       req *http.Request) {
+  |   fmt.Fprintf( w , "hello\n")
+  | }
+  |
+  | func headers(                             ← handler 2. echo Req.headers
+  |     w    http.ResponseWriter,                          to Res.body
+  |     req *http.Request) {
+  |   for key, value_l
+  |       := range req.Header {      ←  key: Header name, value: 1+ values
+  |     for _, h := range value_l {
+  |       fmt.Fprintf( w ,
+  |         "%v: %v\n", key, h)
+  |     }
+  |   }
+  | }
+  |
+  | func main() {
+  |     http.HandleFunc("/hello"  , hello  )
+  |     http.HandleFunc("/headers", headers)
+  |     http.ListenAndServe(":8090", nil) // nil: use def.router just defined
+  | }
+  ```
 
-    func headers(                             ← handler 2. echo Req.headers
-        w    http.ResponseWriter,                          to Res.body
-        req *http.Request) {
-      for key, value_l
-          := range req.Header {      ←  key: Header name, value: 1+ values
-        for _, h := range value_l {
-          fmt.Fprintf( w ,
-            "%v: %v\n", key, h)
-        }
-      }
-    }
+See also:
+<https://github.com/valyala/fasthttp>
+- HTTP tuned for high performance.
+- Zero memory allocations in hot paths.
+- Up to 10x faster than net/http .
 
-    func main() {
-        http.HandleFunc("/hello"  , hello  )
-        http.HandleFunc("/headers", headers)
-        http.ListenAndServe(":8090", nil) // nil: use def.router just defined
-    }
+## Simple HTTP server using gin-gonic:
 
-  • See also: https://github.com/valyala/fasthttp
-    - HTTP tuned for high performance.
-    - Zero memory allocations in hot paths.
-    - Up to 10x faster than net/http .
-
-* Simple HTTP server using gin-gonic:
-  https://github.com/gin-gonic/
-
-  PRE-SETUP:
-  go 1.16+
-  $ go get -u github.com/gin-gonic/gin
-
-  import "github.com/gin-gonic/gin"
-  import "net/http" // Optional, needed if reusing constants like http.StatusOK
-
-  func main() {
-    router := gin.Default()
-    router.Static("/assets", "./assets")
-    router.StaticFS("/more_static", http.Dir("my_file_system"))
-    router.StaticFile("/favicon.ico", "./resources/favicon.ico")
-    router.StaticFileFS("/more_favicon.ico", "more_favicon.ico", http.Dir("my_file_system"))
-
-    // Listen and serve on 0.0.0.0:8080
-    router.Run(":8080")
-  }
+* REF: <https://github.com/gin-gonic/>
+  ```
+  | // PRE-SETUP:
+  | // go 1.16+
+  | // $ go get -u github.com/gin-gonic/gin
+  |
+  | import "github.com/gin-gonic/gin"
+  | import "net/http" // Optional, needed if reusing constants like http.StatusOK
+  |
+  | func main() {
+  |   router := gin.Default()
+  |   router.Static("/assets", "./assets")
+  |   router.StaticFS("/more_static", http.Dir("my_file_system"))
+  |   router.StaticFile("/favicon.ico", "./resources/favicon.ico")
+  |   router.StaticFileFS("/more_favicon.ico", "more_favicon.ico", http.Dir("my_file_system"))
+  |
+  |   router.Run(":8080") // Listen&serve on 0.0.0.0:8080
+  | }
+  ```
 [[io.http}]]

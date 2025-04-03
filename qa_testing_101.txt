@@ -2,6 +2,35 @@
 * <https://golang.org/cmd/go/#hdr-Test_packages>
 
   ```
+  | [[{qa.testing.101]]
+  | summary of `go help test`
+  | ------ Running Tests ------ 
+  | $ go test .                  # Run all tests in the current dir.
+  | $ go test ./foo/bar          # Run all tests in the ./foo/bar dir.
+  | $ go test ./...              # Run all tests in the current dir.+subdirs.
+  |                              # -short   : skip long running test
+  |                              # -failfast: stop on 1st fail  [[qa.failfast]]
+  |                              # -race    : Use race detector [[troubleshooting.racecondition]]
+  |                              # -count=1 : Bypass the test cache
+  | $ go clean -testcache        # Delete all cached test results
+  | $ go test -v -run=^TestA1$ . # Run the test matching regex.
+  | $ go test -v -run=^TestA1$/^X1$ . # Run X1 subtest of TestA1
+  | 
+  | ------ Profiling Test Coverage ------ 
+  | $ go test -cover ./...       # run with coverage
+  |                              # -html=/tmp/profile.html   : for browser
+  |                              # -coverprofile=profile.out : for console?
+  |                              # -covermode=count          : frequency shown
+  | ------ Stress Testing ------ 
+  | $ go test -run=^TestA1$ -count=500 .
+  | $ go test -c -o=foo.test .   # using stress tool
+  | $ stress -p=4 foo.test -test.run=^TestA1$
+  | $ go test all                # Testing all dependencies
+  | [[}]]
+  ```
+
+
+  ```
   | $GOPATH/src/github.com/user/stringutil/reverse.go       <- File to test
   | $GOPATH/src/github.com/user/stringutil/reverse_test.go  <- Sibling of reverse.go
   |                                                            excluded in package builds
@@ -34,15 +63,35 @@
 
 ## Benchmarks
   ```
-  | func BenchmarkXxx(b *testing.B) {   <- Mark funct as Benchmarks
+  | func BenchmarkXxx(b *testing.B) { //<· Mark funct as Benchmarks
   |                                        run sequentially ($ go test -bench)
   |                                        (See official doc for running in parallel)
   |     ... some "slow" presetup ...
-  |     b.ResetTimer()                  <- Reset benchmark after "slow" presetup.
-  |     for i := 0; i < b.N; i++ {      <- @benchmark execution b.N b.N is adjusted
-  |         rand.Int()                     until the benchmark function lasts long
-  |     }                                  enough to be timed reliably.
-  | }                                      ( Maybe tens of millions for short codes)
+  |     b.ResetTimer()                //<· Reset benchmark after "slow" presetup.
+  |     for i := 0; i < b.N; i++ {    //<· @benchmark execution b.N b.N is adjusted
+  |         rand.Int()                //   until the benchmark function lasts long
+  |     }                             //   enough to be timed reliably.
+  | }                                 //   ( Maybe tens of millions for short codes)
+  | 
+  |                                   # ---- running benchmarks ------------ [[profiling.101]] 
+  | $ go test -bench=. ./...          # Run all benchmarks and tests   
+  | $ go test -run=^$ -bench=. ./...  # Run all benchmarks (and no tests)
+  |                                   # -bench=^BenchmarkA0$ : Run only BenchmarkA0
+  |                                   # -benchmem     : Forces output of mem.allocation stats.
+  |                                   # -benchtime=5s : Run each benchmark test for at least 5 seconds
+  |                                   # -benchtime=50x: Run each benchmark test 50 iterations
+  |                                   # -count=3      : Repeat each benchmark test 3 times over
+  |                                   # -cpu=1,4,8    : Run with GOMAXPROCS set to 1,4 and 8
+  |                                   # -cpuprofile=cpuprof.out
+  |                                   # -memprofile=/tmp/memprof.out
+  |                                   # -blockprofile=/tmp/blockprof.out
+  |                                   # -mutexprofile=/tmp/mutexprof.out
+  |
+  | $ benchcmp old.txt new.txt        # Compare changes between benchmarks
+  |
+  | $ go tool pprof -http=:5000 \
+  |     cpuprof.out                   # inspecting in browser
+  |                                   # --nodefraction=0.1: ignore nodes smaller than 10%
   ```
   
 ## FUZZ TESTING (https://go.dev/doc/fuzz)
@@ -97,4 +146,37 @@
     os.Exit(m.Run())                  If present it will be run (instead of Test*, Benchmarks*, Fuzz*)
   }
   ``` 
-[[qa.testing.101}]]
+
+[[{qa.testing.testify,qa.101,PM.TODO]]
+## Testify 
+
+* REF: <https://github.com/stretchr/testify>
+* toolkit with common assertions and mocks that plays nicely 
+  with the standard library
+
+[[qa.testing.testify}]]
+
+
+[[{qa.testing.godog,qa.testing.bdd]]
+
+## GoDog: BDD testing for Go
+
+[[qa.testing.godog}]]
+
+
+[[{qa.testing.mockery]]
+## mockery
+
+* <https://github.com/vektra/mockery>
+
+* Mockery creates mock implementations of Golang (implicit) 
+"interfaces". The mocks are based off of the github.com/stretchr/testify suite of testing packages.
+
+[[qa.testing.mockery}]]
+
+
+
+
+
+
+[[qa.testing,qa.101}]]

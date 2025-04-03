@@ -1,4 +1,6 @@
 ## Squirrel [[{persistence.sql]]
 
 * <https://github.com/Masterminds/squirrel>
+
+NOTE: sqlc looks to be preferred by the community.
 [[}]]

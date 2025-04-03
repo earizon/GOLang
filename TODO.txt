@@ -1,6 +1,33 @@
 [[{PM.TODO]]
 # Non Classified / TODO
+
+## The Go Programming Language
+* <https://www.youtube.com/watch?v=PAAkCSZUG1c&ab_channel=TheGoProgrammingLanguage>
+
+
+
+
 [[{101]]
+
+## Packages and Modules 
+
+* <https://www.alexedwards.net/blog/an-introduction-to-packages-imports-and-modules>
+
+  (Recheck and complement notes)
+
+
+## Standard libs to recheck
+
+  ```
+  | "context"         <·· 101
+  | "errors"
+  | "fmt"
+  | "io/fs"
+  | "log/slog"
+  | "sync"
+  | "sync/atomic"
+  ```
+
 
 [[{devops.sh,qa,01_PM.low_code]]
 ## make Go scripts shell friendly 
@@ -19,7 +46,6 @@
 [[devops.sh}]]
 
 ## Shared GO Packages in MONOREPO [[{01_PM.TODO}]]
-  
 * <https://passage.id/post/shared-go-packages-in-a-monorepo>
 
 [[{01_PM.TODO]]
@@ -142,9 +168,10 @@
 ## How to improve your GO code with empty structs
   https://medium.com/@l.peppoloni/how-to-improve-your-go-code-with-empty-structs-3bd0c66bc531
 
+[[{qa.testing.testify,qa.101]]
 ## https://github.com/stretchr/testify
   A toolkit with common assertions and mocks that plays nicely with the standard library
-
+[[qa.testing.testify}]]
 
 
 ## DataFrame Go ("Pandas for go")                     [[{01_PM.low_code,]]
@@ -191,33 +218,6 @@ maintenance, no background threads for compaction work.
 ## fix go.mod "unknown revision"  [[{]]
 https://golang.cafe/blog/how-to-fix-go-mod-unknown-revision.html
 [[}]]
-
-## https://stackoverflow.com/questions/53682247/how-to-point-go-module-dependency-in-go-mod-to-a-latest-commit-in-a-repo
-  Go v1.11+ added support for modules.
-
-  module /my/module
-  require (
-  ...
-  github.com/someone/some_module v0.0.0-20181121201909-af044c0995fe
-  //                             └─────────────┬──────────────────┘
-  // Pick functionality from a given commit not yet in release
-  // Remember: Default behaviour:
-  // module ...                     def. dependency resolution
-  // -----------------------------  ------------------------------
-  // ...does not have any release  => latest commit  picked
-  // ...does     have     releases => latest release picked
-  ...
-  )
-
-  where v0.0.0 does not correspond to the last published release
-  tag, 20181121201909 would be a commit timestamp and af044c0995fe
-  would be the commit hash? Should such information to be found and
-  entered by hand, or there is a better way?
-
-
-  R: Just 'go get' at the commit hash you want:
-     go get github.com/someone/some_module@af044c0995fe
-    'go get' will correctly update the dependency files (go.mod, go.sum).
 
 ## func decorator1(mystring string)
         func(before, after string) string  ← decorators return another func.
@@ -423,5 +423,13 @@ construction of complex web applications with ease.
 
 * <https://github.com/tldr-pages/tldr/blob/master/pages/common/ajson.md>
 
+## go-rel
+https://go-rel.github.io/
+
+Modern ORM for Golang - Testable, Extendable and Crafted Into a Clean and Elegant API
+
+
+## Go Rest:  low code
+https://github.com/pilinux/gorest
 
 [[PM.TODO}]]

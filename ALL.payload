@@ -1,25 +1,16 @@
 # OK
-notes.txt
-IO.txt
+101.payload
 functional_Samber_lo.txt
-cheat_sheet.txt # TODO: clean
 qa_testing.txt
-DevOps_101.txt
 devops_viper.txt
-persistence_sqlboiler.txt
-persistence_ent_ORM.txt
-persistence_gojet.txt
-persistence_sqlc.txt
-persistence_sql_gorm.txt
-persistence_squirrel.txt
-vim_plugin.txt
-kala.txt
+persistence.payload
+vim_plugin.txt   # TODO: replace with neovim
+kala.txt         # cron scheduling
 go_gin.txt
 goxygen.txt
 go_zero.txt
 go_rest.txt
-go_ref_mod.txt # TODO: summarize
+go_ref_mod.txt   # TODO: summarize
 graphql_server.txt
 TODO.txt
 whats_new.txt
-
